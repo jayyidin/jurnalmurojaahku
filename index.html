@@ -56,6 +56,16 @@
             -ms-user-select: auto;
             user-select: auto;
         }
+        
+        /* Modifikasi input date khusus webkit (Chrome/Safari) */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
     </style>
 
     <!-- Script Pelindung Website -->
@@ -198,19 +208,29 @@
           const [cloudStatus, setCloudStatus] = useState(isCloudReady ? 'connecting' : 'offline');
           const [firebaseUser, setFirebaseUser] = useState(null);
           
+          // --- ANTI-CRASH: Memastikan data yang diambil selalu format Array ---
           const [data, setData] = useState(() => {
             const saved = localStorage.getItem('murojaahData');
-            try { return saved ? JSON.parse(saved) : INITIAL_DATA; } catch (e) { return INITIAL_DATA; }
+            try { 
+                const parsed = saved ? JSON.parse(saved) : null; 
+                return Array.isArray(parsed) ? parsed : INITIAL_DATA;
+            } catch (e) { return INITIAL_DATA; }
           });
 
           const [classes, setClasses] = useState(() => {
             const saved = localStorage.getItem('murojaahClasses');
-            try { return saved ? JSON.parse(saved) : DEFAULT_CLASS_LIST; } catch (e) { return DEFAULT_CLASS_LIST; }
+            try { 
+                const parsed = saved ? JSON.parse(saved) : null; 
+                return Array.isArray(parsed) ? parsed : DEFAULT_CLASS_LIST;
+            } catch (e) { return DEFAULT_CLASS_LIST; }
           });
 
           const [history, setHistory] = useState(() => {
             const saved = localStorage.getItem('murojaahHistory');
-            try { return saved ? JSON.parse(saved) : []; } catch (e) { return []; }
+            try { 
+                const parsed = saved ? JSON.parse(saved) : null; 
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) { return []; }
           });
 
           const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem('murojaahScriptUrl') || '');
@@ -231,10 +251,13 @@
           const [searchTerm, setSearchTerm] = useState("");
           const [showConfetti, setShowConfetti] = useState(false);
           
+          // --- FILTER STATES ---
           const [historyFilter, setHistoryFilter] = useState("Semua");
+          const [historyDateFilter, setHistoryDateFilter] = useState(""); 
           const [historyPage, setHistoryPage] = useState(1);
           
           const [adminSearchTerm, setAdminSearchTerm] = useState("");
+          const [adminHistoryDateFilter, setAdminHistoryDateFilter] = useState("");
           const [adminHistoryPage, setAdminHistoryPage] = useState(1);
 
           const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem('murojaah_isAdmin') === 'true');
@@ -429,6 +452,14 @@
           const getSurahName = (num) => SURAH_LIST.find(s => s.number === num)?.name || `Surat ${num}`;
           const getFormattedDate = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           const getDateOnly = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          
+          // Helper khusus untuk mengekstrak string YYYY-MM-DD dari format ISO untuk keperluan filter tanggal
+          const getLocalDateString = (iso) => {
+             if (!iso) return "";
+             const d = new Date(iso);
+             if (isNaN(d.getTime())) return "";
+             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          };
 
           const handleShareClick = (item) => { setShareItem(item); };
           const triggerDownload = (url, filename) => {
@@ -499,11 +530,11 @@
 
           const topStudents = useMemo(() => {
               const stats = {};
-              history.forEach(item => {
+              (history || []).forEach(item => {
                   const key = `${item.student}_${item.class}`;
                   if (!stats[key]) { stats[key] = { student: item.student, class: item.class, surahCount: 0, sessionCount: 0 }; }
                   stats[key].sessionCount += 1;
-                  stats[key].surahCount += item.surahs.length;
+                  stats[key].surahCount += (item.surahs || []).length;
               });
               return Object.values(stats).sort((a, b) => {
                   if (b.surahCount !== a.surahCount) return b.surahCount - a.surahCount;
@@ -513,20 +544,21 @@
 
           const { sortedUstadzData, ustadzCounts } = useMemo(() => {
               const counts = {};
-              history.forEach(item => {
-                  if (item.ustadzName) {
+              (history || []).forEach(item => {
+                  if (item?.ustadzName) {
                       counts[item.ustadzName] = (counts[item.ustadzName] || 0) + 1;
                   }
               });
 
-              const sorted = [...data].sort((a, b) => {
-                  const countA = counts[a.name] || 0;
-                  const countB = counts[b.name] || 0;
+              const safeData = Array.isArray(data) ? data : [];
+              const sorted = [...safeData].sort((a, b) => {
+                  const countA = counts[a?.name] || 0;
+                  const countB = counts[b?.name] || 0;
                   
                   if (countB !== countA) {
                       return countB - countA;
                   }
-                  return data.indexOf(a) - data.indexOf(b);
+                  return safeData.indexOf(a) - safeData.indexOf(b);
               });
               
               return { sortedUstadzData: sorted, ustadzCounts: counts };
@@ -1326,11 +1358,9 @@
 
               {/* --- MODAL SHARE KARTU HALAQOH --- */}
               {shareHalaqohItem && (() => {
-                  // --- LOGIKA UKURAN TEKS ADAPTIF ---
                   const count = shareHalaqohItem.students.length;
                   const hNameLen = shareHalaqohItem.name.length;
                   
-                  // Ukuran Default (Untuk siswa sedikit & nama pendek)
                   let titleClass = "text-xl";
                   let subTitleClass = "text-[10px] mb-4";
                   let hNameClass = hNameLen > 20 ? "text-xl mb-0.5" : "text-2xl mb-0.5";
@@ -1338,52 +1368,51 @@
                   let labelClass = "text-xs mb-2";
                   let studentTextClass = "text-sm leading-relaxed";
                   let dotClass = "mx-2 text-base";
-                  let footerClass = "pt-3 pb-1";
+                  let footerClass = "pt-2.5 pb-0.5 text-[9px]";
 
-                  // Jika siswa super banyak (>30)
                   if (count > 30) {
+                      titleClass = "text-sm";
+                      subTitleClass = "text-[7px] mb-1";
+                      hNameClass = hNameLen > 20 ? "text-xs mb-0" : "text-sm mb-0";
+                      uNameClass = "text-[7px] mb-1";
+                      labelClass = "text-[8px] mb-1";
+                      studentTextClass = "text-[7px] leading-tight";
+                      dotClass = "mx-1 text-[7px]";
+                      footerClass = "pt-1.5 pb-0 text-[7px]";
+                  } else if (count > 20) {
                       titleClass = "text-base";
                       subTitleClass = "text-[8px] mb-1.5";
                       hNameClass = hNameLen > 20 ? "text-sm mb-0" : "text-base mb-0";
                       uNameClass = "text-[8px] mb-1.5";
                       labelClass = "text-[9px] mb-1";
-                      studentTextClass = "text-[7px] leading-tight";
-                      dotClass = "mx-1 text-[8px]";
-                      footerClass = "pt-1.5 pb-0.5";
-                  } 
-                  // Jika siswa banyak (>20)
-                  else if (count > 20) {
+                      studentTextClass = "text-[8.5px] leading-tight";
+                      dotClass = "mx-1 text-[8.5px]";
+                      footerClass = "pt-1.5 pb-0 text-[8px]";
+                  } else if (count > 12) {
                       titleClass = "text-lg";
-                      subTitleClass = "text-[8px] mb-2";
+                      subTitleClass = "text-[9px] mb-2";
                       hNameClass = hNameLen > 20 ? "text-base mb-0.5" : "text-lg mb-0.5";
                       uNameClass = "text-[9px] mb-2";
-                      labelClass = "text-[10px] mb-1.5";
-                      studentTextClass = "text-[8.5px] leading-snug";
-                      dotClass = "mx-1 text-[10px]";
-                      footerClass = "pt-2 pb-1";
-                  } 
-                  // Jika siswa lumayan banyak (>12)
-                  else if (count > 12) {
-                      titleClass = "text-xl";
-                      subTitleClass = "text-[9px] mb-3";
-                      hNameClass = hNameLen > 20 ? "text-lg mb-0.5" : "text-xl mb-0.5";
-                      uNameClass = "text-[9px] mb-3";
-                      labelClass = "text-[11px] mb-2";
+                      labelClass = "text-[10px] mb-1";
                       studentTextClass = "text-[10px] leading-snug";
-                      dotClass = "mx-1.5 text-[12px]";
-                      footerClass = "pt-2 pb-1";
-                  } 
-                  // Jika siswa agak banyak (>6)
-                  else if (count > 6) {
-                      studentTextClass = "text-xs leading-relaxed";
-                      dotClass = "mx-1.5 text-sm";
+                      dotClass = "mx-1 text-[10px]";
+                      footerClass = "pt-2 pb-0 text-[8.5px]";
+                  } else if (count > 6) {
+                      titleClass = "text-xl";
+                      subTitleClass = "text-[10px] mb-3";
+                      hNameClass = hNameLen > 20 ? "text-lg mb-0.5" : "text-xl mb-0.5";
+                      uNameClass = "text-[10px] mb-3";
+                      labelClass = "text-[11px] mb-2";
+                      studentTextClass = "text-xs leading-snug";
+                      dotClass = "mx-1.5 text-xs";
+                      footerClass = "pt-2 pb-0 text-[9px]";
                   }
 
                   return (
                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                         <div className="w-full max-w-sm flex flex-col items-center">
                            <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
                                   
                                   <div className="absolute inset-0 z-0">
                                       <img 
@@ -1396,15 +1425,15 @@
                                   </div>
 
                                   <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                     <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
+                                     <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className={`h-5 max-w-[80%] mb-1 object-contain ${count > 25 ? 'mb-0.5' : 'mb-2'}`} />
                                      
                                      <h3 className={`font-bold text-blue-700 leading-tight ${titleClass}`}>Jurnal Murojaahku</h3>
                                      <p className={`font-bold tracking-widest text-slate-500 uppercase ${subTitleClass}`}>SDIT Al Fityan School Bogor</p>
 
                                      <h2 className={`font-bold text-slate-800 line-clamp-2 ${hNameClass}`}>{shareHalaqohItem.name}</h2>
                                      
-                                     <div className="flex justify-center w-full px-2">
-                                        <span className={`text-blue-700 font-bold uppercase tracking-widest line-clamp-1 ${uNameClass}`}>
+                                     <div className={`flex justify-center w-full px-2 ${uNameClass}`}>
+                                        <span className="text-blue-700 font-bold uppercase tracking-widest line-clamp-1">
                                            {shareHalaqohItem.ustadzName}
                                         </span>
                                      </div>
@@ -1424,7 +1453,7 @@
                                         </p>
                                      </div>
 
-                                     <div className={`w-full text-center text-[10px] text-slate-600 border-t border-slate-300 mt-auto italic font-medium px-2 ${footerClass}`}>
+                                     <div className={`w-full text-center text-slate-600 border-t border-slate-300 mt-auto italic font-medium px-1 whitespace-nowrap tracking-tight ${footerClass}`}>
                                         "Membangun Generasi Qurani dan Pemimpin Masa Depan"
                                      </div>
                                   </div>
@@ -1650,29 +1679,30 @@
                     )}
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-                        {sortedUstadzData.map((u) => {
-                          const originalIdx = data.findIndex(orig => orig.id === u.id);
+                        {(sortedUstadzData || []).map((u, index) => {
+                          const safeData = Array.isArray(data) ? data : [];
+                          const originalIdx = safeData.findIndex(orig => orig?.id === u?.id);
                           
                           return (
-                              <div key={u.id} onClick={() => handleSelectUstadz(u)} className="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-md transition-all flex flex-col items-center text-center group relative cursor-pointer h-full">
-                                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mb-2 sm:mb-3 flex-shrink-0 shadow-inner ${u.gender === 'male' ? 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600' : 'bg-gradient-to-br from-pink-50 to-pink-100 text-pink-600'}`}>
+                              <div key={u?.id || index} onClick={() => handleSelectUstadz(u)} className="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-md transition-all flex flex-col items-center text-center group relative cursor-pointer h-full">
+                                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mb-2 sm:mb-3 flex-shrink-0 shadow-inner ${u?.gender === 'male' ? 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600' : 'bg-gradient-to-br from-pink-50 to-pink-100 text-pink-600'}`}>
                                     <User className="w-6 h-6 sm:w-7 sm:h-7" />
                                 </div>
                                 
                                 <div className="flex-1 w-full flex flex-col items-center">
-                                    <h3 className="font-bold text-[11px] sm:text-sm text-slate-800 w-full line-clamp-2 leading-tight mb-1.5 min-h-[32px] flex items-center justify-center">{u.name}</h3>
+                                    <h3 className="font-bold text-[11px] sm:text-sm text-slate-800 w-full line-clamp-2 leading-tight mb-1.5 min-h-[32px] flex items-center justify-center">{u?.name || "Tanpa Nama"}</h3>
                                     
                                     <div className="flex flex-col items-center gap-1 mt-auto">
                                         <span className="text-[9px] sm:text-[10px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
-                                            {u.halaqohs.length} Halaqoh
+                                            {u?.halaqohs?.length || 0} Halaqoh
                                         </span>
                                     </div>
                                 </div>
 
                                 {isAdmin && (
                                   <div className="flex gap-0.5 items-center justify-center w-full mt-3 pt-2.5 border-t border-slate-100" onClick={e=>e.stopPropagation()}>
-                                    <button onClick={() => handleMoveUstadz(originalIdx, 'up')} disabled={originalIdx === 0} className={`p-1.5 rounded-lg ${originalIdx === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50'}`}><ArrowUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-                                    <button onClick={() => handleMoveUstadz(originalIdx, 'down')} disabled={originalIdx === data.length - 1} className={`p-1.5 rounded-lg ${originalIdx === data.length - 1 ? 'text-slate-200' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50'}`}><ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
+                                    <button onClick={() => handleMoveUstadz(originalIdx, 'up')} disabled={originalIdx <= 0} className={`p-1.5 rounded-lg ${originalIdx <= 0 ? 'text-slate-200' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50'}`}><ArrowUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
+                                    <button onClick={() => handleMoveUstadz(originalIdx, 'down')} disabled={originalIdx >= safeData.length - 1} className={`p-1.5 rounded-lg ${originalIdx >= safeData.length - 1 ? 'text-slate-200' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50'}`}><ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
                                     <div className="w-px h-3 sm:h-4 bg-slate-200 mx-0.5"></div>
                                     <button onClick={(e) => openEditUstadz(e, u)} className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg"><Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4"/></button>
                                     <button onClick={(e) => handleDeleteUstadzReq(e, u)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4"/></button>
@@ -1688,7 +1718,7 @@
 
               {currentView === 'select-halaqoh' && (
                 <>
-                  {HeaderUI("Pilih Halaqoh", `Daftar Halaqoh ${selectedUstadz?.name}`)}
+                  {HeaderUI("Pilih Halaqoh", `Daftar Halaqoh ${selectedUstadz?.name || ''}`)}
                   <div className="max-w-xl mx-auto p-3 sm:p-4 grid gap-2.5 sm:gap-3 pb-24"> 
                     {isAdmin && (
                       <div onClick={openAddHalaqoh} className="bg-orange-100 border-2 border-dashed border-orange-300 p-3 sm:p-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer hover:bg-orange-200 transition-colors">
@@ -1697,8 +1727,8 @@
                       </div>
                     )}
 
-                    {selectedUstadz?.halaqohs.map(h => (
-                      <div key={h.id} onClick={() => handleSelectHalaqoh(h)} className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden">
+                    {(selectedUstadz?.halaqohs || []).map((h, hIdx) => (
+                      <div key={h?.id || hIdx} onClick={() => handleSelectHalaqoh(h)} className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden">
                         <div className="flex items-start gap-3 sm:gap-4">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-orange-100 to-orange-50 text-orange-600 flex-shrink-0 shadow-inner">
                                 <Users className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -1707,11 +1737,11 @@
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start">
                                     <div className="overflow-hidden">
-                                        <h3 className="font-bold text-base sm:text-lg text-slate-800 leading-tight mb-1 group-hover:text-orange-700 transition-colors truncate">{h.name}</h3>
+                                        <h3 className="font-bold text-base sm:text-lg text-slate-800 leading-tight mb-1 group-hover:text-orange-700 transition-colors truncate">{h?.name || "Tanpa Nama"}</h3>
                                         <div className="inline-flex items-center gap-1.5">
                                             <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-green-500 animate-pulse"></span>
                                             <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 bg-slate-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-slate-100">
-                                                {h.students.length} Siswa Terdata
+                                                {h?.students?.length || 0} Siswa Terdata
                                             </span>
                                         </div>
                                     </div>
@@ -1738,8 +1768,8 @@
                                 <div className="h-px w-full bg-slate-50 my-2 sm:my-3"></div>
 
                                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                                    {h.students.length > 0 ? (
-                                        h.students.map((cls, idx) => (
+                                    {(h?.students || []).length > 0 ? (
+                                        (h?.students || []).map((cls, idx) => (
                                             <span key={idx} className="text-[9px] sm:text-[10px] font-medium text-slate-600 bg-slate-50 border border-slate-100 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg flex items-center gap-1 group-hover:border-orange-100 group-hover:bg-orange-50/50 transition-colors">
                                                 <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-orange-300"></div>
                                                 {cls}
@@ -1843,31 +1873,47 @@
                       </div>
                     ) : (
                       <div className="space-y-3 sm:space-y-4">
-                         <div className="bg-white p-2.5 sm:p-3 rounded-xl border shadow-sm flex items-center gap-2 mb-2">
-                            <Filter className="text-orange-500 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
-                            <select 
-                                value={historyFilter} 
-                                onChange={(e) => { setHistoryFilter(e.target.value); setHistoryPage(1); }} 
-                                className="bg-transparent font-bold text-slate-600 w-full outline-none text-xs sm:text-sm"
-                            >
-                               <option value="Semua">Semua Siswa</option>
-                               {selectedHalaqoh?.students.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
+                         <div className="flex flex-col sm:flex-row gap-2 mb-3">
+                            <div className="bg-white p-2.5 sm:p-3 rounded-xl border shadow-sm flex items-center gap-2 flex-1">
+                               <Filter className="text-orange-500 w-4 h-4 sm:w-[18px] sm:h-[18px] flex-shrink-0" />
+                               <select 
+                                   value={historyFilter} 
+                                   onChange={(e) => { setHistoryFilter(e.target.value); setHistoryPage(1); }} 
+                                   className="bg-transparent font-bold text-slate-600 w-full outline-none text-xs sm:text-sm"
+                               >
+                                  <option value="Semua">Semua Siswa</option>
+                                  {selectedHalaqoh?.students.map(s => <option key={s} value={s}>{s}</option>)}
+                               </select>
+                            </div>
+                            
+                            <div className="bg-white p-2.5 sm:p-3 rounded-xl border shadow-sm flex items-center gap-2 flex-1">
+                               <Calendar className="text-orange-500 w-4 h-4 sm:w-[18px] sm:h-[18px] flex-shrink-0" />
+                               <input 
+                                   type="date" 
+                                   value={historyDateFilter} 
+                                   onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} 
+                                   className="bg-transparent font-bold text-slate-600 w-full outline-none text-xs sm:text-sm cursor-pointer"
+                               />
+                               {historyDateFilter && (
+                                   <button onClick={() => { setHistoryDateFilter(""); setHistoryPage(1); }} className="text-slate-400 hover:text-red-500 flex-shrink-0 transition-colors" title="Hapus Filter Tanggal">
+                                       <X className="w-4 h-4" />
+                                   </button>
+                               )}
+                            </div>
                          </div>
                          
-                         {/* PEMBAGIAN HALAMAN RIWAYAT USTADZ */}
                          {(() => {
                             const filteredHistory = history.filter(item => {
-                                // Filter riwayat hanya untuk halaqoh dan ustadz yang sedang aktif dipilih
                                 const isCurrentHalaqoh = item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name;
                                 const isMatchStudent = historyFilter === "Semua" ? true : item.student === historyFilter;
-                                return isCurrentHalaqoh && isMatchStudent;
+                                const isMatchDate = historyDateFilter ? getLocalDateString(item.date) === historyDateFilter : true;
+                                return isCurrentHalaqoh && isMatchStudent && isMatchDate;
                             });
                             
                             const totalPages = Math.ceil(filteredHistory.length / 10);
                             const displayedHistory = filteredHistory.slice((historyPage - 1) * 10, historyPage * 10);
 
-                            if (filteredHistory.length === 0) return <div className="text-center py-8 text-slate-400 text-xs sm:text-sm">Belum ada riwayat.</div>;
+                            if (filteredHistory.length === 0) return <div className="text-center py-8 text-slate-400 text-xs sm:text-sm">Belum ada riwayat pada tanggal/siswa ini.</div>;
 
                             return (
                                <>
@@ -1913,7 +1959,6 @@
                                        </div>
                                        <div className="text-[8px] sm:text-[9px] text-slate-300 mt-2 sm:mt-3 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item.date)}</div>
                                        
-                                       {/* Info IP & Device: Hanya muncul jika user sedang login sebagai Admin */}
                                        {isAdmin && (item.ipAddress || item.userAgent) && (
                                           <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                                               <div className="flex items-start gap-1.5 text-[9px] text-slate-400">
@@ -1929,7 +1974,6 @@
                                     </div>
                                  ))}
 
-                                 {/* TOMBOL NAVIGASI HALAMAN */}
                                  {totalPages > 1 && (
                                     <div className="flex justify-center items-center gap-3 pt-4 pb-2">
                                        <button 
@@ -1970,22 +2014,43 @@
                          <div className="flex items-baseline gap-2"><span className="text-2xl sm:text-3xl font-bold">{history.length}</span><span className="text-orange-100 text-sm sm:text-base">Sesi</span></div>
                          <div className="mt-2 text-[9px] sm:text-xs bg-white/20 inline-block px-2 py-1 rounded-lg">Semua Data</div>
                       </div>
-                      <div className="bg-white p-2.5 sm:p-3 rounded-xl border border-orange-100 shadow-sm flex items-center gap-2 mb-3 sm:mb-4">
-                         <Search className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
-                         <input 
-                             type="text" 
-                             placeholder="Cari Siswa, Ustadz..." 
-                             className="w-full bg-transparent outline-none text-slate-700 font-medium text-xs sm:text-sm" 
-                             value={adminSearchTerm} 
-                             onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} 
-                         />
+                      
+                      <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
+                          <div className="bg-white p-2.5 sm:p-3 rounded-xl border border-orange-100 shadow-sm flex items-center gap-2 flex-1">
+                             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 flex-shrink-0" />
+                             <input 
+                                 type="text" 
+                                 placeholder="Cari Siswa, Ustadz, dll..." 
+                                 className="w-full bg-transparent outline-none text-slate-700 font-medium text-xs sm:text-sm" 
+                                 value={adminSearchTerm} 
+                                 onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} 
+                             />
+                          </div>
+                          <div className="bg-white p-2.5 sm:p-3 rounded-xl border border-orange-100 shadow-sm flex items-center gap-2 flex-1 sm:max-w-[200px]">
+                             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 flex-shrink-0" />
+                             <input 
+                                 type="date" 
+                                 value={adminHistoryDateFilter} 
+                                 onChange={(e) => { setAdminHistoryDateFilter(e.target.value); setAdminHistoryPage(1); }} 
+                                 className="w-full bg-transparent outline-none text-slate-700 font-medium text-xs sm:text-sm cursor-pointer" 
+                             />
+                             {adminHistoryDateFilter && (
+                                 <button onClick={() => { setAdminHistoryDateFilter(""); setAdminHistoryPage(1); }} className="text-slate-400 hover:text-red-500 flex-shrink-0 transition-colors" title="Hapus Filter Tanggal">
+                                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                                 </button>
+                             )}
+                          </div>
                       </div>
+
                       <div className="space-y-3 sm:space-y-4">
                          {history.length === 0 ? <div className="text-center py-12 text-slate-400 text-xs sm:text-sm">Belum ada data masuk.</div> : (() => {
                             const filteredAdminHistory = history.filter(item => {
                                 const term = adminSearchTerm.toLowerCase();
-                                return item.student.toLowerCase().includes(term) || item.ustadzName.toLowerCase().includes(term) || item.halaqohName.toLowerCase().includes(term) || item.class.toLowerCase().includes(term);
+                                const matchSearch = item.student.toLowerCase().includes(term) || item.ustadzName.toLowerCase().includes(term) || item.halaqohName.toLowerCase().includes(term) || item.class.toLowerCase().includes(term);
+                                const matchDate = adminHistoryDateFilter ? getLocalDateString(item.date) === adminHistoryDateFilter : true;
+                                return matchSearch && matchDate;
                             });
+                            
                             const totalAdminPages = Math.ceil(filteredAdminHistory.length / 10);
                             const displayedAdminHistory = filteredAdminHistory.slice((adminHistoryPage - 1) * 10, adminHistoryPage * 10);
 
@@ -2041,7 +2106,6 @@
                                    </div>
                                  ))}
 
-                                 {/* TOMBOL NAVIGASI HALAMAN ADMIN */}
                                  {totalAdminPages > 1 && (
                                     <div className="flex justify-center items-center gap-3 pt-4 pb-2">
                                        <button 
