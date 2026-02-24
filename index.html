@@ -453,7 +453,6 @@
           const getFormattedDate = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           const getDateOnly = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
           
-          // Helper khusus untuk mengekstrak string YYYY-MM-DD dari format ISO untuk keperluan filter tanggal
           const getLocalDateString = (iso) => {
              if (!iso) return "";
              const d = new Date(iso);
@@ -924,7 +923,7 @@
             <div className="sticky top-0 z-50 bg-orange-600 text-white p-4 sm:p-6 shadow-lg rounded-b-3xl">
               <div className="flex justify-between items-center max-w-xl mx-auto">
                 <div className="flex items-center gap-3 overflow-hidden">
-                   <button onClick={handleBack} className="p-2 bg-orange-500/50 hover:bg-orange-500 rounded-full transition-colors flex-shrink-0"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                   <button onClick={handleBack} className="p-1.5 sm:p-2 bg-orange-500/50 hover:bg-orange-500 rounded-full transition-colors flex-shrink-0"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                    <div className="overflow-hidden">
                      <h1 className="text-base sm:text-lg md:text-xl font-bold truncate">{title}</h1>
                      {subtitle && <p className="text-orange-100 text-[9px] sm:text-[10px] md:text-xs truncate">{subtitle}</p>}
@@ -937,13 +936,13 @@
                                {cloudStatus === 'online' ? <Cloud className="w-3 h-3"/> : <CloudOff className="w-3 h-3"/>}
                            </div>
                            
-                           <button onClick={() => setShowBroadcastModal(true)} className="p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0" title="Kirim Pengumuman"><Megaphone className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                           <button onClick={() => setShowBroadcastModal(true)} className="p-1.5 sm:p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0" title="Kirim Pengumuman"><Megaphone className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                            
-                           <button onClick={() => setShowSettingsModal(true)} className="p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0"><Settings className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                           <button onClick={() => setCurrentView('admin-dashboard')} className="p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0" title="Dashboard Admin"><LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                           <button onClick={() => setShowSettingsModal(true)} className="p-1.5 sm:p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0"><Settings className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                           <button onClick={() => setCurrentView('admin-dashboard')} className="p-1.5 sm:p-2 rounded-xl bg-orange-500/30 text-orange-100 hover:bg-orange-500/50 flex-shrink-0" title="Dashboard Admin"><LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                        </div>
                    )}
-                  <button onClick={isAdmin ? handleLogout : () => setShowLoginModal(true)} className={`p-2 rounded-xl transition-all flex-shrink-0 ${isAdmin ? 'bg-red-500/20 text-red-100' : 'bg-orange-500/30 text-orange-100'}`}>
+                  <button onClick={isAdmin ? handleLogout : () => setShowLoginModal(true)} className={`p-1.5 sm:p-2 rounded-xl transition-all flex-shrink-0 ${isAdmin ? 'bg-red-500/20 text-red-100' : 'bg-orange-500/30 text-orange-100'}`}>
                     {isAdmin ? <LogOut className="w-4 h-4 sm:w-5 sm:h-5" /> : <Lock className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </button>
                 </div>
@@ -958,8 +957,8 @@
               {activeBroadcast && (
                   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in">
                      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center transform transition-all animate-in zoom-in-95">
-                        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-                           <Megaphone className="w-8 h-8 text-white animate-pulse" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                           <Megaphone className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-pulse" />
                         </div>
                         <h3 className="text-xl sm:text-2xl font-bold mb-3">Pengumuman</h3>
                         <div className="bg-black/20 p-4 rounded-xl mb-6 border border-white/10 text-left">
@@ -1031,7 +1030,7 @@
                               onClick={() => setCurrentView('select-ustadz')} 
                               className="group w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 mb-4"
                            >
-                              Mulai Murojaah <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                              Mulai Murojaah <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                            </button>
 
                            {/* SECTION PRESTASI */}
@@ -1076,7 +1075,7 @@
               {showBroadcastModal && isAdmin && (
                 <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
                    <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-sm text-center">
-                      <button onClick={() => setShowBroadcastModal(false)} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
+                      <button onClick={() => setShowBroadcastModal(false)} className="absolute top-4 right-4 text-slate-400"><X className="w-4 h-4 sm:w-5 sm:h-5"/></button>
                       <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"><Megaphone className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" /></div>
                       <h3 className="text-lg sm:text-xl font-bold mb-2">Kirim Pengumuman</h3>
                       <p className="text-[10px] sm:text-xs text-slate-500 mb-4">Pesan ini akan langsung muncul sebagai notifikasi di layar HP seluruh pengguna yang sedang membuka aplikasi.</p>
@@ -1085,15 +1084,15 @@
                           value={broadcastMessage} 
                           onChange={(e) => setBroadcastMessage(e.target.value)}
                           rows="4"
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:border-blue-500 outline-none bg-slate-50 resize-none mb-4 custom-scrollbar"
+                          className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-slate-200 text-sm focus:border-blue-500 outline-none bg-slate-50 resize-none mb-4 custom-scrollbar"
                           placeholder="Tulis pesan pengumuman di sini..."
                       />
                       <button 
                           onClick={handleSendBroadcast} 
                           disabled={isLoading || !broadcastMessage.trim()}
-                          className={`w-full text-white rounded-xl font-bold py-3 text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${isLoading || !broadcastMessage.trim() ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'}`}
+                          className={`w-full text-white rounded-xl font-bold py-2.5 sm:py-3 text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${isLoading || !broadcastMessage.trim() ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'}`}
                       >
-                          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                          {isLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Send className="w-4 h-4 sm:w-5 sm:h-5" />}
                           Kirim Broadcast
                       </button>
                    </div>
@@ -1105,35 +1104,35 @@
                 <div className="fixed inset-0 z-[180] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
                    <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-sm flex flex-col max-h-[90vh]">
                       <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3 flex-shrink-0">
-                          <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800"><Pencil className="w-5 h-5 text-orange-600"/> Edit Riwayat</h2>
-                          <button onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                          <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-slate-800"><Pencil className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600"/> Edit Riwayat</h2>
+                          <button onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                       </div>
                       
                       <div className="overflow-y-auto custom-scrollbar pr-1 flex-1 pb-2">
                           <form id="editHistoryForm" onSubmit={handleSaveHistoryEdit} className="space-y-4">
                              <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Nama Siswa</label>
-                                <input type="text" value={editingHistoryItem.student} onChange={e => setEditingHistoryItem({...editingHistoryItem, student: e.target.value})} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-orange-500 outline-none" required />
+                                <label className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1 block">Nama Siswa</label>
+                                <input type="text" value={editingHistoryItem.student} onChange={e => setEditingHistoryItem({...editingHistoryItem, student: e.target.value})} className="w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:border-orange-500 outline-none" required />
                              </div>
                              <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Kelas</label>
-                                <select value={editingHistoryItem.class} onChange={e => setEditingHistoryItem({...editingHistoryItem, class: e.target.value})} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-orange-500 outline-none bg-white">
+                                <label className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1 block">Kelas</label>
+                                <select value={editingHistoryItem.class} onChange={e => setEditingHistoryItem({...editingHistoryItem, class: e.target.value})} className="w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:border-orange-500 outline-none bg-white">
                                     {classes.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                              </div>
                              <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Waktu Setoran (WIB)</label>
-                                <input type="datetime-local" value={formatForDatetimeInput(editingHistoryItem.date)} onChange={e => setEditingHistoryItem({...editingHistoryItem, date: new Date(e.target.value).toISOString()})} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-orange-500 outline-none" required />
+                                <label className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1 block">Waktu Setoran (WIB)</label>
+                                <input type="datetime-local" value={formatForDatetimeInput(editingHistoryItem.date)} onChange={e => setEditingHistoryItem({...editingHistoryItem, date: new Date(e.target.value).toISOString()})} className="w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:border-orange-500 outline-none" required />
                              </div>
                              
                              {/* EDITOR SURAT & AYAT */}
                              <div className="pt-3 border-t border-slate-100">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Surat & Ayat yang Disetorkan</label>
+                                <label className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-2 block">Surat & Ayat yang Disetorkan</label>
                                 
                                 <div className="space-y-2 mb-3">
                                   {editingHistoryItem.surahs.map(num => (
                                     <div key={num} className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 shadow-sm transition-all">
-                                      <span className="flex-1 text-xs font-bold text-slate-700 truncate">{getSurahName(num)}</span>
+                                      <span className="flex-1 text-[10px] sm:text-xs font-bold text-slate-700 truncate">{getSurahName(num)}</span>
                                       
                                       <input
                                         type="text"
@@ -1148,7 +1147,7 @@
                                           }
                                           setEditingHistoryItem({ ...editingHistoryItem, ranges: newRanges });
                                         }}
-                                        className="w-20 sm:w-24 px-2 py-1.5 text-[10px] sm:text-xs rounded-lg border border-slate-300 focus:border-orange-500 outline-none bg-white"
+                                        className="w-16 sm:w-20 lg:w-24 px-2 py-1 sm:py-1.5 text-[9px] sm:text-[10px] md:text-xs rounded-lg border border-slate-300 focus:border-orange-500 outline-none bg-white"
                                       />
                                       
                                       <button
@@ -1159,19 +1158,19 @@
                                           delete newRanges[num];
                                           setEditingHistoryItem({ ...editingHistoryItem, surahs: newSurahs, ranges: newRanges });
                                         }}
-                                        className="text-red-400 hover:text-red-600 p-1.5 bg-white hover:bg-red-50 rounded-lg border border-slate-200 shadow-sm transition-colors"
+                                        className="text-red-400 hover:text-red-600 p-1 sm:p-1.5 bg-white hover:bg-red-50 rounded-lg border border-slate-200 shadow-sm transition-colors"
                                       >
-                                        <X className="w-3.5 h-3.5" />
+                                        <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                       </button>
                                     </div>
                                   ))}
                                   {editingHistoryItem.surahs.length === 0 && (
-                                      <div className="text-[10px] text-red-500 italic text-center bg-red-50 py-2 rounded-lg border border-red-100">Siswa harus menyetorkan minimal 1 surat!</div>
+                                      <div className="text-[9px] sm:text-[10px] text-red-500 italic text-center bg-red-50 py-2 rounded-lg border border-red-100">Siswa harus menyetorkan minimal 1 surat!</div>
                                   )}
                                 </div>
                                 
                                 <select
-                                  className="w-full px-3 py-2 text-xs rounded-xl border border-dashed border-orange-300 outline-none bg-orange-50 text-orange-700 font-semibold cursor-pointer appearance-none text-center"
+                                  className="w-full px-3 py-2 text-[10px] sm:text-xs rounded-xl border border-dashed border-orange-300 outline-none bg-orange-50 text-orange-700 font-semibold cursor-pointer appearance-none text-center"
                                   value=""
                                   onChange={(e) => {
                                     const num = parseInt(e.target.value);
@@ -1193,9 +1192,9 @@
                       </div>
 
                       <div className="flex gap-2 pt-4 border-t border-slate-100 flex-shrink-0">
-                         <button type="button" onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-xl text-sm font-bold text-slate-600">Batal</button>
-                         <button form="editHistoryForm" type="submit" disabled={isLoading || editingHistoryItem.surahs.length === 0} className="flex-[1.5] py-3 bg-orange-600 hover:bg-orange-700 transition-colors text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan Perubahan"}
+                         <button type="button" onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="flex-1 py-2.5 sm:py-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-xl text-xs sm:text-sm font-bold text-slate-600">Batal</button>
+                         <button form="editHistoryForm" type="submit" disabled={isLoading || editingHistoryItem.surahs.length === 0} className="flex-[1.5] py-2.5 sm:py-3 bg-orange-600 hover:bg-orange-700 transition-colors text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                             {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : "Simpan Perubahan"}
                          </button>
                       </div>
                    </div>
@@ -1236,6 +1235,7 @@
                       theme = { overlay: "from-yellow-200 via-white/90 to-yellow-100/90", title: "text-yellow-700", badgeBg: "bg-yellow-200", badgeText: "text-yellow-900", badgeBorder: "border-yellow-400", dot: "text-yellow-600", footerValue: "text-yellow-700", isSpecial: true, badgeName: "Emas" };
                   }
 
+                  // Note: The Share Card is fixed to 320x400 to ensure consistent image output size via html2canvas.
                   return (
                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                         <div className="w-full max-w-sm flex flex-col items-center">
@@ -1342,12 +1342,12 @@
                               </button>
                               
                               <button onClick={() => processImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">
-                                 {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                                 {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />}
                                  Unduh
                               </button>
                               
                               <button onClick={() => processImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-orange-600 rounded-xl font-bold hover:bg-orange-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">
-                                 {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+                                 {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />}
                                  Share
                               </button>
                            </div>
@@ -1430,10 +1430,10 @@
                                      <h3 className={`font-bold text-blue-700 leading-tight ${titleClass}`}>Jurnal Murojaahku</h3>
                                      <p className={`font-bold tracking-widest text-slate-500 uppercase ${subTitleClass}`}>SDIT Al Fityan School Bogor</p>
 
-                                     <h2 className={`font-bold text-slate-800 line-clamp-2 ${hNameClass}`}>{shareHalaqohItem.name}</h2>
+                                     <h2 className={`font-bold text-slate-800 break-words px-2 leading-tight ${hNameClass}`}>{shareHalaqohItem.name}</h2>
                                      
                                      <div className={`flex justify-center w-full px-2 ${uNameClass}`}>
-                                        <span className="text-blue-700 font-bold uppercase tracking-widest line-clamp-1">
+                                        <span className="text-blue-700 font-bold uppercase tracking-widest break-words mt-0.5">
                                            {shareHalaqohItem.ustadzName}
                                         </span>
                                      </div>
@@ -1466,12 +1466,12 @@
                               </button>
                               
                               <button onClick={() => processHalaqohImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">
-                                 {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                                 {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />}
                                  Unduh
                               </button>
                               
                               <button onClick={() => processHalaqohImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">
-                                 {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+                                 {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />}
                                  Share
                               </button>
                            </div>
@@ -1497,7 +1497,7 @@
               {showLoginModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                   <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-sm relative">
-                    <button onClick={() => { setShowLoginModal(false); setLoginError(false); }} className="absolute top-4 right-4 text-slate-400"><X /></button>
+                    <button onClick={() => { setShowLoginModal(false); setLoginError(false); }} className="absolute top-4 right-4 text-slate-400"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <div className="text-center mb-6">
                       <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4"><Lock className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600" /></div>
                       <h2 className="text-lg sm:text-xl font-bold">Login Admin</h2>
@@ -1506,7 +1506,7 @@
                     {/* Pesan Error Salah Login */}
                     {loginError && (
                         <div className="bg-red-50 text-red-600 border border-red-200 p-3 rounded-xl mb-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 animate-in fade-in zoom-in">
-                            <AlertTriangle className="w-4 h-4" /> User atau Password salah!
+                            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" /> User atau Password salah!
                         </div>
                     )}
 
@@ -1524,10 +1524,10 @@
                    <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-sm">
                       <h2 className="text-base sm:text-lg font-bold mb-4">{ustadzForm.id ? "Edit Pengajar" : "Tambah Pengajar"}</h2>
                       <form onSubmit={saveUstadz} className="space-y-3 sm:space-y-4">
-                         <input type="text" value={ustadzForm.name} onChange={e => setUstadzForm({...ustadzForm, name: e.target.value})} className="w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 text-sm sm:text-base" placeholder="Nama Ustadz" autoFocus />
+                         <input type="text" value={ustadzForm.name} onChange={e => setUstadzForm({...ustadzForm, name: e.target.value})} className="w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 text-sm sm:text-base focus:border-orange-500 outline-none" placeholder="Nama Ustadz" autoFocus />
                          <div className="flex gap-2">
-                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'male'})} className={`flex-1 py-2 rounded-xl border text-sm sm:text-base ${ustadzForm.gender === 'male' ? 'bg-blue-100 text-blue-700' : ''}`}>Laki-laki</button>
-                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'female'})} className={`flex-1 py-2 rounded-xl border text-sm sm:text-base ${ustadzForm.gender === 'female' ? 'bg-pink-100 text-pink-700' : ''}`}>Perempuan</button>
+                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'male'})} className={`flex-1 py-2 sm:py-2.5 rounded-xl border text-sm sm:text-base ${ustadzForm.gender === 'male' ? 'bg-blue-100 text-blue-700' : ''}`}>Laki-laki</button>
+                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'female'})} className={`flex-1 py-2 sm:py-2.5 rounded-xl border text-sm sm:text-base ${ustadzForm.gender === 'female' ? 'bg-pink-100 text-pink-700' : ''}`}>Perempuan</button>
                          </div>
                          <div className="flex gap-2 pt-2">
                             <button type="button" onClick={() => setShowUstadzModal(false)} className="flex-1 py-2.5 sm:py-3 bg-slate-100 rounded-xl text-sm sm:text-base">Batal</button>
@@ -1543,7 +1543,7 @@
                    <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-sm">
                       <h2 className="text-base sm:text-lg font-bold mb-4">{halaqohForm.id ? "Edit Halaqoh" : "Tambah Halaqoh"}</h2>
                       <form onSubmit={saveHalaqoh} className="space-y-3 sm:space-y-4">
-                         <input type="text" value={halaqohForm.name} onChange={e => setHalaqohForm({...halaqohForm, name: e.target.value})} className="w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 text-sm sm:text-base" placeholder="Nama Halaqoh" autoFocus />
+                         <input type="text" value={halaqohForm.name} onChange={e => setHalaqohForm({...halaqohForm, name: e.target.value})} className="w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 text-sm sm:text-base focus:border-orange-500 outline-none" placeholder="Nama Halaqoh" autoFocus />
                          <div className="flex gap-2 pt-2">
                             <button type="button" onClick={() => setShowHalaqohModal(false)} className="flex-1 py-2.5 sm:py-3 bg-slate-100 rounded-xl text-sm sm:text-base">Batal</button>
                             <button type="submit" className="flex-1 py-2.5 sm:py-3 bg-orange-600 text-white font-bold rounded-xl text-sm sm:text-base">Simpan</button>
@@ -1575,24 +1575,24 @@
                          <div className="space-y-2 sm:space-y-3">
                             <h3 className="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Data Kelas Global</h3>
                             <form onSubmit={handleAddClass} className="flex gap-2">
-                              <input type="text" value={classForm} onChange={(e) => setClassForm(e.target.value)} className="flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:border-orange-500 outline-none" placeholder="Nama Kelas Baru..." />
-                              <button type="submit" disabled={!classForm.trim()} className="bg-orange-600 hover:bg-orange-700 disabled:bg-slate-300 text-white px-3 py-2 rounded-xl font-bold transition-all"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                              <input type="text" value={classForm} onChange={(e) => setClassForm(e.target.value)} className="flex-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:border-orange-500 outline-none" placeholder="Nama Kelas Baru..." />
+                              <button type="submit" disabled={!classForm.trim()} className="bg-orange-600 hover:bg-orange-700 disabled:bg-slate-300 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold transition-all"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                             </form>
                             <div className="space-y-1.5 sm:space-y-2">
                               {classes.map((cls, idx) => (
                                 <div key={idx} className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-100">
                                   {editingClassIdx === idx ? (
                                     <div className="flex gap-2 w-full">
-                                       <input type="text" value={editClassText} onChange={(e) => setEditClassText(e.target.value)} className="flex-1 px-2 py-1 text-xs sm:text-sm border rounded focus:outline-none focus:border-orange-500" autoFocus />
-                                       <button onClick={() => saveClassEdit(idx)} className="text-green-600"><Check className="w-4 h-4" /></button>
-                                       <button onClick={cancelEditClass} className="text-red-500"><X className="w-4 h-4" /></button>
+                                       <input type="text" value={editClassText} onChange={(e) => setEditClassText(e.target.value)} className="flex-1 px-2 py-1.5 text-xs sm:text-sm border rounded focus:outline-none focus:border-orange-500" autoFocus />
+                                       <button onClick={() => saveClassEdit(idx)} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4" /></button>
+                                       <button onClick={cancelEditClass} className="text-red-500 p-1 bg-red-50 rounded"><X className="w-4 h-4" /></button>
                                     </div>
                                   ) : (
                                     <>
                                       <span className="font-semibold text-slate-700 text-xs sm:text-sm">{cls}</span>
-                                      <div className="flex gap-2">
-                                        <button onClick={() => startEditingClass(idx)} className="text-slate-400 hover:text-orange-600"><Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-                                        <button onClick={() => setDeleteConfig({ show: true, type: 'class', name: cls })} className="text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
+                                      <div className="flex gap-1.5 sm:gap-2">
+                                        <button onClick={() => startEditingClass(idx)} className="p-1.5 sm:p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded"><Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
+                                        <button onClick={() => setDeleteConfig({ show: true, type: 'class', name: cls })} className="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
                                       </div>
                                     </>
                                   )}
@@ -1612,16 +1612,16 @@
               {showVerseModal && activeSurahForPicker && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in zoom-in">
                     <div className="bg-white p-5 sm:p-6 rounded-3xl shadow-2xl w-full max-w-sm relative text-center">
-                        <button onClick={() => setShowVerseModal(false)} className="absolute top-4 right-4"><X className="w-4 h-4 sm:w-5 sm:h-5"/></button>
+                        <button onClick={() => setShowVerseModal(false)} className="absolute top-4 right-4 text-slate-400"><X className="w-4 h-4 sm:w-5 sm:h-5"/></button>
                         <h3 className="text-base sm:text-lg font-bold mb-4">Ayat: {activeSurahForPicker.name}</h3>
                         <div className="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-6">
-                            <input ref={startVerseRef} type="number" value={verseInput.start} onChange={(e) => handleVerseInputChange('start', e.target.value)} className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border text-center text-base sm:text-lg" placeholder="1" />
-                            <span>-</span>
-                            <input type="number" value={verseInput.end} onChange={(e) => handleVerseInputChange('end', e.target.value)} className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border text-center text-base sm:text-lg" placeholder={activeSurahForPicker.ayahs} />
+                            <input ref={startVerseRef} type="number" value={verseInput.start} onChange={(e) => handleVerseInputChange('start', e.target.value)} className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border text-center text-base sm:text-lg outline-none focus:border-orange-500" placeholder="1" />
+                            <span className="font-bold text-slate-400">-</span>
+                            <input type="number" value={verseInput.end} onChange={(e) => handleVerseInputChange('end', e.target.value)} className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border text-center text-base sm:text-lg outline-none focus:border-orange-500" placeholder={activeSurahForPicker.ayahs} />
                         </div>
                         <div className="space-y-2 sm:space-y-3">
                             <button onClick={() => saveVerseSelection(false)} className="w-full bg-orange-600 text-white font-bold py-2.5 sm:py-3 rounded-xl text-sm sm:text-base">Simpan</button>
-                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-orange-50 text-orange-700 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base">Full Surat</button>
+                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-orange-50 text-orange-700 font-bold py-2.5 sm:py-3 rounded-xl text-sm sm:text-base">Full Surat</button>
                         </div>
                     </div>
                 </div>
@@ -1632,10 +1632,10 @@
                   <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-md relative flex flex-col max-h-[80vh]">
                     <div className="flex justify-between items-center mb-5 sm:mb-6">
                       <h2 className="text-base sm:text-lg font-bold flex items-center gap-2"><UserCog className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" /> Kelola Siswa</h2>
-                      <button onClick={() => setShowManageStudentModal(false)} className="bg-slate-100 p-1 rounded-full"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                      <button onClick={() => setShowManageStudentModal(false)} className="bg-slate-100 p-1.5 rounded-full"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     </div>
                     <form onSubmit={handleAddStudent} className="flex gap-2 mb-4">
-                      <input type="text" value={newStudentName} onChange={(e) => setNewStudentName(e.target.value)} className="flex-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 focus:border-orange-500 outline-none text-sm sm:text-base" placeholder="Nama Baru..." />
+                      <input type="text" value={newStudentName} onChange={(e) => setNewStudentName(e.target.value)} className="flex-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-200 focus:border-orange-500 outline-none text-xs sm:text-sm" placeholder="Nama Baru..." />
                       <button className="bg-orange-600 text-white px-3 sm:px-4 rounded-xl font-bold"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     </form>
                     <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar space-y-1.5 sm:space-y-2">
@@ -1643,9 +1643,9 @@
                         <div key={idx} className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-100">
                           {editingStudentIndex === idx ? (
                             <div className="flex gap-2 w-full">
-                               <input type="text" value={editStudentValue} onChange={(e) => setEditStudentValue(e.target.value)} className="flex-1 px-2 py-1 text-xs sm:text-sm border rounded focus:outline-none focus:border-orange-500" autoFocus />
-                               <button onClick={() => saveEditStudent(idx)} className="text-green-600"><Check className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                               <button onClick={() => setEditingStudentIndex(null)} className="text-red-500"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                               <input type="text" value={editStudentValue} onChange={(e) => setEditStudentValue(e.target.value)} className="flex-1 px-2 py-1.5 text-xs sm:text-sm border rounded focus:outline-none focus:border-orange-500" autoFocus />
+                               <button onClick={() => saveEditStudent(idx)} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                               <button onClick={() => setEditingStudentIndex(null)} className="text-red-500 p-1 bg-red-50 rounded"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                             </div>
                           ) : (
                             <>
@@ -1896,7 +1896,7 @@
                                />
                                {historyDateFilter && (
                                    <button onClick={() => { setHistoryDateFilter(""); setHistoryPage(1); }} className="text-slate-400 hover:text-red-500 flex-shrink-0 transition-colors" title="Hapus Filter Tanggal">
-                                       <X className="w-4 h-4" />
+                                       <X className="w-4 h-4 sm:w-5 sm:h-5" />
                                    </button>
                                )}
                             </div>
