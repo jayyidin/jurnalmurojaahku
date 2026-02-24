@@ -10,6 +10,27 @@
     
     <!-- Babel untuk membaca kode React di Browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 🚨 ALARM DETEKTOR ERROR: Mencegah Layar Blank Putih 🚨 -->
+    <script>
+        window.addEventListener('error', function(e) {
+            document.body.innerHTML = `
+                <div style="padding: 40px; text-align: center; font-family: sans-serif; background-color: #fff1f2; min-height: 100vh;">
+                    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(225,29,72,0.2); display: inline-block; max-width: 90%;">
+                        <h2 style="color: #e11d48; margin-top:0;">⚠️ Ups! Ada Kesalahan Kode</h2>
+                        <p style="color: #475569; font-size: 14px;">Aplikasi tidak bisa dimuat karena ada kode yang terhapus/salah ketik.</p>
+                        <p style="color: #334155; font-size: 12px; background: #f1f5f9; padding: 10px; border-radius: 8px; text-align: left;"><strong>Detail Error:</strong><br/>${e.message}</p>
+                        <p style="color: #475569; font-size: 14px; font-weight: bold; margin-bottom: 0;">Saran Perbaikan:</p>
+                        <ul style="color: #475569; font-size: 13px; text-align: left;">
+                            <li>Periksa kembali bagian <b>firebaseConfig</b>.</li>
+                            <li>Pastikan tanda kutip ganda ( <b>" "</b> ) tidak ada yang hilang.</li>
+                            <li>Pastikan tanda koma ( <b>,</b> ) di akhir setiap baris tidak terhapus.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
     
     <style>
         /* Mempercantik Scrollbar */
@@ -83,8 +104,9 @@
 
         // =====================================================================
         // 🛑 PENTING: TEMPEL KODE FIREBASE ANDA DI BAWAH INI 🛑
+        // HATI-HATI: Jangan hapus tanda kutip ("") atau koma (,) di akhirnya!
         // =====================================================================
-        const firebaseConfig = {
+       const firebaseConfig = {
   apiKey: "AIzaSyBZ7_9eXqPiPRoroU8q4aIvxLWSgjG2SF8",
   authDomain: "jurnal-murojaahku.firebaseapp.com",
   projectId: "jurnal-murojaahku",
@@ -92,7 +114,7 @@
   messagingSenderId: "471439272992",
   appId: "1:471439272992:web:8d6cc019f177d5385fa045"
 };
-        //====================================================================
+        // =====================================================================
 
         let app, auth, db;
         let isCloudReady = false;
@@ -1359,12 +1381,12 @@
                                         <div className={`w-full bg-transparent p-2 mb-4 flex-1 flex flex-col justify-center overflow-hidden`}>
                                             <p className={`w-full text-center text-slate-800 ${textSizeClass} ${lineHeightClass} font-bold break-words`}>
                                                 {shareHalaqohItem.students.map((siswa, index) => (
-                                                    <React.Fragment key={index}>
+                                                    <span key={index}>
                                                         {siswa}
                                                         {index < shareHalaqohItem.students.length - 1 && (
                                                             <span className="text-blue-500 mx-1.5 sm:mx-2 font-black inline-block">•</span>
                                                         )}
-                                                    </React.Fragment>
+                                                    </span>
                                                 ))}
                                             </p>
                                         </div>
@@ -2036,5 +2058,4 @@
         root.render(<App />);
     </script>
 </body>
-
 </html>
