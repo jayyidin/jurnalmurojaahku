@@ -106,7 +106,7 @@
         // 🛑 PENTING: TEMPEL KODE FIREBASE ANDA DI BAWAH INI 🛑
         // HATI-HATI: Jangan hapus tanda kutip ("") atau koma (,) di akhirnya!
         // =====================================================================
-       const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyBZ7_9eXqPiPRoroU8q4aIvxLWSgjG2SF8",
   authDomain: "jurnal-murojaahku.firebaseapp.com",
   projectId: "jurnal-murojaahku",
@@ -1325,99 +1325,131 @@
               })()}
 
               {/* --- MODAL SHARE KARTU HALAQOH --- */}
-              {shareHalaqohItem && (
-                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                    <div className="w-full max-w-sm flex flex-col items-center">
-                       <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                           <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
-                              
-                              <div className="absolute inset-0 z-0">
-                                  <img 
-                                    src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" 
-                                    crossOrigin="anonymous" 
-                                    alt="Quran Background" 
-                                    className="w-full h-full object-cover opacity-30" 
-                                  />
-                                  <div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-white/90 to-blue-50/90"></div>
-                              </div>
+              {shareHalaqohItem && (() => {
+                  // --- LOGIKA UKURAN TEKS ADAPTIF ---
+                  const count = shareHalaqohItem.students.length;
+                  const hNameLen = shareHalaqohItem.name.length;
+                  
+                  // Ukuran Default (Untuk siswa sedikit & nama pendek)
+                  let titleClass = "text-xl";
+                  let subTitleClass = "text-[10px] mb-4";
+                  let hNameClass = hNameLen > 20 ? "text-xl mb-0.5" : "text-2xl mb-0.5";
+                  let uNameClass = "text-[10px] mb-4";
+                  let labelClass = "text-xs mb-2";
+                  let studentTextClass = "text-sm leading-relaxed";
+                  let dotClass = "mx-2 text-base";
+                  let footerClass = "pt-3 pb-1";
 
-                              <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                 <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
-                                 
-                                 <h3 className="text-xl font-bold text-blue-700 leading-tight">Jurnal Murojaahku</h3>
-                                 <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">SDIT Al Fityan School Bogor</p>
+                  // Jika siswa super banyak (>30)
+                  if (count > 30) {
+                      titleClass = "text-base";
+                      subTitleClass = "text-[8px] mb-1.5";
+                      hNameClass = hNameLen > 20 ? "text-sm mb-0" : "text-base mb-0";
+                      uNameClass = "text-[8px] mb-1.5";
+                      labelClass = "text-[9px] mb-1";
+                      studentTextClass = "text-[7px] leading-tight";
+                      dotClass = "mx-1 text-[8px]";
+                      footerClass = "pt-1.5 pb-0.5";
+                  } 
+                  // Jika siswa banyak (>20)
+                  else if (count > 20) {
+                      titleClass = "text-lg";
+                      subTitleClass = "text-[8px] mb-2";
+                      hNameClass = hNameLen > 20 ? "text-base mb-0.5" : "text-lg mb-0.5";
+                      uNameClass = "text-[9px] mb-2";
+                      labelClass = "text-[10px] mb-1.5";
+                      studentTextClass = "text-[8.5px] leading-snug";
+                      dotClass = "mx-1 text-[10px]";
+                      footerClass = "pt-2 pb-1";
+                  } 
+                  // Jika siswa lumayan banyak (>12)
+                  else if (count > 12) {
+                      titleClass = "text-xl";
+                      subTitleClass = "text-[9px] mb-3";
+                      hNameClass = hNameLen > 20 ? "text-lg mb-0.5" : "text-xl mb-0.5";
+                      uNameClass = "text-[9px] mb-3";
+                      labelClass = "text-[11px] mb-2";
+                      studentTextClass = "text-[10px] leading-snug";
+                      dotClass = "mx-1.5 text-[12px]";
+                      footerClass = "pt-2 pb-1";
+                  } 
+                  // Jika siswa agak banyak (>6)
+                  else if (count > 6) {
+                      studentTextClass = "text-xs leading-relaxed";
+                      dotClass = "mx-1.5 text-sm";
+                  }
 
-                                 <h2 className="text-2xl font-bold text-slate-800 mb-0.5">{shareHalaqohItem.name}</h2>
-                                 
-                                 <div className="flex justify-center mb-4">
-                                    <span className="text-blue-700 text-[10px] font-bold uppercase tracking-widest">
-                                       {shareHalaqohItem.ustadzName}
-                                    </span>
-                                 </div>
+                  return (
+                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                        <div className="w-full max-w-sm flex flex-col items-center">
+                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                                  
+                                  <div className="absolute inset-0 z-0">
+                                      <img 
+                                        src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" 
+                                        crossOrigin="anonymous" 
+                                        alt="Quran Background" 
+                                        className="w-full h-full object-cover opacity-30" 
+                                      />
+                                      <div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-white/90 to-blue-50/90"></div>
+                                  </div>
 
-                                 <p className="text-xs text-slate-600 mb-2 italic">Daftar Nama Siswa :</p>
+                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                     <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
+                                     
+                                     <h3 className={`font-bold text-blue-700 leading-tight ${titleClass}`}>Jurnal Murojaahku</h3>
+                                     <p className={`font-bold tracking-widest text-slate-500 uppercase ${subTitleClass}`}>SDIT Al Fityan School Bogor</p>
 
-                                 {/* DAFTAR SISWA (Menggunakan Text Node Agar Membungkus Alami Seperti Paragraf) */}
-                                 {(() => {
-                                    const count = shareHalaqohItem.students.length;
-                                    let textSizeClass = 'text-sm';
-                                    let lineHeightClass = 'leading-relaxed';
+                                     <h2 className={`font-bold text-slate-800 line-clamp-2 ${hNameClass}`}>{shareHalaqohItem.name}</h2>
+                                     
+                                     <div className="flex justify-center w-full px-2">
+                                        <span className={`text-blue-700 font-bold uppercase tracking-widest line-clamp-1 ${uNameClass}`}>
+                                           {shareHalaqohItem.ustadzName}
+                                        </span>
+                                     </div>
 
-                                    if (count > 30) {
-                                        textSizeClass = 'text-[7px]';
-                                        lineHeightClass = 'leading-tight';
-                                    } else if (count > 20) {
-                                        textSizeClass = 'text-[8.5px]';
-                                        lineHeightClass = 'leading-snug';
-                                    } else if (count > 12) {
-                                        textSizeClass = 'text-[10px]';
-                                        lineHeightClass = 'leading-snug';
-                                    } else if (count > 6) {
-                                        textSizeClass = 'text-xs';
-                                        lineHeightClass = 'leading-relaxed';
-                                    }
+                                     <p className={`text-slate-600 italic ${labelClass}`}>Daftar Nama Siswa :</p>
 
-                                    return (
-                                        <div className={`w-full bg-transparent p-2 mb-4 flex-1 flex flex-col justify-center overflow-hidden`}>
-                                            <p className={`w-full text-center text-slate-800 ${textSizeClass} ${lineHeightClass} font-bold break-words`}>
-                                                {shareHalaqohItem.students.map((siswa, index) => (
-                                                    <span key={index}>
-                                                        {siswa}
-                                                        {index < shareHalaqohItem.students.length - 1 && (
-                                                            <span className="text-blue-500 mx-1.5 sm:mx-2 font-black inline-block">•</span>
-                                                        )}
-                                                    </span>
-                                                ))}
-                                            </p>
-                                        </div>
-                                    );
-                                 })()}
+                                     <div className="w-full bg-transparent p-1 mb-2 flex-1 flex flex-col justify-center overflow-hidden">
+                                        <p className={`w-full text-center text-slate-800 font-bold break-words ${studentTextClass}`}>
+                                            {shareHalaqohItem.students.map((siswa, index) => (
+                                                <React.Fragment key={index}>
+                                                    {siswa}
+                                                    {index < shareHalaqohItem.students.length - 1 && (
+                                                        <span className={`text-blue-500 font-black inline-block ${dotClass}`}>•</span>
+                                                    )}
+                                                </React.Fragment>
+                                            ))}
+                                        </p>
+                                     </div>
 
-                                 <div className="w-full text-center text-[10px] text-slate-600 border-t border-slate-300 pt-3 pb-1 mt-auto italic font-medium px-4">
-                                    "Membangun Generasi Qurani dan Pemimpin Masa Depan"
-                                 </div>
-                              </div>
+                                     <div className={`w-full text-center text-[10px] text-slate-600 border-t border-slate-300 mt-auto italic font-medium px-2 ${footerClass}`}>
+                                        "Membangun Generasi Qurani dan Pemimpin Masa Depan"
+                                     </div>
+                                  </div>
+                               </div>
                            </div>
-                       </div>
 
-                       <div className="flex gap-2 mt-2 w-full max-w-[320px]">
-                          <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition text-xs sm:text-sm">
-                             Tutup
-                          </button>
-                          
-                          <button onClick={() => processHalaqohImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">
-                             {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                             Unduh
-                          </button>
-                          
-                          <button onClick={() => processHalaqohImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">
-                             {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
-                             Share
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-              )}
+                           <div className="flex gap-2 mt-2 w-full max-w-[320px]">
+                              <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition text-xs sm:text-sm">
+                                 Tutup
+                              </button>
+                              
+                              <button onClick={() => processHalaqohImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">
+                                 {isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                                 Unduh
+                              </button>
+                              
+                              <button onClick={() => processHalaqohImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+                                 {isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+                                 Share
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  );
+              })()}
 
               {/* MODALS LAINNYA */}
               {deleteConfig.show && (
