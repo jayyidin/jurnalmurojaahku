@@ -71,7 +71,7 @@
 
         const SURAH_LIST = [{number:1,name:"Al-Fatihah",ayahs:7},{number:2,name:"Al-Baqarah",ayahs:286},{number:3,name:"Ali 'Imran",ayahs:200},{number:4,name:"An-Nisa'",ayahs:176},{number:5,name:"Al-Ma'idah",ayahs:120},{number:6,name:"Al-An'am",ayahs:165},{number:7,name:"Al-A'raf",ayahs:206},{number:8,name:"Al-Anfal",ayahs:75},{number:9,name:"At-Taubah",ayahs:129},{number:10,name:"Yunus",ayahs:109},{number:11,name:"Hud",ayahs:123},{number:12,name:"Yusuf",ayahs:111},{number:13,name:"Ar-Ra'd",ayahs:43},{number:14,name:"Ibrahim",ayahs:52},{number:15,name:"Al-Hijr",ayahs:99},{number:16,name:"An-Nahl",ayahs:128},{number:17,name:"Al-Isra'",ayahs:111},{number:18,name:"Al-Kahf",ayahs:110},{number:19,name:"Maryam",ayahs:98},{number:20,name:"Ta-Ha",ayahs:135},{number:21,name:"Al-Anbiya'",ayahs:112},{number:22,name:"Al-Hajj",ayahs:78},{number:23,name:"Al-Mu'minun",ayahs:118},{number:24,name:"An-Nur",ayahs:64},{number:25,name:"Al-Furqan",ayahs:77},{number:26,name:"Asy-Syu'ara'",ayahs:227},{number:27,name:"An-Naml",ayahs:93},{number:28,name:"Al-Qasas",ayahs:88},{number:29,name:"Al-'Ankabut",ayahs:69},{number:30,name:"Ar-Rum",ayahs:60},{number:31,name:"Luqman",ayahs:34},{number:32,name:"As-Sajdah",ayahs:30},{number:33,name:"Al-Ahzab",ayahs:73},{number:34,name:"Saba'",ayahs:54},{number:35,name:"Fatir",ayahs:45},{number:36,name:"Ya-Sin",ayahs:83},{number:37,name:"As-Saffat",ayahs:182},{number:38,name:"Sad",ayahs:88},{number:39,name:"Az-Zumar",ayahs:75},{number:40,name:"Ghafir",ayahs:85},{number:41,name:"Fussilat",ayahs:54},{number:42,name:"Asy-Syura",ayahs:53},{number:43,name:"Az-Zukhruf",ayahs:89},{number:44,name:"Ad-Dukhan",ayahs:59},{number:45,name:"Al-Jasiyah",ayahs:37},{number:46,name:"Al-Ahqaf",ayahs:35},{number:47,name:"Muhammad",ayahs:38},{number:48,name:"Al-Fath",ayahs:29},{number:49,name:"Al-Hujurat",ayahs:18},{number:50,name:"Qaf",ayahs:45},{number:51,name:"Az-Zariyat",ayahs:60},{number:52,name:"At-Tur",ayahs:49},{number:53,name:"An-Najm",ayahs:62},{number:54,name:"Al-Qamar",ayahs:55},{number:55,name:"Ar-Rahman",ayahs:78},{number:56,name:"Al-Waqi'ah",ayahs:96},{number:57,name:"Al-Hadid",ayahs:29},{number:58,name:"Al-Mujadilah",ayahs:22},{number:59,name:"Al-Hasyr",ayahs:24},{number:60,name:"Al-Mumtahanah",ayahs:13},{number:61,name:"As-Saff",ayahs:14},{number:62,name:"Al-Jumu'ah",ayahs:11},{number:63,name:"Al-Munafiqun",ayahs:11},{number:64,name:"At-Taghabun",ayahs:18},{number:65,name:"At-Talaq",ayahs:12},{number:66,name:"At-Tahrim",ayahs:12},{number:67,name:"Al-Mulk",ayahs:30},{number:68,name:"Al-Qalam",ayahs:52},{number:69,name:"Al-Haqqah",ayahs:52},{number:70,name:"Al-Ma'arij",ayahs:44},{number:71,name:"Nuh",ayahs:28},{number:72,name:"Al-Jinn",ayahs:28},{number:73,name:"Al-Muzzammil",ayahs:20},{number:74,name:"Al-Muddassir",ayahs:56},{number:75,name:"Al-Qiyamah",ayahs:40},{number:76,name:"Al-Insan",ayahs:31},{number:77,name:"Al-Mursalat",ayahs:50},{number:78,name:"An-Naba'",ayahs:40},{number:79,name:"An-Nazi'at",ayahs:46},{number:80,name:"'Abasa",ayahs:42},{number:81,name:"At-Takwir",ayahs:29},{number:82,name:"Al-Infitar",ayahs:19},{number:83,name:"Al-Mutaffifin",ayahs:36},{number:84,name:"Al-Insyiqaq",ayahs:25},{number:85,name:"Al-Buruj",ayahs:22},{number:86,name:"At-Tariq",ayahs:17},{number:87,name:"Al-A'la",ayahs:19},{number:88,name:"Al-Ghasyiyah",ayahs:26},{number:89,name:"Al-Fajr",ayahs:30},{number:90,name:"Al-Balad",ayahs:20},{number:91,name:"Asy-Syams",ayahs:15},{number:92,name:"Al-Lail",ayahs:21},{number:93,name:"Ad-Duha",ayahs:11},{number:94,name:"Al-Insyirah",ayahs:8},{number:95,name:"At-Tin",ayahs:8},{number:96,name:"Al-'Alaq",ayahs:19},{number:97,name:"Al-Qadr",ayahs:5},{number:98,name:"Al-Bayyinah",ayahs:8},{number:99,name:"Az-Zalzalah",ayahs:8},{number:100,name:"Al-'Adiyat",ayahs:11},{number:101,name:"Al-Qari'ah",ayahs:11},{number:102,name:"At-Takasur",ayahs:8},{number:103,name:"Al-'Asr",ayahs:3},{number:104,name:"Al-Humazah",ayahs:9},{number:105,name:"Al-Fil",ayahs:5},{number:106,name:"Quraisy",ayahs:4},{number:107,name:"Al-Ma'un",ayahs:7},{number:108,name:"Al-Kausar",ayahs:3},{number:109,name:"Al-Kafirun",ayahs:6},{number:110,name:"An-Nasr",ayahs:3},{number:111,name:"Al-Lahab",ayahs:5},{number:112,name:"Al-Ikhlas",ayahs:4},{number:113,name:"Al-Falaq",ayahs:5},{number:114,name:"An-Nas",ayahs:6}];
 
-        // ERROR BOUNDARY
+        // --- SISTEM ANTI CRASH / ERROR BOUNDARY ---
         class ErrorBoundary extends React.Component {
             constructor(props) { super(props); this.state = { hasError: false, error: null }; }
             static getDerivedStateFromError(error) { return { hasError: true, error }; }
@@ -137,6 +137,7 @@
             console.error("Gagal inisialisasi Firebase:", error);
         }
 
+        // --- MAIN COMPONENT ---
         function MainApp() {
           const [currentView, setCurrentView] = useState(() => sessionStorage.getItem('murojaah_currentView') || 'welcome');
           const [isLoading, setIsLoading] = useState(false);
@@ -230,15 +231,14 @@
 
           const [deleteConfig, setDeleteConfig] = useState({ show: false, type: null, id: null, name: '', parentId: null });
           const [shareItem, setShareItem] = useState(null);
-          const [isGeneratingImage, setIsGeneratingImage] = useState(null); 
           const shareCardRef = useRef(null);
+          const [shareHalaqohItem, setShareHalaqohItem] = useState(null);
+          const shareHalaqohCardRef = useRef(null);
+          const [isGeneratingImage, setIsGeneratingImage] = useState(null); 
 
           const [showEditHistoryModal, setShowEditHistoryModal] = useState(false);
           const [editingHistoryItem, setEditingHistoryItem] = useState(null);
           
-          const [shareHalaqohItem, setShareHalaqohItem] = useState(null);
-          const shareHalaqohCardRef = useRef(null);
-
           const [showBroadcastModal, setShowBroadcastModal] = useState(false);
           const [broadcastMessage, setBroadcastMessage] = useState("");
           const [activeBroadcast, setActiveBroadcast] = useState(null); 
@@ -246,7 +246,7 @@
               return typeof Notification !== 'undefined' ? Notification.permission : 'default';
           });
 
-          // SIMPAN OTOMATIS KE PENYIMPANAN LOKAL SETIAP ADA PERUBAHAN
+          // SIMPAN OTOMATIS LOKAL
           useEffect(() => { localStorage.setItem('murojaahData', JSON.stringify(Array.isArray(data) && data.length > 0 ? data : INITIAL_DATA)); }, [data]);
           useEffect(() => { localStorage.setItem('murojaahHistory', JSON.stringify(Array.isArray(history) ? history : [])); }, [history]);
           useEffect(() => { localStorage.setItem('murojaahClasses', JSON.stringify(Array.isArray(classes) && classes.length > 0 ? classes : DEFAULT_CLASS_LIST)); }, [classes]);
@@ -277,16 +277,13 @@
               }
 
               if (surahNum >= 78 && surahNum <= 114) { 
-                  // Rule Juz 30 (Surat ke-78 sampai 114): > 11 ayat = 2 poin, <= 11 ayat = 1 poin
                   return readAyahs > 11 ? 2 : 1;
               } else if (surahNum >= 46 && surahNum <= 77) { 
-                  // Rule Juz 26, 27, 28, dan 29 (Surat ke-46 sampai 77): Full=3, Setengah=2, Seperempat=1
                   const ratio = readAyahs / surah.ayahs;
                   if (ratio >= 0.99) return 3; 
                   if (ratio >= 0.5) return 2;
                   return 1; 
               } else { 
-                  // Rule Juz 1-25: 1 Halaman (~7 ayat) = 1 Poin
                   return Math.max(1, Math.round(readAyahs / 7));
               }
           };
@@ -424,12 +421,19 @@
              return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
           };
 
+          // --- TRIGGER KLIK KARTU ---
           const handleShareClick = (item) => { setShareItem(item); };
+          const handleShareHalaqohClick = (e, h) => {
+              e.stopPropagation();
+              setShareHalaqohItem({ ...h, ustadzName: selectedUstadz?.name });
+          };
+
           const triggerDownload = (url, filename) => {
               const link = document.createElement('a'); link.href = url; link.download = filename;
               document.body.appendChild(link); link.click(); document.body.removeChild(link);
           };
 
+          // --- PROSES GAMBAR KARTU SISWA ---
           const processImage = async (action) => {
               if (!shareCardRef.current) return;
               setIsGeneratingImage(action);
@@ -442,23 +446,24 @@
                   if (action === 'share') {
                       if (navigator.canShare && navigator.canShare({ files: [new File([imageBlob], fileName, { type: 'image/png' })] })) {
                           const file = new File([imageBlob], fileName, { type: 'image/png' });
-                          await navigator.share({ title: 'Prestasi Murojaah', text: `Alhamdulillah, ananda ${shareItem?.student} telah memurojaah hafalan.`, files: [file] });
+                          try {
+                              await navigator.share({ title: 'Prestasi Murojaah', text: `Alhamdulillah, ananda ${shareItem?.student} telah memurojaah hafalan.`, files: [file] });
+                          } catch(err) {
+                              if (err.name !== 'AbortError') { alert("Gagal membagikan langsung. Gambar akan diunduh."); triggerDownload(imageUrl, fileName); }
+                          }
                       } else {
-                          alert("Perangkat Anda belum mendukung Share File secara langsung. Gambar diunduh.");
+                          alert("Perangkat Anda tidak mendukung Share File langsung. Gambar akan diunduh.");
                           triggerDownload(imageUrl, fileName);
                       }
                   } else if (action === 'download') {
                       triggerDownload(imageUrl, fileName);
                       alert("Gambar berhasil diunduh!");
                   }
-              } catch (error) { alert("Gagal memproses gambar."); } finally { setIsGeneratingImage(null); }
+              } catch (error) { alert("Maaf, gagal memproses gambar. Pastikan internet lancar."); } 
+              finally { setIsGeneratingImage(null); }
           };
 
-          const handleShareHalaqohClick = (e, h) => {
-              e.stopPropagation();
-              setShareHalaqohItem({ ...h, ustadzName: selectedUstadz?.name });
-          };
-
+          // --- PROSES GAMBAR KARTU HALAQOH ---
           const processHalaqohImage = async (action) => {
               if (!shareHalaqohCardRef.current) return;
               setIsGeneratingImage(action);
@@ -471,16 +476,21 @@
                   if (action === 'share') {
                       if (navigator.canShare && navigator.canShare({ files: [new File([imageBlob], fileName, { type: 'image/png' })] })) {
                           const file = new File([imageBlob], fileName, { type: 'image/png' });
-                          await navigator.share({ title: 'Daftar Siswa Halaqoh', text: `Daftar Siswa ${shareHalaqohItem?.name} bersama ${shareHalaqohItem?.ustadzName}.`, files: [file] });
+                          try {
+                              await navigator.share({ title: 'Daftar Siswa Halaqoh', text: `Daftar Siswa ${shareHalaqohItem?.name} bersama ${shareHalaqohItem?.ustadzName}.`, files: [file] });
+                          } catch(err) {
+                              if (err.name !== 'AbortError') { alert("Gagal membagikan langsung. Gambar akan diunduh."); triggerDownload(imageUrl, fileName); }
+                          }
                       } else {
-                          alert("Perangkat Anda belum mendukung Share File secara langsung. Gambar diunduh.");
+                          alert("Perangkat Anda tidak mendukung Share File langsung. Gambar akan diunduh.");
                           triggerDownload(imageUrl, fileName);
                       }
                   } else if (action === 'download') {
                       triggerDownload(imageUrl, fileName);
                       alert("Gambar berhasil diunduh!");
                   }
-              } catch (error) { alert("Gagal memproses gambar."); } finally { setIsGeneratingImage(null); }
+              } catch (error) { alert("Maaf, gagal memproses gambar. Pastikan internet lancar."); } 
+              finally { setIsGeneratingImage(null); }
           };
 
           // --- LEADERBOARD & STATS LOGIC ---
@@ -1513,7 +1523,7 @@
                                           })}
                                        </div>
                                        <div className="text-[8px] sm:text-[9px] text-slate-300 mt-2 sm:mt-3 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item?.date || new Date().toISOString())}</div>
-                                       {isSuperAdmin && (item?.ipAddress || item?.userAgent) && (
+                                       {isAdmin && (item?.ipAddress || item?.userAgent) && (
                                           <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item?.ipAddress || 'Unknown'}</span></div>
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item?.userAgent}>{item?.userAgent || 'Unknown Device'}</span></div>
@@ -1637,8 +1647,8 @@
                                             </span>
                                          ))}
                                       </div>
-                                      <div className="text-[8px] sm:text-[10px] text-slate-300 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item?.date || new Date().toISOString())}</div>
-                                      {isSuperAdmin && (item?.ipAddress || item?.userAgent) && (
+                                      <div className="text-[8px] sm:text-[9px] text-slate-300 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item?.date || new Date().toISOString())}</div>
+                                      {(item?.ipAddress || item?.userAgent) && (
                                          <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item?.ipAddress || 'Unknown'}</span></div>
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item?.userAgent}>{item?.userAgent || 'Unknown Device'}</span></div>
@@ -1661,6 +1671,123 @@
                 </div>
               )}
               
+              {/* MODAL SHARE GAMBAR PRESTASI */}
+              {shareItem && (() => {
+                  const studentHistory = (Array.isArray(history) ? history : []).filter(h => h?.student === shareItem?.student).sort((a, b) => new Date(a?.date || 0) - new Date(b?.date || 0));
+                  const submissionIndex = studentHistory.findIndex(h => h?.id === shareItem?.id);
+                  const submissionCount = submissionIndex + 1; 
+                  const effectiveCount = submissionCount % 60 === 0 && submissionCount > 0 ? 60 : submissionCount % 60;
+                  let theme = { overlay: "from-white/95 via-white/80 to-orange-50/90", title: "text-orange-600", badgeBg: "bg-orange-50", badgeText: "text-orange-700", badgeBorder: "border-orange-100", dot: "text-orange-500", footerValue: "text-orange-600", isSpecial: false };
+                  if (effectiveCount >= 10 && effectiveCount < 20) theme = { overlay: "from-green-100 via-white/90 to-green-50/90", title: "text-green-700", badgeBg: "bg-green-100", badgeText: "text-green-800", badgeBorder: "border-green-300", dot: "text-green-500", footerValue: "text-green-700", isSpecial: true };
+                  else if (effectiveCount >= 20 && effectiveCount < 30) theme = { overlay: "from-blue-100 via-white/90 to-blue-50/90", title: "text-blue-700", badgeBg: "bg-blue-100", badgeText: "text-blue-800", badgeBorder: "border-blue-300", dot: "text-blue-500", footerValue: "text-blue-700", isSpecial: true };
+                  else if (effectiveCount >= 30 && effectiveCount < 40) theme = { overlay: "from-red-100 via-white/90 to-red-50/90", title: "text-red-700", badgeBg: "bg-red-100", badgeText: "text-red-800", badgeBorder: "border-red-300", dot: "text-red-500", footerValue: "text-red-700", isSpecial: true };
+                  else if (effectiveCount >= 40 && effectiveCount < 50) theme = { overlay: "from-purple-100 via-white/90 to-purple-50/90", title: "text-purple-700", badgeBg: "bg-purple-100", badgeText: "text-purple-800", badgeBorder: "border-purple-300", dot: "text-purple-500", footerValue: "text-purple-700", isSpecial: true };
+                  else if (effectiveCount >= 50 && effectiveCount < 60) theme = { overlay: "from-slate-300 via-white/90 to-slate-200/90", title: "text-slate-800", badgeBg: "bg-slate-200", badgeText: "text-slate-800", badgeBorder: "border-slate-400", dot: "text-slate-600", footerValue: "text-slate-800", isSpecial: true };
+                  else if (effectiveCount === 60) theme = { overlay: "from-yellow-200 via-white/90 to-yellow-100/90", title: "text-yellow-700", badgeBg: "bg-yellow-200", badgeText: "text-yellow-900", badgeBorder: "border-yellow-400", dot: "text-yellow-600", footerValue: "text-yellow-700", isSpecial: true };
+
+                  return (
+                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                        <div className="w-full max-w-sm flex flex-col items-center">
+                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                               <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                                  <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" crossOrigin="anonymous" alt="Quran Background" className="w-full h-full object-cover opacity-30" /><div className={`absolute inset-0 bg-gradient-to-b ${theme.overlay}`}></div></div>
+                                  {theme.isSpecial && (<div className="absolute top-4 right-4 rotate-12 z-20"><div className={`px-2.5 py-1 rounded-full font-black text-[9px] shadow-md border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} uppercase tracking-wider`}>⭐ Setoran ke-{submissionCount}</div></div>)}
+                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                     <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
+                                     <h3 className={`text-xl font-bold ${theme.title} leading-tight`}>Jurnal Murojaahku</h3>
+                                     <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">SDIT Al Fityan School Bogor</p>
+                                     <h2 className="text-2xl font-bold text-slate-800 mb-0.5">{shareItem.student || 'Siswa'}</h2>
+                                     <div className="flex justify-center mb-4"><span className={`${theme.title} text-[10px] font-bold uppercase tracking-widest`}>{shareItem.class || '-'}</span></div>
+                                     <p className="text-xs text-slate-600 mb-2 italic">Alhamdulillah telah memurojaah hafalan :</p>
+                                     {(() => {
+                                        const safeSurahs = Array.isArray(shareItem.surahs) ? shareItem.surahs : [];
+                                        const count = safeSurahs.length;
+                                        let textSizeClass = 'text-sm'; let spanSizeClass = 'text-[10px]'; let gapClass = 'gap-2'; let dotMargin = 'ml-2';
+                                        if (count > 25) { textSizeClass = 'text-[7px]'; spanSizeClass = 'text-[6px]'; gapClass = 'gap-0.5'; dotMargin = 'ml-0.5'; } 
+                                        else if (count > 15) { textSizeClass = 'text-[8px]'; spanSizeClass = 'text-[7px]'; gapClass = 'gap-1'; dotMargin = 'ml-1'; } 
+                                        else if (count > 8) { textSizeClass = 'text-[10px]'; spanSizeClass = 'text-[8px]'; gapClass = 'gap-1.5'; dotMargin = 'ml-1.5'; } 
+                                        else if (count > 4) { textSizeClass = 'text-xs'; spanSizeClass = 'text-[9px]'; gapClass = 'gap-2'; dotMargin = 'ml-2'; }
+                                        return (
+                                            <div className={`w-full bg-transparent p-2 mb-4 flex-1 flex flex-wrap justify-center content-center items-center ${gapClass} overflow-hidden`}>
+                                            {safeSurahs.map((num, index) => {
+                                                const namaSurat = getSurahName(num);
+                                                const rentang = shareItem?.ranges?.[num];
+                                                return (
+                                                    <div key={num} className={`text-slate-800 ${textSizeClass} font-bold leading-tight flex items-baseline`}>
+                                                        <span>{namaSurat}</span>
+                                                        {rentang && <span className={`font-normal text-slate-600 ml-0.5 ${spanSizeClass}`}>({rentang})</span>}
+                                                        {index < count - 1 && <span className={`${theme.dot} ${dotMargin} font-black`}>•</span>}
+                                                    </div>
+                                                )
+                                            })}
+                                            </div>
+                                        );
+                                     })()}
+                                     <div className="w-full flex justify-between items-end text-[9px] text-slate-500 border-t border-slate-300 pt-4 pb-1 mt-auto">
+                                        <div className="text-left flex flex-col gap-0.5"><p>Halaqoh :</p><p className={`font-bold ${theme.footerValue} text-xs leading-tight`}>{shareItem.halaqohName || '-'}</p></div>
+                                        <div className="text-right"><p>{getDateOnly(shareItem?.date || new Date().toISOString())}</p></div>
+                                     </div>
+                                  </div>
+                               </div>
+                           </div>
+                           <div className="flex gap-2 mt-2 w-full max-w-[320px]">
+                              <button onClick={() => setShareItem(null)} className="flex-[0.8] py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition text-xs sm:text-sm">Tutup</button>
+                              <button onClick={() => processImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
+                              <button onClick={() => processImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
+                           </div>
+                        </div>
+                     </div>
+                  );
+              })()}
+
+              {/* MODAL SHARE KARTU HALAQOH */}
+              {shareHalaqohItem && (() => {
+                  const safeStudents = Array.isArray(shareHalaqohItem.students) ? shareHalaqohItem.students : [];
+                  const count = safeStudents.length;
+                  const hNameLen = (shareHalaqohItem?.name || '').length;
+                  let titleClass = "text-xl"; let subTitleClass = "text-[10px] mb-4"; let hNameClass = hNameLen > 20 ? "text-xl mb-0.5" : "text-2xl mb-0.5"; let uNameClass = "text-[10px] mb-4"; let labelClass = "text-xs mb-2"; let studentTextClass = "text-sm leading-relaxed"; let dotClass = "mx-2 text-base"; let footerClass = "pt-2.5 pb-0.5 text-[9px]";
+                  if (count > 30) { titleClass = "text-sm"; subTitleClass = "text-[7px] mb-1"; hNameClass = hNameLen > 20 ? "text-xs mb-0" : "text-sm mb-0"; uNameClass = "text-[7px] mb-1"; labelClass = "text-[8px] mb-1"; studentTextClass = "text-[7px] leading-tight"; dotClass = "mx-1 text-[7px]"; footerClass = "pt-1.5 pb-0 text-[7px]"; } 
+                  else if (count > 20) { titleClass = "text-base"; subTitleClass = "text-[8px] mb-1.5"; hNameClass = hNameLen > 20 ? "text-sm mb-0" : "text-base mb-0"; uNameClass = "text-[8px] mb-1.5"; labelClass = "text-[9px] mb-1"; studentTextClass = "text-[8.5px] leading-tight"; dotClass = "mx-1 text-[8.5px]"; footerClass = "pt-1.5 pb-0 text-[8px]"; } 
+                  else if (count > 12) { titleClass = "text-lg"; subTitleClass = "text-[9px] mb-2"; hNameClass = hNameLen > 20 ? "text-base mb-0.5" : "text-lg mb-0.5"; uNameClass = "text-[9px] mb-2"; labelClass = "text-[10px] mb-1"; studentTextClass = "text-[10px] leading-snug"; dotClass = "mx-1 text-[10px]"; footerClass = "pt-2 pb-0 text-[8.5px]"; } 
+                  else if (count > 6) { titleClass = "text-xl"; subTitleClass = "text-[10px] mb-3"; hNameClass = hNameLen > 20 ? "text-lg mb-0.5" : "text-xl mb-0.5"; uNameClass = "text-[10px] mb-3"; labelClass = "text-[11px] mb-2"; studentTextClass = "text-xs leading-snug"; dotClass = "mx-1.5 text-xs"; footerClass = "pt-2 pb-0 text-[9px]"; }
+
+                  return (
+                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                        <div className="w-full max-w-sm flex flex-col items-center">
+                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                                  <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" crossOrigin="anonymous" alt="Quran Background" className="w-full h-full object-cover opacity-30" /><div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-white/90 to-blue-50/90"></div></div>
+                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                     <img src="./logo.png" onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className={`h-5 max-w-[80%] mb-1 object-contain ${count > 25 ? 'mb-0.5' : 'mb-2'}`} />
+                                     <h3 className={`font-bold text-blue-700 leading-tight ${titleClass}`}>Jurnal Murojaahku</h3>
+                                     <p className={`font-bold tracking-widest text-slate-500 uppercase ${subTitleClass}`}>SDIT Al Fityan School Bogor</p>
+                                     <h2 className={`font-bold text-slate-800 break-words px-2 leading-tight ${hNameClass}`}>{shareHalaqohItem?.name || '-'}</h2>
+                                     <div className={`flex justify-center w-full px-2 ${uNameClass}`}><span className="text-blue-700 font-bold uppercase tracking-widest break-words mt-0.5">{shareHalaqohItem?.ustadzName || '-'}</span></div>
+                                     <p className={`text-slate-600 italic ${labelClass}`}>Daftar Nama Siswa :</p>
+                                     <div className="w-full bg-transparent p-1 mb-2 flex-1 flex flex-col justify-center overflow-hidden">
+                                        <p className={`w-full text-center text-slate-800 font-bold break-words ${studentTextClass}`}>
+                                            {safeStudents.map((siswa, index) => (
+                                                <React.Fragment key={index}>
+                                                    {siswa}
+                                                    {index < count - 1 && (<span className={`text-blue-500 font-black inline-block ${dotClass}`}>•</span>)}
+                                                </React.Fragment>
+                                            ))}
+                                        </p>
+                                     </div>
+                                     <div className={`w-full text-center text-slate-600 border-t border-slate-300 mt-auto italic font-medium px-1 whitespace-nowrap tracking-tight ${footerClass}`}>"Membangun Generasi Qurani dan Pemimpin Masa Depan"</div>
+                                  </div>
+                               </div>
+                           </div>
+                           <div className="flex gap-2 mt-2 w-full max-w-[320px]">
+                              <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition text-xs sm:text-sm">Tutup</button>
+                              <button onClick={() => processHalaqohImage('download')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
+                              <button onClick={() => processHalaqohImage('share')} disabled={!!isGeneratingImage} className="flex-[1.2] py-2.5 sm:py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg flex items-center justify-center gap-1.5 text-xs sm:text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
+                           </div>
+                        </div>
+                     </div>
+                  );
+              })()}
+
               {showConfetti && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
                    <div className="bg-white p-8 sm:p-10 rounded-[3rem] shadow-2xl text-center transform scale-110 mx-4">
