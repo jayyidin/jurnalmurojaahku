@@ -1500,7 +1500,7 @@
                                               {isAdmin && (
                                                 <>
                                                     <button onClick={() => { setEditingHistoryItem(item); setShowEditHistoryModal(true); }} className="p-1 text-slate-300 hover:text-orange-500 transition-colors" title="Edit Riwayat"><Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-                                                    {isSuperAdmin && <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item?.id})} className="p-1 text-slate-200 hover:text-red-500 transition-colors" title="Hapus Riwayat"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4"/></button>}
+                                                    <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item?.id})} className="p-1 text-slate-200 hover:text-red-500 transition-colors" title="Hapus Riwayat"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4"/></button>
                                                 </>
                                               )}
                                           </div>
@@ -1513,7 +1513,7 @@
                                           })}
                                        </div>
                                        <div className="text-[8px] sm:text-[9px] text-slate-300 mt-2 sm:mt-3 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item?.date || new Date().toISOString())}</div>
-                                       {isAdmin && (item?.ipAddress || item?.userAgent) && (
+                                       {isSuperAdmin && (item?.ipAddress || item?.userAgent) && (
                                           <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item?.ipAddress || 'Unknown'}</span></div>
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item?.userAgent}>{item?.userAgent || 'Unknown Device'}</span></div>
@@ -1627,7 +1627,7 @@
                                           <div className="flex gap-1 sm:gap-2 flex-shrink-0 pl-2">
                                               <button onClick={() => handleShareClick(item)} className="p-1 text-slate-300 hover:text-blue-500 transition-colors" title="Bagikan Gambar"><ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
                                               <button onClick={() => { setEditingHistoryItem(item); setShowEditHistoryModal(true); }} className="p-1 text-slate-300 hover:text-orange-500 transition-colors" title="Edit Riwayat"><Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-                                             {isSuperAdmin && <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item?.id})} className="p-1 text-slate-200 hover:text-red-500 transition-colors" title="Hapus Riwayat"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>}
+                                             <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item?.id})} className="p-1 text-slate-200 hover:text-red-500 transition-colors" title="Hapus Riwayat"><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
                                           </div>
                                       </div>
                                       <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -1638,7 +1638,7 @@
                                          ))}
                                       </div>
                                       <div className="text-[8px] sm:text-[10px] text-slate-300 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {getFormattedDate(item?.date || new Date().toISOString())}</div>
-                                      {(item?.ipAddress || item?.userAgent) && (
+                                      {isSuperAdmin && (item?.ipAddress || item?.userAgent) && (
                                          <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item?.ipAddress || 'Unknown'}</span></div>
                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item?.userAgent}>{item?.userAgent || 'Unknown Device'}</span></div>
