@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mengunci maximum-scale dan user-scalable agar HP tidak auto-zoom saat tap kolom input -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jurnal Murojaahku</title>
     
     <!-- Google Fonts agar font saat didownload di HP tidak berubah -->
@@ -38,7 +39,8 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
         
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; }
+        /* touch-action: manipulation mencegah auto-zoom jika layar di-tap/disentuh dua kali dengan cepat */
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; touch-action: manipulation; }
         body.dark { background-color: #0f172a; color: #f1f5f9; }
         input, textarea, select { user-select: auto; }
         
@@ -117,12 +119,14 @@
             return { overlay: "from-white via-white/95 to-orange-50", title: "text-orange-600", badgeBg: "bg-orange-50", badgeText: "text-orange-700", badgeBorder: "border-orange-100", dot: "text-orange-500", footerValue: "text-orange-600", isSpecial: false };
         };
 
+        // Menambahkan opsi yang lebih kecil dan merubah jarak dot agar responsif maksimal
         const getStudentTextClass = (count) => {
-            if (count > 25) return { textSizeClass: 'text-[7px]', spanSizeClass: 'text-[6px]', gapClass: 'gap-0.5', dotMargin: 'ml-0.5' };
-            if (count > 15) return { textSizeClass: 'text-[8px]', spanSizeClass: 'text-[7px]', gapClass: 'gap-1', dotMargin: 'ml-1' };
-            if (count > 8) return { textSizeClass: 'text-[10px]', spanSizeClass: 'text-[8px]', gapClass: 'gap-1.5', dotMargin: 'ml-1.5' };
-            if (count > 4) return { textSizeClass: 'text-[11px]', spanSizeClass: 'text-[9px]', gapClass: 'gap-2', dotMargin: 'ml-2' };
-            return { textSizeClass: 'text-sm', spanSizeClass: 'text-[10px]', gapClass: 'gap-2', dotMargin: 'ml-2' };
+            if (count > 35) return { textSizeClass: 'text-[6px]', spanSizeClass: 'text-[5px]', gapClass: 'gap-0.5', dotMargin: 'mx-0.5' };
+            if (count > 25) return { textSizeClass: 'text-[7px]', spanSizeClass: 'text-[6px]', gapClass: 'gap-0.5', dotMargin: 'mx-0.5' };
+            if (count > 15) return { textSizeClass: 'text-[8px]', spanSizeClass: 'text-[7px]', gapClass: 'gap-1', dotMargin: 'mx-1' };
+            if (count > 8) return { textSizeClass: 'text-[10px]', spanSizeClass: 'text-[8px]', gapClass: 'gap-1.5', dotMargin: 'mx-1.5' };
+            if (count > 4) return { textSizeClass: 'text-[11px]', spanSizeClass: 'text-[9px]', gapClass: 'gap-2', dotMargin: 'mx-2' };
+            return { textSizeClass: 'text-sm', spanSizeClass: 'text-[10px]', gapClass: 'gap-2', dotMargin: 'mx-2' };
         };
 
         function MainApp() {
@@ -1426,18 +1430,22 @@
                                         const count = (shareItem.surahs || []).length;
                                         const styles = getStudentTextClass(count);
                                         return (
-                                            <div className={`w-full bg-transparent p-2 mb-4 flex-1 flex flex-wrap justify-center content-center items-center ${styles.gapClass} overflow-hidden`}>
-                                            {(shareItem.surahs || []).map((num, index) => {
-                                                const namaSurat = getSurahName(num);
-                                                const rentang = shareItem.ranges?.[num];
-                                                return (
-                                                    <div key={num} className={`text-slate-800 ${styles.textSizeClass} font-extrabold leading-tight flex items-baseline drop-shadow-sm`}>
-                                                        <span>{namaSurat}</span>
-                                                        {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass}`}>({rentang})</span>}
-                                                        {index < count - 1 && <span className={`${theme.dot} ${styles.dotMargin} font-black`}>•</span>}
-                                                    </div>
-                                                )
-                                            })}
+                                            <div className="w-full bg-transparent px-1 mb-4 flex-1 flex flex-col justify-center overflow-hidden">
+                                                <p className={`w-full text-center text-slate-800 font-extrabold break-words leading-snug ${styles.textSizeClass}`}>
+                                                    {(shareItem.surahs || []).map((num, index) => {
+                                                        const namaSurat = getSurahName(num);
+                                                        const rentang = shareItem.ranges?.[num];
+                                                        return (
+                                                            <React.Fragment key={num}>
+                                                                <span className="inline-block drop-shadow-sm whitespace-nowrap">
+                                                                    {namaSurat}
+                                                                    {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass}`}>({rentang})</span>}
+                                                                </span>
+                                                                {index < count - 1 && <span className={`${theme.dot} ${styles.dotMargin} font-black inline-block`}>•</span>}
+                                                            </React.Fragment>
+                                                        )
+                                                    })}
+                                                </p>
                                             </div>
                                         );
                                      })()}
