@@ -1067,6 +1067,80 @@
                 </div>
               )}
 
+              {/* MODAL TAMBAH/EDIT USTADZ */}
+              {showUstadzModal && isSuperAdmin && (
+                  <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
+                          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                              <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100">
+                                  <UserCog className="w-5 h-5 text-orange-500" /> {ustadzForm.id ? 'Edit Pengajar' : 'Tambah Pengajar'}
+                              </h2>
+                              <button onClick={() => setShowUstadzModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
+                          </div>
+                          <form onSubmit={saveUstadz} className="space-y-4">
+                              <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Nama Pengajar</label>
+                                  <input type="text" value={ustadzForm.name} onChange={(e) => setUstadzForm({...ustadzForm, name: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-medium" placeholder="Contoh: Ustadz Fulan" autoFocus required />
+                              </div>
+                              <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Jenis Kelamin</label>
+                                  <div className="flex gap-3">
+                                      <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border-2 cursor-pointer transition-all ${ustadzForm.gender === 'male' ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400' : 'border-slate-200 dark:border-slate-700 text-slate-500'}`}>
+                                          <input type="radio" name="gender" value="male" checked={ustadzForm.gender === 'male'} onChange={(e) => setUstadzForm({...ustadzForm, gender: e.target.value})} className="hidden" />
+                                          <img src="https://cdn-icons-png.flaticon.com/512/5403/5403148.png" className="w-5 h-5 opacity-80" /> Ustadz
+                                      </label>
+                                      <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border-2 cursor-pointer transition-all ${ustadzForm.gender === 'female' ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400' : 'border-slate-200 dark:border-slate-700 text-slate-500'}`}>
+                                          <input type="radio" name="gender" value="female" checked={ustadzForm.gender === 'female'} onChange={(e) => setUstadzForm({...ustadzForm, gender: e.target.value})} className="hidden" />
+                                          <img src="https://cdn-icons-png.flaticon.com/512/5405/5405442.png" className="w-5 h-5 opacity-80" /> Ustadzah
+                                      </label>
+                                  </div>
+                              </div>
+                              <button type="submit" disabled={!ustadzForm.name.trim()} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Simpan Data</button>
+                          </form>
+                      </div>
+                  </div>
+              )}
+
+              {/* MODAL TAMBAH/EDIT HALAQOH */}
+              {showHalaqohModal && isSuperAdmin && (
+                  <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
+                          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                              <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100">
+                                  <Users className="w-5 h-5 text-orange-500" /> {halaqohForm.id ? 'Edit Halaqoh' : 'Tambah Halaqoh'}
+                              </h2>
+                              <button onClick={() => setShowHalaqohModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
+                          </div>
+                          <form onSubmit={saveHalaqoh} className="space-y-4">
+                              <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Nama Halaqoh</label>
+                                  <input type="text" value={halaqohForm.name} onChange={(e) => setHalaqohForm({...halaqohForm, name: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-medium" placeholder="Contoh: Halaqoh Abu Bakar" autoFocus required />
+                              </div>
+                              <button type="submit" disabled={!halaqohForm.name.trim()} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Simpan Data</button>
+                          </form>
+                      </div>
+                  </div>
+              )}
+
+              {/* MODAL KONFIRMASI HAPUS (GLOBAL UNTUK PENGAJAR, HALAQOH & SISWA) */}
+              {deleteConfig.show && (
+                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
+                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center border border-slate-100 dark:border-slate-700">
+                          <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100 dark:border-red-500/20">
+                              <Trash2 className="w-8 h-8 text-red-500" />
+                          </div>
+                          <h3 className="text-xl font-extrabold mb-2 text-slate-800 dark:text-slate-100">Konfirmasi Hapus</h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                              Yakin ingin menghapus <b>{deleteConfig.name}</b>? Data yang dihapus tidak dapat dikembalikan.
+                          </p>
+                          <div className="flex gap-3">
+                              <button onClick={() => setDeleteConfig({ show: false, type: null, id: null, name: '', parentId: null })} className="flex-1 py-3.5 rounded-2xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-colors text-sm">Batal</button>
+                              <button onClick={executeDelete} className="flex-1 py-3.5 rounded-2xl font-bold bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-colors text-sm">Ya, Hapus</button>
+                          </div>
+                      </div>
+                  </div>
+              )}
+
               {/* TAMPILAN GRID USTADZ */}
               {currentView === 'select-ustadz' && currentView !== 'welcome' && (
                 <>
@@ -1459,12 +1533,12 @@
                                             </div>
                                         );
                                      })()}
-                                     <div className="w-full flex justify-between items-end text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto">
-                                        <div className="text-left flex flex-col gap-0.5">
-                                            <p className="font-semibold uppercase tracking-wider text-[9px]">Halaqoh :</p>
+                                     <div className="w-full flex justify-between items-end text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto gap-2">
+                                        <div className="text-left flex flex-col gap-0.5 flex-1 min-w-0">
+                                            <p className="font-semibold uppercase tracking-wider text-[9px] truncate">Halaqoh :</p>
                                             <p className={`font-black ${theme.footerValue} ${hSizeClass} leading-tight whitespace-nowrap`}>{halaqohNameStr}</p>
                                         </div>
-                                        <div className="text-right font-bold uppercase tracking-wider">
+                                        <div className="text-right font-bold uppercase tracking-wider flex-shrink-0 max-w-[45%]">
                                             <p className={`${dSizeClass} whitespace-nowrap`}>{dateStr}</p>
                                         </div>
                                      </div>
