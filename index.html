@@ -5,15 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jurnal Murojaahku</title>
     
+    <!-- Kunci Font Secara Permanen Menggunakan Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>
+        tailwind.config = { 
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <!-- ALARM DETEKTOR ERROR -->
     <script>
         window.addEventListener('error', function(e) {
             document.body.innerHTML = `
-                <div style="padding: 40px; text-align: center; font-family: sans-serif; background-color: #fff1f2; min-height: 100vh;">
+                <div style="padding: 40px; text-align: center; font-family: 'Nunito', sans-serif; background-color: #fff1f2; min-height: 100vh;">
                     <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(225,29,72,0.2); display: inline-block; max-width: 90%;">
                         <h2 style="color: #e11d48; margin-top:0;">⚠️ Ups! Ada Kesalahan Kode</h2>
                         <p style="color: #475569; font-size: 14px;">Aplikasi tidak bisa dimuat karena terpotong atau salah ketik.</p>
@@ -33,9 +49,9 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
         
-        body { background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; }
+        body { font-family: 'Nunito', sans-serif; background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; }
         body.dark { background-color: #0f172a; color: #f1f5f9; }
-        input, textarea, select { user-select: auto; }
+        input, textarea, select { user-select: auto; font-family: 'Nunito', sans-serif; }
         
         /* Modifikasi Input Date agar rapi */
         input[type="date"] { position: relative; }
@@ -48,6 +64,16 @@
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
         .animation-delay-4000 { animation-delay: 4s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.2s ease-in-out 0s 2; }
+        
+        /* Proteksi Font pada saat render Canvas/Screenshot */
+        .card-capture, .card-capture * { font-family: 'Nunito', sans-serif !important; }
     </style>
 </head>
 <body class="transition-colors duration-300">
@@ -83,10 +109,12 @@
             }
         }
 
-        const INITIAL_DATA = [ { id: "ust-1", name: "Ustadz Abdullah", gender: "male", halaqohs: [{ id: "h-1a", name: "Halaqoh Abu Bakar", students: ["Ahmad", "Fatih"] }] } ];
+        // --- DATA KONSTANTA GLOBAL ---
         const DEFAULT_CLASS_LIST = ["Kelas 1", "Kelas 2", "Kelas 3", "Kelas 4", "Kelas 5", "Kelas 6"];
+        const INITIAL_DATA = [ { id: "ust-1", name: "Ustadz Abdullah", gender: "male", halaqohs: [{ id: "h-1a", name: "Halaqoh Abu Bakar", students: ["Ahmad", "Fatih"] }] } ];
         const SURAH_LIST = "Al-Fatihah,7|Al-Baqarah,286|Ali 'Imran,200|An-Nisa',176|Al-Ma'idah,120|Al-An'am,165|Al-A'raf,206|Al-Anfal,75|At-Taubah,129|Yunus,109|Hud,123|Yusuf,111|Ar-Ra'd,43|Ibrahim,52|Al-Hijr,99|An-Nahl,128|Al-Isra',111|Al-Kahf,110|Maryam,98|Ta-Ha,135|Al-Anbiya',112|Al-Hajj,78|Al-Mu'minun,118|An-Nur,64|Al-Furqan,77|Asy-Syu'ara',227|An-Naml,93|Al-Qasas,88|Al-'Ankabut,69|Ar-Rum,60|Luqman,34|As-Sajdah,30|Al-Ahzab,73|Saba',54|Fatir,45|Ya-Sin,83|As-Saffat,182|Sad,88|Az-Zumar,75|Ghafir,85|Fussilat,54|Asy-Syura,53|Az-Zukhruf,89|Ad-Dukhan,59|Al-Jasiyah,37|Al-Ahqaf,35|Muhammad,38|Al-Fath,29|Al-Hujurat,18|Qaf,45|Az-Zariyat,60|At-Tur,49|An-Najm,62|Al-Qamar,55|Ar-Rahman,78|Al-Waqi'ah,96|Al-Hadid,29|Al-Mujadilah,22|Al-Hasyr,24|Al-Mumtahanah,13|As-Saff,14|Al-Jumu'ah,11|Al-Munafiqun,11|At-Taghabun,18|At-Talaq,12|At-Tahrim,12|Al-Mulk,30|Al-Qalam,52|Al-Haqqah,52|Al-Ma'arij,44|Nuh,28|Al-Jinn,28|Al-Muzzammil,20|Al-Muddassir,56|Al-Qiyamah,40|Al-Insan,31|Al-Mursalat,50|An-Naba',40|An-Nazi'at,46|'Abasa,42|At-Takwir,29|Al-Infitar,19|Al-Mutaffifin,36|Al-Insyiqaq,25|Al-Buruj,22|At-Tariq,17|Al-A'la,19|Al-Ghasyiyah,26|Al-Fajr,30|Al-Balad,20|Asy-Syams,15|Al-Lail,21|Ad-Duha,11|Al-Insyirah,8|At-Tin,8|Al-'Alaq,19|Al-Qadr,5|Al-Bayyinah,8|Az-Zalzalah,8|Al-'Adiyat,11|Al-Qari'ah,11|At-Takasur,8|Al-'Asr,3|Al-Humazah,9|Al-Fil,5|Quraisy,4|Al-Ma'un,7|Al-Kausar,3|Al-Kafirun,6|An-Nasr,3|Al-Lahab,5|Al-Ikhlas,4|Al-Falaq,5|An-Nas,6".split('|').map((s,i)=>{const [n,a]=s.split(',');return{number:i+1,name:n,ayahs:parseInt(a)}});
 
+        // --- FIREBASE INIT ---
         const firebaseConfig = { apiKey: "AIzaSyBZ7_9eXqPiPRoroU8q4aIvxLWSgjG2SF8", authDomain: "jurnal-murojaahku.firebaseapp.com", projectId: "jurnal-murojaahku", storageBucket: "jurnal-murojaahku.firebasestorage.app", messagingSenderId: "471439272992", appId: "1:471439272992:web:8d6cc019f177d5385fa045" };
 
         let app, auth, db, isCloudReady = false;
@@ -94,14 +122,7 @@
 
         try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); isCloudReady = true; } catch (error) {}
 
-        const getCardStyles = (count, nameLen = 0) => {
-            if (count > 30) return { titleClass: "text-sm", subTitleClass: "text-[7px] mb-1", hNameClass: nameLen > 20 ? "text-xs mb-0" : "text-sm mb-0", uNameClass: "text-[7px] mb-1", labelClass: "text-[8px] mb-1", studentTextClass: "text-[7px] leading-tight", dotClass: "mx-1 text-[7px]", footerClass: "pt-2 pb-0 text-[7px]" };
-            if (count > 20) return { titleClass: "text-base", subTitleClass: "text-[8px] mb-1.5", hNameClass: nameLen > 20 ? "text-sm mb-0" : "text-base mb-0", uNameClass: "text-[8px] mb-1.5", labelClass: "text-[9px] mb-1", studentTextClass: "text-[8.5px] leading-tight", dotClass: "mx-1 text-[8.5px]", footerClass: "pt-2 pb-0 text-[8px]" };
-            if (count > 12) return { titleClass: "text-lg", subTitleClass: "text-[9px] mb-2", hNameClass: nameLen > 20 ? "text-base mb-0.5" : "text-lg mb-0.5", uNameClass: "text-[9px] mb-2", labelClass: "text-[10px] mb-1", studentTextClass: "text-[10px] leading-snug", dotClass: "mx-1 text-[10px]", footerClass: "pt-2.5 pb-0 text-[8.5px]" };
-            if (count > 6) return { titleClass: "text-xl", subTitleClass: "text-[10px] mb-3", hNameClass: nameLen > 20 ? "text-lg mb-0.5" : "text-xl mb-0.5", uNameClass: "text-[10px] mb-3", labelClass: "text-[11px] mb-2", studentTextClass: "text-xs leading-snug", dotClass: "mx-1.5 text-xs", footerClass: "pt-2.5 pb-0 text-[9px]" };
-            return { titleClass: "text-xl", subTitleClass: "text-[10px] mb-4", hNameClass: nameLen > 20 ? "text-xl mb-0.5" : "text-2xl mb-0.5", uNameClass: "text-[10px] mb-4", labelClass: "text-xs mb-2", studentTextClass: "text-sm leading-relaxed", dotClass: "mx-2 text-base", footerClass: "pt-3 pb-0.5 text-[9px]" };
-        };
-
+        // --- HELPER LOGIC ---
         const getTheme = (effectiveCount) => {
             if (effectiveCount >= 10 && effectiveCount < 20) return { overlay: "from-green-50 via-white to-green-50/80", title: "text-green-700", badgeBg: "bg-green-100", badgeText: "text-green-800", badgeBorder: "border-green-300", dot: "text-green-500", footerValue: "text-green-700", isSpecial: true };
             if (effectiveCount >= 20 && effectiveCount < 30) return { overlay: "from-blue-50 via-white to-blue-50/80", title: "text-blue-700", badgeBg: "bg-blue-100", badgeText: "text-blue-800", badgeBorder: "border-blue-300", dot: "text-blue-500", footerValue: "text-blue-700", isSpecial: true };
@@ -112,14 +133,36 @@
             return { overlay: "from-white via-white/95 to-orange-50", title: "text-orange-600", badgeBg: "bg-orange-50", badgeText: "text-orange-700", badgeBorder: "border-orange-100", dot: "text-orange-500", footerValue: "text-orange-600", isSpecial: false };
         };
 
-        const getStudentTextClass = (count) => {
-            if (count > 25) return { textSizeClass: 'text-[7px]', spanSizeClass: 'text-[6px]', gapClass: 'gap-0.5', dotMargin: 'ml-0.5' };
-            if (count > 15) return { textSizeClass: 'text-[8px]', spanSizeClass: 'text-[7px]', gapClass: 'gap-1', dotMargin: 'ml-1' };
-            if (count > 8) return { textSizeClass: 'text-[10px]', spanSizeClass: 'text-[8px]', gapClass: 'gap-1.5', dotMargin: 'ml-1.5' };
-            if (count > 4) return { textSizeClass: 'text-[11px]', spanSizeClass: 'text-[9px]', gapClass: 'gap-2', dotMargin: 'ml-2' };
-            return { textSizeClass: 'text-sm', spanSizeClass: 'text-[10px]', gapClass: 'gap-2', dotMargin: 'ml-2' };
+        const calculatePoints = (surahNum, rangeStr) => {
+            if (surahNum === 1) return 0;
+            const surah = SURAH_LIST.find(s => s.number === surahNum);
+            if (!surah) return 0;
+            let readAyahs = surah.ayahs;
+            if (rangeStr) {
+                const matches = rangeStr.match(/\d+/g);
+                if (matches && matches.length >= 2) readAyahs = Math.abs(parseInt(matches[1]) - parseInt(matches[0])) + 1;
+                else if (matches && matches.length === 1) readAyahs = 1;
+            }
+            if (surahNum >= 78) return readAyahs > 11 ? 2 : 1;
+            else if (surahNum >= 46) return (readAyahs / surah.ayahs) >= 0.99 ? 3 : (readAyahs / surah.ayahs) >= 0.5 ? 2 : 1;
+            else return Math.max(1, Math.round(readAyahs / 7));
         };
 
+        const getSurahName = (num) => SURAH_LIST.find(s => s.number === num)?.name || `Surat ${num}`;
+        const getFormattedDate = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const getDateOnly = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const getLocalDateString = (iso) => {
+            if (!iso) return ""; const d = new Date(iso); if (isNaN(d.getTime())) return "";
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        };
+        const formatForDatetimeInput = (isoString) => {
+            if (!isoString) return "";
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return "";
+            return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        };
+
+        // --- MAIN APP COMPONENT ---
         function MainApp() {
           const [currentView, setCurrentView] = useState(() => sessionStorage.getItem('murojaah_currentView') || 'welcome');
           const [isLoading, setIsLoading] = useState(false);
@@ -132,20 +175,18 @@
               return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
           });
 
-          useEffect(() => {
-              if (isDarkMode) { document.documentElement.classList.add('dark'); document.body.classList.add('dark'); localStorage.setItem('murojaah_theme', 'dark'); } 
-              else { document.documentElement.classList.remove('dark'); document.body.classList.remove('dark'); localStorage.setItem('murojaah_theme', 'light'); }
-          }, [isDarkMode]);
-
+          // CORE DATA
           const [data, setData] = useState(() => { try { const s = localStorage.getItem('murojaahData'); return s ? JSON.parse(s) : INITIAL_DATA; } catch (e) { return INITIAL_DATA; } });
           const [classes, setClasses] = useState(() => { try { const s = localStorage.getItem('murojaahClasses'); return s ? JSON.parse(s) : DEFAULT_CLASS_LIST; } catch (e) { return DEFAULT_CLASS_LIST; } });
           const [history, setHistory] = useState(() => { try { const s = localStorage.getItem('murojaahHistory'); return s ? JSON.parse(s) : []; } catch (e) { return []; } });
           
+          // CONFIG DATA
           const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem('murojaahScriptUrl') || '');
           const [schoolName, setSchoolName] = useState(() => localStorage.getItem('murojaah_schoolName') || 'SDIT Al Fityan School Bogor');
           const [schoolLogo, setSchoolLogo] = useState(() => localStorage.getItem('murojaah_schoolLogo') || './logo.png');
           const [welcomeBgUrl, setWelcomeBgUrl] = useState(() => localStorage.getItem('murojaah_bgUrl') || '');
 
+          // SELECTIONS
           const [selectedUstadz, setSelectedUstadz] = useState(() => { try { const s = sessionStorage.getItem('murojaah_selectedUstadz'); return s && s !== "undefined" ? JSON.parse(s) : null; } catch(e) { return null; } });
           const [selectedHalaqoh, setSelectedHalaqoh] = useState(() => { try { const s = sessionStorage.getItem('murojaah_selectedHalaqoh'); return s && s !== "undefined" ? JSON.parse(s) : null; } catch(e) { return null; } });
           const [selectedSurahs, setSelectedSurahs] = useState([]);
@@ -153,8 +194,8 @@
           const [selectedStudent, setSelectedStudent] = useState("");
           const [selectedClass, setSelectedClass] = useState("");
           const [searchTerm, setSearchTerm] = useState("");
-          const [showConfetti, setShowConfetti] = useState(false);
           
+          // FILTERS
           const [historyFilter, setHistoryFilter] = useState("Semua");
           const [historyDateFilter, setHistoryDateFilter] = useState(""); 
           const [historyPage, setHistoryPage] = useState(1);
@@ -162,15 +203,18 @@
           const [adminHistoryDateFilter, setAdminHistoryDateFilter] = useState("");
           const [adminHistoryPage, setAdminHistoryPage] = useState(1);
 
+          // ADMIN ROLES
           const [adminRole, setAdminRole] = useState(() => sessionStorage.getItem('murojaah_adminRole') || null);
           const isSuperAdmin = adminRole === 'superadmin';
           const isAdmin = isSuperAdmin || adminRole === 'editor';
 
-          // --- STATE UNTUK MODALS ---
+          // MODALS & FORMS STATES
           const [showLoginModal, setShowLoginModal] = useState(false);
-          const [showSettingsModal, setShowSettingsModal] = useState(false);
-          const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+          const [loginUsername, setLoginUsername] = useState("");
+          const [loginPassword, setLoginPassword] = useState("");
           const [loginError, setLoginError] = useState(false);
+
+          const [showSettingsModal, setShowSettingsModal] = useState(false);
           const [showUstadzModal, setShowUstadzModal] = useState(false);
           const [ustadzForm, setUstadzForm] = useState({ id: null, name: '', gender: 'male' });
           const [showHalaqohModal, setShowHalaqohModal] = useState(false);
@@ -179,7 +223,6 @@
           const [newStudentName, setNewStudentName] = useState("");
           const [editingStudentIndex, setEditingStudentIndex] = useState(null); 
           const [editStudentValue, setEditStudentValue] = useState(""); 
-          const [showManageClassModal, setShowManageClassModal] = useState(false);
           const [classForm, setClassForm] = useState("");
           const [editingClassIdx, setEditingClassIdx] = useState(null);
           const [editClassText, setEditClassText] = useState("");
@@ -188,6 +231,16 @@
           const [verseInput, setVerseInput] = useState({ start: '', end: '' });
           const startVerseRef = useRef(null);
           const [deleteConfig, setDeleteConfig] = useState({ show: false, type: null, id: null, name: '', parentId: null });
+          const [showEditHistoryModal, setShowEditHistoryModal] = useState(false);
+          const [editingHistoryItem, setEditingHistoryItem] = useState(null);
+          const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+          const [broadcastMessage, setBroadcastMessage] = useState("");
+          const [broadcastData, setBroadcastData] = useState(null);
+          const [activeBroadcast, setActiveBroadcast] = useState(null); 
+          const [notifPermission, setNotifPermission] = useState(() => { return typeof Notification !== 'undefined' ? Notification.permission : 'default'; });
+          const [showConfetti, setShowConfetti] = useState(false);
+
+          // SHARE REFS & STATES
           const [shareItem, setShareItem] = useState(null);
           const shareCardRef = useRef(null);
           const [shareHalaqohItem, setShareHalaqohItem] = useState(null);
@@ -195,13 +248,8 @@
           const [shareDailyItem, setShareDailyItem] = useState(null); 
           const shareDailyCardRef = useRef(null); 
           const [isGeneratingImage, setIsGeneratingImage] = useState(null); 
-          const [showEditHistoryModal, setShowEditHistoryModal] = useState(false);
-          const [editingHistoryItem, setEditingHistoryItem] = useState(null);
-          const [showBroadcastModal, setShowBroadcastModal] = useState(false);
-          const [broadcastMessage, setBroadcastMessage] = useState("");
-          const [activeBroadcast, setActiveBroadcast] = useState(null); 
-          const [notifPermission, setNotifPermission] = useState(() => { return typeof Notification !== 'undefined' ? Notification.permission : 'default'; });
 
+          // --- LOCAL STORAGE EFFECTS ---
           useEffect(() => { localStorage.setItem('murojaahData', JSON.stringify(data)); }, [data]);
           useEffect(() => { localStorage.setItem('murojaahHistory', JSON.stringify(history)); }, [history]);
           useEffect(() => { localStorage.setItem('murojaahClasses', JSON.stringify(classes)); }, [classes]);
@@ -215,39 +263,13 @@
           useEffect(() => { sessionStorage.setItem('murojaah_adminRole', adminRole || ''); }, [adminRole]);
 
           useEffect(() => { if (selectedHalaqoh) { setSelectedStudent(""); setSelectedClass(""); } }, [selectedHalaqoh]);
+          useEffect(() => {
+              if (isDarkMode) { document.documentElement.classList.add('dark'); document.body.classList.add('dark'); } 
+              else { document.documentElement.classList.remove('dark'); document.body.classList.remove('dark'); }
+          }, [isDarkMode]);
           useEffect(() => { if (showVerseModal && startVerseRef.current) setTimeout(() => startVerseRef.current.focus(), 100); }, [showVerseModal]);
 
-          const calculatePoints = (surahNum, rangeStr) => {
-              if (surahNum === 1) return 0;
-              const surah = SURAH_LIST.find(s => s.number === surahNum);
-              if (!surah) return 0;
-              let readAyahs = surah.ayahs;
-              if (rangeStr) {
-                  const matches = rangeStr.match(/\d+/g);
-                  if (matches && matches.length >= 2) readAyahs = Math.abs(parseInt(matches[1]) - parseInt(matches[0])) + 1;
-                  else if (matches && matches.length === 1) readAyahs = 1;
-              }
-              if (surahNum >= 78) return readAyahs > 11 ? 2 : 1;
-              else if (surahNum >= 46) return (readAyahs / surah.ayahs) >= 0.99 ? 3 : (readAyahs / surah.ayahs) >= 0.5 ? 2 : 1;
-              else return Math.max(1, Math.round(readAyahs / 7));
-          };
-
-          const requestNotificationPermission = async () => {
-             if (!("Notification" in window)) return alert("Perangkat Anda tidak mendukung Notifikasi.");
-             const perm = await Notification.requestPermission();
-             setNotifPermission(perm);
-             if (perm === "granted") alert("Notifikasi diizinkan!");
-          };
-
-          const handleSendBroadcast = async () => {
-             if (!broadcastMessage.trim() || !isCloudReady || !db) return;
-             setIsLoading(true);
-             try {
-                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'broadcast'), { message: broadcastMessage.trim(), timestamp: Date.now() });
-                 alert("Pengumuman berhasil dikirim!"); setShowBroadcastModal(false); setBroadcastMessage("");
-             } catch (e) { alert("Gagal mengirim pengumuman."); } finally { setIsLoading(false); }
-          };
-
+          // --- FIREBASE EFFECTS ---
           useEffect(() => {
               if (!isCloudReady || !auth) { setCloudStatus('offline'); return; }
               const initAuth = async () => {
@@ -306,14 +328,15 @@
               const unsubBroadcast = onSnapshot(broadcastDocRef, (docSnap) => {
                  if (docSnap.exists()) {
                      const bData = docSnap.data();
+                     setBroadcastData(bData);
                      const lastSeen = localStorage.getItem('murojaah_last_broadcast');
-                     if (bData.timestamp && bData.timestamp.toString() !== lastSeen) {
-                         if (!isAdmin) {
-                             if ("Notification" in window && Notification.permission === 'granted') {
-                                 try { new Notification("Pengumuman Jurnal Murojaah", { body: bData.message, icon: schoolLogo || './logo.png' }); localStorage.setItem('murojaah_last_broadcast', bData.timestamp.toString()); return;} catch (err) {}
-                             }
-                             setActiveBroadcast(bData); 
-                         } else { localStorage.setItem('murojaah_last_broadcast', bData.timestamp.toString()); }
+                     if (bData.isActive && bData.timestamp && bData.timestamp.toString() !== lastSeen) {
+                         if ("Notification" in window && Notification.permission === 'granted') {
+                             try { new Notification("Pengumuman Jurnal Murojaah", { body: bData.message }); } catch (err) {}
+                         }
+                         setActiveBroadcast(bData); 
+                     } else if (!bData.isActive) {
+                         setActiveBroadcast(null);
                      }
                  }
               });
@@ -321,23 +344,55 @@
               return () => { unsubCore(); unsubHistory(); unsubBroadcast(); };
           }, [firebaseUser, isAdmin]);
 
+          // --- CORE CLOUD FUNCTIONS ---
           const saveCoreToCloud = async (newData = data, newClasses = classes, newScriptUrl = scriptUrl, newBgUrl = welcomeBgUrl, newSchoolName = schoolName, newSchoolLogo = schoolLogo) => {
               if (!firebaseUser || !db) return;
               try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'main'), { data: newData || [], classes: newClasses || [], scriptUrl: newScriptUrl, welcomeBgUrl: newBgUrl, schoolName: newSchoolName, schoolLogo: newSchoolLogo }, { merge: true }); } catch(e) {}
           };
 
-          const saveScriptUrl = (url) => { setScriptUrl(url); if (isCloudReady) saveCoreToCloud(data, classes, url); };
-          const getSurahName = (num) => SURAH_LIST.find(s => s.number === num)?.name || `Surat ${num}`;
-          const getFormattedDate = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-          const getDateOnly = (iso) => new Date(iso).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-          const getLocalDateString = (iso) => {
-             if (!iso) return ""; const d = new Date(iso); if (isNaN(d.getTime())) return "";
-             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          const requestNotificationPermission = async () => {
+             if (!("Notification" in window)) return alert("Perangkat Anda tidak mendukung Notifikasi.");
+             const perm = await Notification.requestPermission();
+             setNotifPermission(perm);
+             if (perm === "granted") alert("Notifikasi diizinkan!");
           };
 
+          const handleSendBroadcast = async () => {
+             if (!broadcastMessage.trim() || !isCloudReady || !db) return;
+             setIsLoading(true);
+             try {
+                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'broadcast'), { message: broadcastMessage.trim(), timestamp: Date.now(), isActive: true });
+                 setShowBroadcastModal(false); 
+                 setBroadcastMessage("");
+             } catch (e) { alert("Gagal mengirim pengumuman."); } finally { setIsLoading(false); }
+          };
+
+          const handleStopBroadcast = async () => {
+             if (!isCloudReady || !db) return;
+             setIsLoading(true);
+             try {
+                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'broadcast'), { isActive: false }, { merge: true });
+             } catch (e) { alert("Gagal menghentikan pengumuman."); } finally { setIsLoading(false); }
+          };
+
+          const saveScriptUrl = (url) => { setScriptUrl(url); if (isCloudReady) saveCoreToCloud(data, classes, url); };
+          
+          const handleLogoUpload = (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              if (file.size > 1024 * 1024) return alert("Ukuran gambar terlalu besar! Maksimal 1MB.");
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                  const base64String = reader.result;
+                  setSchoolLogo(base64String);
+                  if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, schoolName, base64String);
+              };
+              reader.readAsDataURL(file);
+          };
+
+          // --- SHARE LOGIC ---
           const handleShareClick = (item) => { setShareItem(item); };
           const handleShareHalaqohClick = (e, h) => { e.stopPropagation(); setShareHalaqohItem({ ...h, ustadzName: selectedUstadz?.name }); };
-          
           const handleShareDailyClick = () => {
               const dateToShare = historyDateFilter || getLocalDateString(new Date().toISOString());
               const dailyData = history.filter(item => item && item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name && getLocalDateString(item.date) === dateToShare);
@@ -359,8 +414,14 @@
               if (!ref.current) return;
               setIsGeneratingImage(action);
               try {
+                  await new Promise(r => setTimeout(r, 150)); // Jeda render agar font termuat sempurna
+                  
                   const isDaily = namePrefix === 'Rekap_Harian';
-                  const imgProps = isDaily ? { scale: 3, width: 315, height: 560, backgroundColor: 'transparent' } : { scale: 3, width: 320, height: 400, backgroundColor: 'transparent' };
+                  const imgProps = isDaily ? { scale: 3, width: 315, height: 560, backgroundColor: 'white', style: { transform: 'none' } } : { scale: 3, width: 320, height: 400, backgroundColor: 'white', style: { transform: 'none' } };
+                  
+                  const originalFont = ref.current.style.fontFamily;
+                  ref.current.style.fontFamily = "'Nunito', sans-serif";
+                  
                   const imageBlob = await domToBlob(ref.current, imgProps);
                   const imageUrl = URL.createObjectURL(imageBlob);
                   const safeName = (studentOrHalaqoh || 'File').replace(/\s+/g, '_');
@@ -368,15 +429,16 @@
 
                   if (action === 'share' && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], fileName, { type: 'image/png' })] })) {
                       try { await navigator.share({ title: 'Jurnal Murojaahku', files: [new File([imageBlob], fileName, { type: 'image/png' })] }); } 
-                      catch(err) { if (err.name !== 'AbortError') { alert("Gagal membagikan. Gambar akan diunduh."); triggerDownload(imageUrl, fileName); } }
+                      catch(err) { if (err.name !== 'AbortError') { triggerDownload(imageUrl, fileName); } }
                   } else {
-                      if (action === 'share') alert("Perangkat Anda tidak mendukung Share File langsung. Gambar akan diunduh otomatis.");
+                      if (action === 'share') alert("Perangkat Anda tidak mendukung Share File langsung. Gambar otomatis diunduh.");
                       triggerDownload(imageUrl, fileName);
                   }
               } catch (error) { alert("Gagal memproses gambar."); } 
               finally { setIsGeneratingImage(null); }
           };
 
+          // --- COMPUTED DATA ---
           const topStudents = useMemo(() => {
               const stats = {};
               history.forEach(item => {
@@ -423,6 +485,7 @@
             }
           };
 
+          // --- UI EVENT HANDLERS ---
           const handleSelectUstadz = (u) => { setSelectedUstadz(u); setCurrentView('select-halaqoh'); };
           const handleSelectHalaqoh = (h) => { setSelectedHalaqoh(h); setCurrentView('home'); };
           const handleBack = () => {
@@ -432,13 +495,26 @@
             else if (currentView === 'admin-dashboard') setCurrentView('select-ustadz');
           };
 
-          const handleLogin = (e) => {
+          const handleLoginSubmit = (e) => {
             e.preventDefault();
-            if (loginForm.username === 'jumanjayyidin' && loginForm.password === 'offthewallba123') {
-              setAdminRole('superadmin'); setShowLoginModal(false); setLoginForm({ username: '', password: '' }); setLoginError(false);
-            } else if (loginForm.username === 'admin' && loginForm.password === 'admin123456') {
-              setAdminRole('editor'); setShowLoginModal(false); setLoginForm({ username: '', password: '' }); setLoginError(false);
-            } else { setLoginError(true); setLoginForm(prev => ({...prev, password: ''})); }
+            setLoginError(false);
+            const user = loginUsername.trim();
+            const pass = loginPassword.trim();
+            
+            if (user === 'jumanjayyidin' && pass === 'offthewallba123') {
+              setAdminRole('superadmin'); closeLogin();
+            } else if (user === 'admin' && pass === 'admin123456') {
+              setAdminRole('editor'); closeLogin();
+            } else { 
+              setLoginError(true); setLoginPassword(""); 
+            }
+          };
+
+          const closeLogin = () => {
+            setShowLoginModal(false);
+            setLoginUsername("");
+            setLoginPassword("");
+            setLoginError(false);
           };
 
           const handleLogout = () => { setAdminRole(null); setShowManageStudentModal(false); setShowSettingsModal(false); setCurrentView('welcome'); };
@@ -450,9 +526,7 @@
           const saveUstadz = (e) => {
              e.preventDefault(); if (!ustadzForm.name.trim()) return;
              let newData = ustadzForm.id ? data.map(u => u?.id === ustadzForm.id ? { ...u, name: ustadzForm.name, gender: ustadzForm.gender } : u) : [...data, { id: `ust-${Date.now()}`, name: ustadzForm.name, gender: ustadzForm.gender, halaqohs: [] }];
-             refreshSelectedData(newData);
-             if (isCloudReady) saveCoreToCloud(newData, classes); 
-             setShowUstadzModal(false);
+             refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes); setShowUstadzModal(false);
           };
 
           const openAddHalaqoh = () => { setHalaqohForm({ id: null, name: '' }); setShowHalaqohModal(true); };
@@ -468,9 +542,7 @@
                 }
                 return u;
              });
-             refreshSelectedData(newData);
-             if (isCloudReady) saveCoreToCloud(newData, classes); 
-             setShowHalaqohModal(false);
+             refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes); setShowHalaqohModal(false);
           };
 
           const handleAddStudent = (e) => {
@@ -479,9 +551,7 @@
               if (u?.id === selectedUstadz?.id) return { ...u, halaqohs: (u.halaqohs || []).map(h => h?.id === selectedHalaqoh?.id ? { ...h, students: [...(h.students || []), newStudentName.trim()] } : h) };
               return u;
             });
-            refreshSelectedData(newData);
-            if (isCloudReady) saveCoreToCloud(newData, classes); 
-            setNewStudentName("");
+            refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes); setNewStudentName("");
           };
 
           const handleMoveUstadz = (index, direction) => {
@@ -489,8 +559,7 @@
             if (direction === 'up' && index > 0) [newData[index], newData[index - 1]] = [newData[index - 1], newData[index]];
             else if (direction === 'down' && index < newData.length - 1) [newData[index], newData[index + 1]] = [newData[index + 1], newData[index]];
             else return;
-            refreshSelectedData(newData);
-            if (isCloudReady) saveCoreToCloud(newData, classes);
+            refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes);
           };
 
           const handleMoveStudent = (index, direction) => {
@@ -500,8 +569,7 @@
             else if (direction === 'down' && index < newStudents.length - 1) [newStudents[index], newStudents[index + 1]] = [newStudents[index + 1], newStudents[index]];
             else return;
             const newData = data.map(u => u?.id === selectedUstadz?.id ? { ...u, halaqohs: (u.halaqohs || []).map(h => h?.id === selectedHalaqoh?.id ? { ...h, students: newStudents } : h) } : u);
-            refreshSelectedData(newData);
-            if (isCloudReady) saveCoreToCloud(newData, classes);
+            refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes);
           };
 
           const startEditingStudent = (index) => { setEditingStudentIndex(index); setEditStudentValue(selectedHalaqoh?.students?.[index] || ""); };
@@ -515,8 +583,7 @@
             const newData = data.map(u => u?.id === selectedUstadz?.id ? { ...u, halaqohs: (u.halaqohs || []).map(h => h?.id === selectedHalaqoh?.id ? { ...h, students: newStudents } : h) } : u);
             
             if (selectedStudent === oldName) setSelectedStudent(trimmedValue);
-            refreshSelectedData(newData);
-            if (isCloudReady) saveCoreToCloud(newData, classes);
+            refreshSelectedData(newData); if (isCloudReady) saveCoreToCloud(newData, classes);
             
             const historyToUpdate = history.filter(h => h?.student === oldName && h?.halaqohName === selectedHalaqoh?.name);
             if (historyToUpdate.length > 0) {
@@ -530,9 +597,7 @@
           const handleAddClass = (e) => {
             e.preventDefault(); if (!classForm.trim() || classes.includes(classForm.trim())) return;
             const newClasses = [...classes, classForm.trim()];
-            setClasses(newClasses); 
-            if (isCloudReady) saveCoreToCloud(data, newClasses); 
-            setClassForm("");
+            setClasses(newClasses); if (isCloudReady) saveCoreToCloud(data, newClasses); setClassForm("");
           };
           const saveClassEdit = (index) => {
             const newVal = editClassText.trim(); if (!newVal || (newVal !== classes[index] && classes.includes(newVal))) return;
@@ -581,26 +646,6 @@
               } catch(err) {} finally { setIsLoading(false); }
           };
 
-          const handleLogoUpload = (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
-              if (file.size > 1024 * 1024) return alert("Ukuran gambar terlalu besar! Maksimal 1MB.");
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                  const base64String = reader.result;
-                  setSchoolLogo(base64String);
-                  if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, schoolName, base64String);
-              };
-              reader.readAsDataURL(file);
-          };
-
-          const formatForDatetimeInput = (isoString) => {
-              if (!isoString) return "";
-              const d = new Date(isoString);
-              if (isNaN(d.getTime())) return "";
-              return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-          };
-
           const toggleSurah = (surah) => {
             if (selectedSurahs.includes(surah.number)) {
               setSelectedSurahs(selectedSurahs.filter(id => id !== surah.number));
@@ -622,8 +667,8 @@
             if (isLoading || !selectedStudent || !selectedClass || selectedSurahs.length === 0) return;
             const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
             const stdHistToday = history.filter(h => h?.student === selectedStudent && new Date(h.date) >= todayStart).sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (stdHistToday.length >= 2) return alert(`Ananda ${selectedStudent} sudah mencapai batas 2 kali setoran hari ini.`);
-            if (stdHistToday.length === 1 && (Date.now() - new Date(stdHistToday[0].date).getTime() < 3600000)) return alert(`Harap tunggu 1 jam untuk input setoran kedua ananda ${selectedStudent}.`);
+            if (stdHistToday.length >= 2) return alert(`Ananda ${selectedStudent} sudah mencapai batas 2 kali murojaah hari ini.`);
+            if (stdHistToday.length === 1 && (Date.now() - new Date(stdHistToday[0].date).getTime() < 3600000)) return alert(`Harap tunggu 1 jam untuk input murojaah kedua ananda ${selectedStudent}.`);
 
             setIsLoading(true); 
             
@@ -658,51 +703,11 @@
             setIsLoading(false); setShowConfetti(true); setTimeout(() => { setShowConfetti(false); setCurrentView('history'); }, 1500);
           };
 
-          const filteredSurahs = SURAH_LIST.filter(s => s.name.toLowerCase().includes((searchTerm || '').toLowerCase()) || s.number.toString().includes(searchTerm || ''));
+          const filteredSurahs = SURAH_LIST.filter(s => s.name.toLowerCase().includes((searchTerm || '').toLowerCase()) || s.number.toString().includes(searchTerm)).map(surah => surah);
 
-          // --- FUNGSI RENDER HISTORY CARD UNTUK MENGHEMAT BARIS KODE ---
-          const renderHistoryCard = (item) => (
-             <div key={item?.id || Math.random()} className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md hover:border-orange-200 transition-all duration-300">
-                <div className="flex justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 sm:pb-4 mb-3 sm:mb-4">
-                   <div className="flex-1 overflow-hidden pr-2">
-                     <div className="flex items-center gap-2 mb-1.5">
-                        <span className="font-extrabold text-slate-800 dark:text-slate-100 text-sm sm:text-base md:text-lg truncate">{item.student || '-'}</span>
-                        <span className="text-[9px] sm:text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2.5 py-1 rounded-lg font-extrabold uppercase flex-shrink-0 tracking-wider">{item.class || '-'}</span>
-                     </div>
-                     <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 flex flex-col gap-1 mt-2">
-                         <div className="flex items-center gap-1.5 truncate"><img src="https://cdn-icons-png.flaticon.com/512/33/33308.png" className="w-3.5 h-3.5 object-contain opacity-60 flex-shrink-0" alt="Halaqoh" /> <span className="truncate font-medium">{item.halaqohName || '-'}</span></div>
-                         <div className="flex items-center gap-1.5 truncate"><img src={data.find(u => u.name === item.ustadzName)?.gender === 'female' ? "https://cdn-icons-png.flaticon.com/512/5405/5405442.png" : "https://cdn-icons-png.flaticon.com/512/5403/5403148.png"} className="w-3.5 h-3.5 object-contain opacity-80" alt="Ustadz" /> <span className="truncate font-medium">{item.ustadzName || '-'}</span></div>
-                     </div>
-                   </div>
-                   <div className="flex gap-1.5 sm:gap-2 flex-shrink-0 pl-2 h-max">
-                       <button onClick={() => handleShareClick(item)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><ImageIcon className="w-4 h-4 sm:w-4 sm:h-4" /></button>
-                       {isAdmin && (
-                         <>
-                             <button onClick={() => { setEditingHistoryItem(item); setShowEditHistoryModal(true); }} className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"><Edit2 className="w-4 h-4 sm:w-4 sm:h-4" /></button>
-                             <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item.id})} className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-4 h-4 sm:w-4 sm:h-4"/></button>
-                         </>
-                       )}
-                   </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                   {(item.surahs || []).map(num => (
-                     <span key={num} className="bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 px-3 sm:px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-orange-500/20 leading-tight">
-                        {getSurahName(num)} {item.ranges?.[num] ? <span className="text-orange-500 dark:text-orange-400 text-[9px] sm:text-[10px] ml-1">({item.ranges[num]})</span> : ''}
-                     </span>
-                   ))}
-                </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-400 mt-4 uppercase tracking-widest font-bold flex items-center gap-1.5"><Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {getFormattedDate(item.date || new Date().toISOString())}</div>
-                {isAdmin && (item.ipAddress || item.userAgent) && (
-                   <div className="mt-4 pt-3 border-t border-slate-50 dark:border-slate-700/50 flex flex-col gap-1.5">
-                      <div className="flex items-start gap-1.5 text-[9px] text-slate-400 dark:text-slate-500"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item.ipAddress || 'Unknown'}</span></div>
-                      <div className="flex items-start gap-1.5 text-[9px] text-slate-400 dark:text-slate-500"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item.userAgent}>{item.userAgent || 'Unknown Device'}</span></div>
-                   </div>
-                )}
-             </div>
-          );
-
+          // --- UI COMPONENTS ---
           const HeaderUI = (title, subtitle) => (
-            <div className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-orange-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 p-3 sm:p-4 md:p-6 shadow-sm rounded-b-[2rem] sm:rounded-b-[2.5rem] transition-all">
+            <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-orange-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 p-3 sm:p-4 md:p-6 shadow-sm rounded-b-[2rem] sm:rounded-b-[2.5rem] transition-all">
               <div className="flex justify-between items-center max-w-xl mx-auto w-full">
                 <div className="flex items-center gap-2 sm:gap-3 overflow-hidden flex-1 min-w-0 mr-2">
                    <button onClick={handleBack} className="p-2 sm:p-2.5 md:p-3 bg-slate-100/80 dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-500/20 hover:text-orange-600 dark:hover:text-orange-400 rounded-full transition-all duration-300 flex-shrink-0 text-slate-600 dark:text-slate-300 shadow-sm hover:shadow-md"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
@@ -731,20 +736,23 @@
             </div>
           );
 
+          // --- RENDERING TAMPILAN UTAMA ---
           return (
-            <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-28 sm:pb-20' : ''}`}>
+            <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-36 sm:pb-32' : ''}`}>
               
+              {/* --- ALERTS & BROADCAST --- */}
               {activeBroadcast && (
                   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in">
                      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center transform transition-all animate-in zoom-in-95 border border-white/10">
                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner"><Megaphone className="w-6 h-6 text-white animate-pulse" /></div>
                         <h3 className="text-xl sm:text-2xl font-bold mb-3">Pengumuman</h3>
-                        <div className="bg-black/20 p-4 rounded-2xl mb-6 text-left whitespace-pre-wrap text-sm">{activeBroadcast.message}</div>
+                        <div className="bg-black/20 p-4 rounded-2xl mb-6 text-left whitespace-pre-wrap text-sm max-h-48 overflow-y-auto custom-scrollbar">{activeBroadcast.message}</div>
                         <button onClick={() => { localStorage.setItem('murojaah_last_broadcast', activeBroadcast.timestamp.toString()); setActiveBroadcast(null); }} className="w-full bg-white text-blue-700 font-extrabold py-3.5 sm:py-4 rounded-2xl shadow-lg hover:bg-blue-50 active:scale-95 transition-all text-sm sm:text-base">Tutup & Paham</button>
                      </div>
                   </div>
               )}
 
+              {/* --- VIEWS --- */}
               {currentView === 'welcome' && (
                   <div className="min-h-screen flex items-center justify-center p-4 text-white relative overflow-x-hidden font-sans py-12">
                      <div className="fixed top-0 left-0 w-full h-full z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${(welcomeBgUrl || '').trim() || 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1920&auto=format&fit=crop'}')` }}></div>
@@ -800,183 +808,10 @@
                            )}
                         </div>
                      </div>
-                     <div className="absolute bottom-4 sm:bottom-6 left-0 right-0 text-center text-white/60 text-[10px] sm:text-xs font-medium z-20 px-4 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 tracking-wide">
-                        <span>&copy; {new Date().getFullYear()} Juman Jayyidin.</span><span className="hidden sm:inline">|</span><span>All rights reserved.</span>
-                     </div>
                   </div>
               )}
 
-              {/* MODAL LOGIN */}
-              {showLoginModal && (
-                <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative">
-                    <button onClick={() => { setShowLoginModal(false); setLoginError(false); }} className="absolute top-4 right-4 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-red-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
-                    <div className="text-center mb-6">
-                      <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 rounded-[1.25rem] flex items-center justify-center mx-auto mb-4"><Lock className="w-6 h-6 text-orange-600" /></div>
-                      <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">Login Admin</h2>
-                    </div>
-                    {loginError && (<div className="bg-red-50 text-red-600 p-3.5 rounded-2xl mb-4 text-xs font-semibold flex items-center justify-center gap-2"><AlertTriangle className="w-4 h-4" /> User/Password salah!</div>)}
-                    <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
-                      <input type="text" value={loginForm.username} onChange={e=>{setLoginForm({...loginForm, username:e.target.value}); setLoginError(false);}} className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 outline-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500" placeholder="Username" />
-                      <input type="password" value={loginForm.password} onChange={e=>{setLoginForm({...loginForm, password:e.target.value}); setLoginError(false);}} className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 outline-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500" placeholder="Password" />
-                      <button className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-2">Masuk</button>
-                    </form>
-                  </div>
-                </div>
-              )}
-
-              {/* MODAL SETTINGS ADMIN UTAMA */}
-              {showSettingsModal && isSuperAdmin && (
-                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md relative flex flex-col max-h-[85vh] shadow-2xl">
-                     <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                         <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><Settings className="w-5 h-5 text-orange-500" /> Pengaturan</h2>
-                         <button onClick={() => setShowSettingsModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600"><X className="w-4 h-4" /></button>
-                     </div>
-
-                     <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar space-y-6">
-                         <div className="space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3">
-                                <School className="w-3.5 h-3.5" /> Identitas Sekolah
-                            </h3>
-                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
-                               <div>
-                                   <label className="block text-[10px] font-bold text-slate-500 mb-2">Nama Sekolah / Instansi</label>
-                                   <input type="text" value={schoolName} onChange={(e) => { setSchoolName(e.target.value); if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, e.target.value, schoolLogo); }} placeholder="SDIT Al Fityan School Bogor" className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" />
-                               </div>
-                               <div>
-                                   <label className="block text-[10px] font-bold text-slate-500 mb-2">Logo Sekolah (Maks 1MB)</label>
-                                   <div className="flex items-center gap-3">
-                                       <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
-                                           <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="w-8 h-8 object-contain" />
-                                       </div>
-                                       <div className="flex-1">
-                                           <input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full text-xs text-slate-500 file:cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 outline-none" />
-                                       </div>
-                                   </div>
-                               </div>
-                            </div>
-                         </div>
-
-                         <div className="space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3">
-                                <ImageIcon className="w-3.5 h-3.5" /> Background Beranda
-                            </h3>
-                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                               <label className="block text-[10px] font-bold text-slate-500 mb-2">URL Gambar</label>
-                               <input type="text" value={welcomeBgUrl} onChange={(e) => { setWelcomeBgUrl(e.target.value); if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, e.target.value, schoolName, schoolLogo); }} placeholder="https://contoh.com/gambar.jpg" className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" />
-                            </div>
-                         </div>
-
-                         <div className="space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3">
-                                <Database className="w-3.5 h-3.5" /> Integrasi Backup
-                            </h3>
-                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                               <label className="block text-[10px] font-bold text-slate-500 mb-2">URL Web App Google Sheets</label>
-                               <input type="text" value={scriptUrl} onChange={(e) => saveScriptUrl(e.target.value)} placeholder="https://script.google.com/..." className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" />
-                            </div>
-                         </div>
-
-                         <div className="space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Data Master Kelas</h3>
-                            <form onSubmit={handleAddClass} className="flex gap-2">
-                              <input type="text" value={classForm} onChange={(e) => setClassForm(e.target.value)} className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nama Kelas Baru..." />
-                              <button type="submit" disabled={!classForm.trim()} className="bg-orange-600 text-white px-4 py-3 rounded-2xl font-bold disabled:opacity-50 shadow-md"><PlusCircle className="w-4 h-4" /></button>
-                            </form>
-                            <div className="space-y-2 mt-4 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
-                              {classes.map((cls, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                                  {editingClassIdx === idx ? (
-                                    <div className="flex gap-2 w-full">
-                                       <input type="text" value={editClassText} onChange={(e) => setEditClassText(e.target.value)} className="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 rounded-lg" autoFocus />
-                                       <button onClick={() => saveClassEdit(idx)} className="text-green-600 p-2 bg-green-50 rounded-lg"><Check className="w-4 h-4" /></button>
-                                       <button onClick={cancelEditClass} className="text-slate-400 p-2 bg-slate-100 rounded-lg"><X className="w-4 h-4" /></button>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <span className="font-extrabold text-slate-700 dark:text-slate-200 text-xs">{cls}</span>
-                                      <div className="flex gap-1.5">
-                                        <button onClick={() => startEditingClass(idx)} className="p-2 text-slate-400 hover:text-orange-600 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button>
-                                        <button onClick={() => setDeleteConfig({ show: true, type: 'class', name: cls })} className="p-2 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                         </div>
-                     </div>
-                     <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <button onClick={() => setShowSettingsModal(false)} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-slate-700 text-sm">Tutup</button>
-                     </div>
-                  </div>
-                </div>
-              )}
-
-              {/* MODAL VERSE */}
-              {showVerseModal && activeSurahForPicker && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
-                    <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center">
-                        <button onClick={() => setShowVerseModal(false)} className="absolute top-4 right-4 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-orange-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
-                        <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100"><BookOpen className="w-6 h-6" /></div>
-                        <h3 className="text-lg sm:text-xl font-extrabold mb-1 text-slate-800 dark:text-slate-100">{activeSurahForPicker.name}</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Total {activeSurahForPicker.ayahs} Ayat</p>
-                        
-                        <div className="flex items-center gap-3 mb-6 sm:mb-8 bg-slate-50 dark:bg-slate-900 p-2 rounded-2xl border border-slate-100 dark:border-slate-700">
-                            <input ref={startVerseRef} type="number" value={verseInput.start} onChange={(e) => handleVerseInputChange('start', e.target.value)} className="w-full px-2 py-3 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-orange-500 bg-transparent" placeholder="Mulai (1)" />
-                            <span className="font-black text-slate-300 text-lg">-</span>
-                            <input type="number" value={verseInput.end} onChange={(e) => handleVerseInputChange('end', e.target.value)} className="w-full px-2 py-3 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-orange-500 bg-transparent" placeholder={`Sampai (${activeSurahForPicker.ayahs})`} />
-                        </div>
-                        <div className="space-y-3">
-                            <button onClick={() => saveVerseSelection(false)} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-orange-600/30">Simpan Pilihan Ayat</button>
-                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-2xl text-sm border border-slate-200 dark:border-slate-600">Setor Full Satu Surat</button>
-                        </div>
-                    </div>
-                </div>
-              )}
-
-              {/* MODAL MANAGE STUDENT */}
-              {showManageStudentModal && isSuperAdmin && (
-                <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md relative flex flex-col max-h-[85vh] shadow-2xl">
-                    <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                      <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><UserCog className="w-5 h-5 text-orange-500" /> Kelola Siswa</h2>
-                      <button onClick={() => setShowManageStudentModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600"><X className="w-4 h-4" /></button>
-                    </div>
-                    <form onSubmit={handleAddStudent} className="flex gap-2 mb-5">
-                      <input type="text" value={newStudentName} onChange={(e) => setNewStudentName(e.target.value)} className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none font-medium" placeholder="Ketik nama siswa baru..." />
-                      <button type="submit" className="bg-orange-600 text-white px-4 py-3 rounded-2xl font-bold shadow-md disabled:opacity-50"><PlusCircle className="w-4 h-4" /></button>
-                    </form>
-                    <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar space-y-2 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
-                      {(selectedHalaqoh?.students || []).map((student, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:border-orange-200">
-                          {editingStudentIndex === idx ? (
-                            <div className="flex gap-2 w-full">
-                               <input type="text" value={editStudentValue} onChange={(e) => setEditStudentValue(e.target.value)} className="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 font-bold rounded-lg" autoFocus />
-                               <button onClick={() => saveEditStudent(idx)} className="text-green-600 p-2 bg-green-50 rounded-lg"><Check className="w-4 h-4" /></button>
-                               <button onClick={() => setEditingStudentIndex(null)} className="text-slate-400 p-2 bg-slate-100 rounded-lg"><X className="w-4 h-4" /></button>
-                            </div>
-                          ) : (
-                            <>
-                              <span className="font-extrabold text-slate-700 dark:text-slate-200 text-xs truncate mr-2">{student}</span>
-                              <div className="flex gap-1 flex-shrink-0 items-center bg-slate-50 dark:bg-slate-900 p-1 rounded-lg border border-slate-100 dark:border-slate-700">
-                                <button onClick={() => handleMoveStudent(idx, 'up')} disabled={idx === 0} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowUp className="w-3.5 h-3.5" /></button>
-                                <button onClick={() => handleMoveStudent(idx, 'down')} disabled={idx === selectedHalaqoh.students.length - 1} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowDown className="w-3.5 h-3.5" /></button>
-                                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
-                                <button onClick={() => startEditingStudent(idx)} className="p-1.5 text-blue-500 hover:bg-blue-100 rounded-md"><Pencil className="w-3.5 h-3.5" /></button>
-                                <button onClick={() => setDeleteConfig({ show: true, type: 'student', name: student })} className="p-1.5 text-red-500 hover:bg-red-100 rounded-md"><Trash2 className="w-3.5 h-3.5" /></button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAMPILAN GRID USTADZ */}
+              {/* USTADZ SELECTION */}
               {currentView === 'select-ustadz' && currentView !== 'welcome' && (
                 <>
                   {HeaderUI("Pilih Pengajar", "Siapa yang mengampu halaqoh?")}
@@ -992,7 +827,6 @@
                             <div className="col-span-2 sm:col-span-3 text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm">
                                 <User className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
                                 <p className="text-slate-500 font-medium mb-5">Daftar pengajar tidak ditemukan.</p>
-                                <button onClick={() => { setData(INITIAL_DATA); localStorage.removeItem('murojaahData'); }} className="bg-slate-800 text-white px-6 py-3 rounded-2xl font-bold shadow-md">Pulihkan Data Awal</button>
                             </div>
                         ) : (
                             sortedUstadzData.map((u, index) => {
@@ -1026,7 +860,7 @@
                 </>
               )}
 
-              {/* TAMPILAN HALAQOH */}
+              {/* HALAQOH SELECTION */}
               {currentView === 'select-halaqoh' && (
                 <>
                   {HeaderUI("Pilih Halaqoh", `Daftar Halaqoh ${selectedUstadz?.name || ''}`)}
@@ -1084,18 +918,19 @@
                 </>
               )}
 
-              {/* TAMPILAN HOME / INPUT SETORAN */}
-              {(currentView === 'home' || currentView === 'history' || currentView === 'leaderboard') && (
+              {/* TAMPILAN TABS (HOME, HISTORY, LEADERBOARD) */}
+              {['home', 'history', 'leaderboard'].includes(currentView) && (
                 <>
                   {HeaderUI(selectedHalaqoh?.name, selectedUstadz?.name)}
                   <div className="max-w-xl mx-auto p-4 sm:p-5">
                     <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] shadow-inner border border-slate-200/50 dark:border-slate-700 mb-6 sm:mb-8 z-10 relative">
-                       <button onClick={() => setCurrentView('home')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'home' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Input Setoran</button>
+                       <button onClick={() => setCurrentView('home')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'home' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Input Murojaah</button>
                        <button onClick={() => setCurrentView('history')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'history' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Riwayat</button>
                        <button onClick={() => setCurrentView('leaderboard')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'leaderboard' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Peringkat</button>
                     </div>
 
-                    {currentView === 'home' ? (
+                    {/* TAB: HOME */}
+                    {currentView === 'home' && (
                       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                          <div className="bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 sm:mb-5 flex items-center justify-between text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                             <span className="flex items-center gap-2 sm:gap-3 font-medium truncate mr-2"><FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" /> <span className="truncate">{selectedHalaqoh?.name || '-'}</span></span>
@@ -1127,10 +962,10 @@
                          </div>
                          <div className="relative mb-4 sm:mb-6">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input type="text" placeholder="Cari surat untuk disetor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm outline-none text-sm sm:text-base focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all" />
+                            <input type="text" placeholder="Cari surat untuk dimurojaah..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm outline-none text-sm sm:text-base focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all" />
                          </div>
                          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pb-24">
-                            {filteredSurahs.map(surah => {
+                            {SURAH_LIST.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.number.toString().includes(searchTerm)).map(surah => {
                               const isSel = selectedSurahs.includes(surah.number);
                               const range = selectedRanges[surah.number];
                               return (
@@ -1145,16 +980,18 @@
                             })}
                          </div>
                          {(selectedSurahs.length > 0) && (
-                           <div className="fixed bottom-6 left-0 right-0 p-4 max-w-xl mx-auto z-40 animate-in slide-in-from-bottom-8">
+                           <div className="fixed bottom-16 sm:bottom-20 left-0 right-0 p-4 max-w-xl mx-auto z-40 animate-in slide-in-from-bottom-8">
                               <button onClick={handleSaveSession} disabled={isLoading} className={`w-full text-white py-4 sm:py-5 rounded-[2rem] font-extrabold shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transform transition-all text-base sm:text-lg ${isLoading ? 'bg-orange-400 scale-95' : 'bg-gradient-to-r from-orange-600 to-orange-500 hover:-translate-y-1 active:scale-95'}`}>
-                                {isLoading ? <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" /> : <Send className="w-5 h-5 sm:w-6 sm:h-6" />} {isLoading ? 'Menyimpan...' : `Simpan ${selectedSurahs.length} Setoran`}
+                                {isLoading ? <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" /> : <Send className="w-5 h-5 sm:w-6 sm:h-6" />} {isLoading ? 'Menyimpan...' : `Simpan ${selectedSurahs.length} Murojaah`}
                               </button>
                            </div>
                          )}
                       </div>
-                    ) : currentView === 'history' ? (
+                    )}
+
+                    {/* TAB: HISTORY */}
+                    {currentView === 'history' && (
                       <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                         {/* --- LAYOUT FILTER & SHARE (DIPERBAIKI) --- */}
                          <div className="flex flex-col sm:flex-row gap-3 mb-4 w-full items-stretch">
                             <div className="bg-white dark:bg-slate-800 p-2.5 sm:p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-2 flex-1 focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-500/10 transition-all min-w-0">
                                <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded-xl text-orange-500 flex-shrink-0"><Filter className="w-4 h-4 sm:w-5 sm:h-5" /></div>
@@ -1165,9 +1002,9 @@
                             </div>
                             
                             <div className="flex gap-2 w-full sm:w-auto h-[52px] sm:h-[58px]">
-                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:w-[200px] relative overflow-hidden">
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:w-[190px] relative overflow-hidden">
                                    <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                   <input type="date" value={historyDateFilter} onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-11 pr-10 cursor-pointer h-full border-none focus:ring-0" />
+                                   <input type="date" value={historyDateFilter} onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-11 pr-10 cursor-pointer h-full border-none focus:ring-0 z-10" />
                                    {historyDateFilter && (
                                        <button onClick={() => { setHistoryDateFilter(""); setHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
                                    )}
@@ -1199,7 +1036,45 @@
                             );
                             return (
                                <div className="space-y-4">
-                                 {displayedHistory.map(item => renderHistoryCard(item))}
+                                 {displayedHistory.map(item => (
+                                     <div key={item.id} className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md hover:border-orange-200 transition-all duration-300">
+                                        <div className="flex justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 sm:pb-4 mb-3 sm:mb-4">
+                                           <div className="flex-1 overflow-hidden pr-2">
+                                             <div className="flex items-center gap-2 mb-1.5">
+                                                <span className="font-extrabold text-slate-800 dark:text-slate-100 text-sm sm:text-base md:text-lg truncate">{item.student}</span>
+                                                <span className="text-[9px] sm:text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2.5 py-1 rounded-lg font-extrabold uppercase flex-shrink-0 tracking-wider">{item.class}</span>
+                                             </div>
+                                             <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 flex flex-col gap-1 mt-2">
+                                                 <div className="flex items-center gap-1.5 truncate"><img src="https://cdn-icons-png.flaticon.com/512/33/33308.png" className="w-3.5 h-3.5 opacity-60 flex-shrink-0" alt="Halaqoh" /> <span className="truncate font-medium">{item.halaqohName}</span></div>
+                                                 <div className="flex items-center gap-1.5 truncate"><img src={data.find(u => u.name === item.ustadzName)?.gender === 'female' ? "https://cdn-icons-png.flaticon.com/512/5405/5405442.png" : "https://cdn-icons-png.flaticon.com/512/5403/5403148.png"} className="w-3.5 h-3.5 opacity-80" alt="Ustadz" /> <span className="truncate font-medium">{item.ustadzName}</span></div>
+                                             </div>
+                                           </div>
+                                           <div className="flex gap-1.5 sm:gap-2 flex-shrink-0 pl-2 h-max">
+                                               <button onClick={() => handleShareClick(item)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><ImageIcon className="w-4 h-4 sm:w-4 sm:h-4" /></button>
+                                               {isAdmin && (
+                                                 <>
+                                                     <button onClick={() => { setEditingHistoryItem(item); setShowEditHistoryModal(true); }} className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"><Edit2 className="w-4 h-4 sm:w-4 sm:h-4" /></button>
+                                                     <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item.id})} className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-4 h-4 sm:w-4 sm:h-4"/></button>
+                                                 </>
+                                               )}
+                                           </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                           {(item.surahs || []).map(num => (
+                                             <span key={num} className="bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 px-3 sm:px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-orange-500/20 leading-tight">
+                                                {getSurahName(num)} {item.ranges?.[num] ? <span className="text-orange-500 dark:text-orange-400 text-[9px] sm:text-[10px] ml-1">({item.ranges[num]})</span> : ''}
+                                             </span>
+                                           ))}
+                                        </div>
+                                        <div className="text-[9px] sm:text-[10px] text-slate-400 mt-4 uppercase tracking-widest font-bold flex items-center gap-1.5"><Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {getFormattedDate(item.date || new Date().toISOString())}</div>
+                                        {isAdmin && (item.ipAddress || item.userAgent) && (
+                                           <div className="mt-4 pt-3 border-t border-slate-50 dark:border-slate-700/50 flex flex-col gap-1.5">
+                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400 dark:text-slate-500"><Globe className="w-3 h-3 flex-shrink-0 text-blue-400" /> <span className="break-all font-mono">IP: {item.ipAddress || 'Unknown'}</span></div>
+                                              <div className="flex items-start gap-1.5 text-[9px] text-slate-400 dark:text-slate-500"><Smartphone className="w-3 h-3 flex-shrink-0 text-purple-400" /> <span className="break-all line-clamp-2" title={item.userAgent}>{item.userAgent || 'Unknown Device'}</span></div>
+                                           </div>
+                                        )}
+                                     </div>
+                                 ))}
                                  {totalPages > 1 && (
                                     <div className="flex justify-center items-center gap-4 pt-6 pb-2">
                                        <button onClick={() => setHistoryPage(p => Math.max(1, p - 1))} disabled={historyPage === 1} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
@@ -1211,10 +1086,13 @@
                             );
                          })()}
                       </div>
-                    ) : currentView === 'leaderboard' ? (
+                    )}
+
+                    {/* TAB: LEADERBOARD */}
+                    {currentView === 'leaderboard' && (
                       <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
                          <div className="bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 dark:from-yellow-600 dark:via-amber-700 dark:to-orange-700 p-6 sm:p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(245,158,11,0.3)] text-white mb-4 relative overflow-hidden">
-                             <img src="https://cdn-icons-png.flaticon.com/512/9960/9960186.png" alt="Quran Background" className="absolute right-[-20px] bottom-[-30px] w-40 h-40 opacity-20 object-contain drop-shadow-xl mix-blend-overlay" />
+                             <img src="https://cdn-icons-png.flaticon.com/512/9960/9960186.png" className="absolute right-[-20px] bottom-[-30px] w-40 h-40 opacity-20 object-contain drop-shadow-xl mix-blend-overlay" />
                              <h3 className="font-extrabold text-xl sm:text-2xl relative z-10 flex items-center gap-3 drop-shadow-sm"><Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-200 fill-yellow-200" /> Papan Peringkat</h3>
                              <p className="text-xs sm:text-sm text-yellow-100 relative z-10 mt-2 font-medium">Dihitung otomatis berdasarkan rekapitulasi poin hafalan terbaik.</p>
                          </div>
@@ -1231,7 +1109,7 @@
                                              <div className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-[1rem] text-sm sm:text-base font-black flex-shrink-0 transition-transform group-hover:scale-110 ${rankStyle}`}>{idx + 1}</div>
                                              <div className="text-left flex-1 min-w-0">
                                                 <div className="text-sm sm:text-base md:text-lg font-extrabold text-slate-800 dark:text-slate-100 truncate mb-1">{user?.student || '-'}</div>
-                                                <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{user?.class !== '-' ? user.class : 'Belum ada setoran'}</div>
+                                                <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{user?.class !== '-' ? user.class : 'Belum ada murojaah'}</div>
                                              </div>
                                           </div>
                                           <div className="text-right flex flex-col justify-center flex-shrink-0 pl-3">
@@ -1244,7 +1122,7 @@
                              )}
                          </div>
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 </>
               )}
@@ -1256,7 +1134,7 @@
                    <div className="max-w-xl mx-auto p-4 sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="bg-gradient-to-br from-orange-500 to-rose-600 dark:from-orange-600 dark:to-rose-800 rounded-[2rem] p-6 sm:p-8 text-white shadow-[0_8px_30px_rgba(244,63,94,0.3)] mb-5 sm:mb-6 relative overflow-hidden">
                          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                         <div className="flex items-center gap-3 mb-2 sm:mb-3 relative z-10"><Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 drop-shadow-md" /><h3 className="font-bold text-base sm:text-lg">Total Setoran Masuk</h3></div>
+                         <div className="flex items-center gap-3 mb-2 sm:mb-3 relative z-10"><Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 drop-shadow-md" /><h3 className="font-bold text-base sm:text-lg">Total Murojaah Masuk</h3></div>
                          <div className="flex items-baseline gap-2 relative z-10"><span className="text-4xl sm:text-5xl font-black drop-shadow-sm">{history.length}</span><span className="text-white/80 font-medium text-sm sm:text-base">Sesi</span></div>
                          <div className="mt-4 text-[10px] sm:text-xs bg-black/20 backdrop-blur-sm inline-block px-3 py-1.5 rounded-xl font-bold tracking-widest uppercase relative z-10 border border-white/10">Semua Data</div>
                       </div>
@@ -1267,7 +1145,6 @@
                              <input type="text" placeholder="Cari Siswa, Ustadz..." className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm" value={adminSearchTerm} onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} />
                           </div>
                           
-                          {/* Layout Filter Tanggal Dashboard Admin */}
                           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:max-w-[240px] relative overflow-hidden h-[52px] sm:h-[58px]">
                              <div className="absolute left-3 bg-orange-50 dark:bg-orange-500/10 p-1.5 rounded-xl text-orange-500 dark:text-orange-400 pointer-events-none"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                              <input type="date" value={adminHistoryDateFilter} onChange={(e) => { setAdminHistoryDateFilter(e.target.value); setAdminHistoryPage(1); }} className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm cursor-pointer pl-12 pr-10 border-none focus:ring-0 h-full" />
@@ -1293,7 +1170,35 @@
 
                             return (
                                <div className="space-y-4">
-                                 {displayedAdminHistory.map(item => renderHistoryCard(item))}
+                                 {displayedAdminHistory.map((item) => (
+                                     <div key={item.id} className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md hover:border-orange-200 transition-all duration-300">
+                                        <div className="flex justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 sm:pb-4 mb-3 sm:mb-4">
+                                           <div className="flex-1 overflow-hidden pr-2">
+                                             <div className="flex items-center gap-2 mb-1.5">
+                                                <span className="font-extrabold text-slate-800 dark:text-slate-100 text-sm sm:text-base md:text-lg truncate">{item.student}</span>
+                                                <span className="text-[9px] sm:text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2.5 py-1 rounded-lg font-extrabold uppercase flex-shrink-0 tracking-wider">{item.class}</span>
+                                             </div>
+                                             <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 flex flex-col gap-1 mt-2">
+                                                 <div className="flex items-center gap-1.5 truncate"><img src="https://cdn-icons-png.flaticon.com/512/33/33308.png" className="w-3.5 h-3.5 opacity-60 flex-shrink-0" alt="Halaqoh"/> <span className="truncate font-medium">{item.halaqohName}</span></div>
+                                                 <div className="flex items-center gap-1.5 truncate"><img src={data.find(u => u.name === item.ustadzName)?.gender === 'female' ? "https://cdn-icons-png.flaticon.com/512/5405/5405442.png" : "https://cdn-icons-png.flaticon.com/512/5403/5403148.png"} className="w-3.5 h-3.5 opacity-80" alt="Ustadz"/> <span className="truncate font-medium">{item.ustadzName}</span></div>
+                                             </div>
+                                           </div>
+                                           <div className="flex gap-1.5 sm:gap-2 flex-shrink-0 pl-2 h-max">
+                                               <button onClick={() => handleShareClick(item)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><ImageIcon className="w-4 h-4 sm:w-4 sm:h-4" /></button>
+                                               <button onClick={() => { setEditingHistoryItem(item); setShowEditHistoryModal(true); }} className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"><Edit2 className="w-4 h-4 sm:w-4 sm:h-4" /></button>
+                                               <button onClick={() => setDeleteConfig({show: true, type: 'history', id: item.id})} className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-4 h-4 sm:w-4 sm:h-4"/></button>
+                                           </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                           {(item.surahs || []).map(num => (
+                                             <span key={num} className="bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 px-3 sm:px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-orange-500/20 leading-tight">
+                                                {getSurahName(num)} {item.ranges?.[num] && <span className="text-orange-500 dark:text-orange-400 text-[9px] sm:text-[10px] ml-1">({item.ranges[num]})</span>}
+                                             </span>
+                                           ))}
+                                        </div>
+                                        <div className="text-[9px] sm:text-[10px] text-slate-400 mt-4 uppercase tracking-widest font-bold flex items-center gap-1.5"><Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {getFormattedDate(item.date)}</div>
+                                     </div>
+                                 ))}
                                  {totalAdminPages > 1 && (
                                     <div className="flex justify-center items-center gap-4 pt-6 pb-2">
                                        <button onClick={() => setAdminHistoryPage(p => Math.max(1, p - 1))} disabled={adminHistoryPage === 1} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
@@ -1308,201 +1213,439 @@
                    </div>
                 </div>
               )}
-              
-              {/* MODAL SHARE GAMBAR PRESTASI INDIVIDU */}
-              {shareItem && (() => {
-                  const studentHistory = history.filter(h => h?.student === shareItem.student).sort((a, b) => new Date(a.date) - new Date(b.date));
-                  const submissionIndex = studentHistory.findIndex(h => h.id === shareItem.id);
-                  const submissionCount = submissionIndex + 1; 
-                  const effectiveCount = submissionCount % 60 === 0 && submissionCount > 0 ? 60 : submissionCount % 60;
-                  const theme = getTheme(effectiveCount);
 
-                  return (
-                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
-                                  
-                                  <div className="absolute inset-0 z-0 bg-white overflow-hidden">
-                                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.overlay} opacity-90`}></div>
-                                      <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/60 rounded-full blur-2xl"></div>
-                                      <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-black/5 rounded-full blur-2xl"></div>
-                                  </div>
-
-                                  {theme.isSpecial && (<div className="absolute top-4 right-4 rotate-12 z-20"><div className={`px-2.5 py-1 rounded-full font-black text-[9px] shadow-md border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} uppercase tracking-wider`}>⭐ Setoran ke-{submissionCount}</div></div>)}
-                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                     <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain drop-shadow-sm" />
-                                     <h3 className={`text-xl font-extrabold ${theme.title} leading-tight`}>Jurnal Murojaahku</h3>
-                                     <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">{schoolName}</p>
-                                     <h2 className="text-2xl font-black text-slate-800 mb-0.5">{shareItem.student}</h2>
-                                     <div className="flex justify-center mb-5"><span className={`${theme.title} text-[10px] font-extrabold uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full border border-white/40 shadow-sm`}>{shareItem.class || '-'}</span></div>
-                                     <p className="text-[11px] font-bold text-slate-500 mb-2 italic">Alhamdulillah telah memurojaah hafalan :</p>
-                                     {(() => {
-                                        const count = (shareItem.surahs || []).length;
-                                        const styles = getStudentTextClass(count);
-                                        return (
-                                            <div className={`w-full bg-transparent p-2 mb-4 flex-1 flex flex-wrap justify-center content-center items-center ${styles.gapClass} overflow-hidden`}>
-                                            {(shareItem.surahs || []).map((num, index) => {
-                                                const namaSurat = getSurahName(num);
-                                                const rentang = shareItem.ranges?.[num];
-                                                return (
-                                                    <div key={num} className={`text-slate-800 ${styles.textSizeClass} font-extrabold leading-tight flex items-baseline drop-shadow-sm`}>
-                                                        <span>{namaSurat}</span>
-                                                        {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass}`}>({rentang})</span>}
-                                                        {index < count - 1 && <span className={`${theme.dot} ${styles.dotMargin} font-black`}>•</span>}
-                                                    </div>
-                                                )
-                                            })}
-                                            </div>
-                                        );
-                                     })()}
-                                     <div className="w-full flex justify-between items-end text-[9px] text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto">
-                                        <div className="text-left flex flex-col gap-0.5"><p className="font-semibold uppercase tracking-wider">Halaqoh :</p><p className={`font-black ${theme.footerValue} text-[11px] leading-tight`}>{shareItem.halaqohName || '-'}</p></div>
-                                        <div className="text-right font-bold uppercase tracking-wider"><p>{getDateOnly(shareItem.date || new Date().toISOString())}</p></div>
-                                     </div>
-                                  </div>
-                               </div>
-                           </div>
-                           <div className="flex gap-2 mt-4 w-full max-w-[320px]">
-                              <button onClick={() => setShareItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                              <button onClick={() => processImageGeneric('download', shareCardRef, 'Prestasi', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                              <button onClick={() => processImageGeneric('share', shareCardRef, 'Prestasi', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
-                           </div>
-                        </div>
+              {/* MODALS LOGIC */}
+              {/* MODAL SETTINGS ADMIN UTAMA */}
+              {showSettingsModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md relative flex flex-col max-h-[85vh] shadow-2xl">
+                     <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                         <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><Settings className="w-5 h-5 text-orange-500" /> Pengaturan</h2>
+                         <button onClick={() => setShowSettingsModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600"><X className="w-4 h-4" /></button>
                      </div>
-                  );
-              })()}
-
-              {/* MODAL SHARE KARTU HALAQOH */}
-              {shareHalaqohItem && (() => {
-                  const safeStudents = Array.isArray(shareHalaqohItem.students) ? shareHalaqohItem.students : [];
-                  const count = safeStudents.length;
-                  const hNameLen = (shareHalaqohItem.name || '').length;
-                  const styles = getCardStyles(count, hNameLen);
-
-                  return (
-                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
-                                  
-                                  <div className="absolute inset-0 z-0 bg-white overflow-hidden">
-                                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-blue-50 opacity-90"></div>
-                                      <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-300/20 rounded-full blur-3xl"></div>
-                                      <div className="absolute bottom-0 -left-10 w-48 h-48 bg-cyan-300/10 rounded-full blur-2xl"></div>
-                                  </div>
-
-                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                     <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className={`h-5 max-w-[80%] mb-1 object-contain drop-shadow-sm ${count > 25 ? 'mb-0.5' : 'mb-2'}`} />
-                                     <h3 className={`font-extrabold text-blue-700 leading-tight ${styles.titleClass}`}>Jurnal Murojaahku</h3>
-                                     <p className={`font-bold tracking-widest text-slate-500 uppercase ${styles.subTitleClass}`}>{schoolName}</p>
-                                     <h2 className={`font-black text-slate-800 break-words px-2 leading-tight ${styles.hNameClass}`}>{shareHalaqohItem.name || '-'}</h2>
-                                     <div className={`flex justify-center w-full px-2 ${styles.uNameClass}`}><span className="text-blue-700 font-extrabold uppercase tracking-widest break-words mt-0.5 bg-blue-100/50 px-3 py-1 rounded-full border border-blue-200 shadow-sm">{shareHalaqohItem.ustadzName || '-'}</span></div>
-                                     <p className={`text-slate-500 font-bold uppercase tracking-wider ${styles.labelClass}`}>Daftar Nama Siswa :</p>
-                                     <div className="w-full bg-transparent p-1 mb-2 flex-1 flex flex-col justify-center overflow-hidden">
-                                        <p className={`w-full text-center text-slate-800 font-extrabold break-words ${styles.studentTextClass}`}>
-                                            {safeStudents.map((siswa, index) => (
-                                                <React.Fragment key={index}>
-                                                    {siswa}
-                                                    {index < count - 1 && (<span className={`text-blue-500 font-black inline-block ${styles.dotClass}`}>•</span>)}
-                                                </React.Fragment>
-                                            ))}
-                                        </p>
-                                     </div>
-                                     <div className={`w-full text-center text-slate-600 border-t-2 border-slate-200/50 mt-auto italic font-bold px-1 whitespace-nowrap tracking-tight ${styles.footerClass}`}>"Membangun Generasi Qurani dan Pemimpin Masa Depan"</div>
-                                  </div>
+                     <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar space-y-6">
+                         <div className="space-y-3">
+                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3"><School className="w-3.5 h-3.5" /> Identitas Sekolah</h3>
+                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
+                               <div><label className="block text-[10px] font-bold text-slate-500 mb-2">Nama Sekolah</label><input type="text" value={schoolName} onChange={(e) => { setSchoolName(e.target.value); if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, e.target.value, schoolLogo); }} className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" /></div>
+                               <div><label className="block text-[10px] font-bold text-slate-500 mb-2">Logo (Maks 1MB)</label>
+                                   <div className="flex items-center gap-3">
+                                       <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner"><img src={schoolLogo} alt="Logo" className="w-8 h-8 object-contain" /></div>
+                                       <div className="flex-1"><input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-orange-50 file:text-orange-700 outline-none" /></div>
+                                   </div>
                                </div>
-                           </div>
-                           <div className="flex gap-2 mt-4 w-full max-w-[320px]">
-                              <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                              <button onClick={() => processImageGeneric('download', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                              <button onClick={() => processImageGeneric('share', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
-                           </div>
-                        </div>
+                            </div>
+                         </div>
+                         <div className="space-y-3">
+                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3"><ImageIcon className="w-3.5 h-3.5" /> Background</h3>
+                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700"><input type="text" value={welcomeBgUrl} onChange={(e) => { setWelcomeBgUrl(e.target.value); if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, e.target.value, schoolName, schoolLogo); }} className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" /></div>
+                         </div>
+                         <div className="space-y-3">
+                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3"><Database className="w-3.5 h-3.5" /> Integrasi Backup</h3>
+                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700"><input type="text" value={scriptUrl} onChange={(e) => saveScriptUrl(e.target.value)} className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" /></div>
+                         </div>
+                         <div className="space-y-3">
+                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Data Master Kelas</h3>
+                            <form onSubmit={handleAddClass} className="flex gap-2">
+                              <input type="text" value={classForm} onChange={(e) => setClassForm(e.target.value)} className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nama Kelas..." />
+                              <button type="submit" disabled={!classForm.trim()} className="bg-orange-600 text-white px-4 py-3 rounded-2xl font-bold disabled:opacity-50"><PlusCircle className="w-4 h-4" /></button>
+                            </form>
+                            <div className="space-y-2 mt-4 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                              {classes.map((cls, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
+                                  {editingClassIdx === idx ? (
+                                    <div className="flex gap-2 w-full">
+                                       <input type="text" value={editClassText} onChange={(e) => setEditClassText(e.target.value)} className="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 rounded-lg" autoFocus />
+                                       <button onClick={() => saveClassEdit(idx)} className="text-green-600 p-2 bg-green-50 rounded-lg"><Check className="w-4 h-4" /></button>
+                                       <button onClick={cancelEditClass} className="text-slate-400 p-2 bg-slate-100 rounded-lg"><X className="w-4 h-4" /></button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <span className="font-extrabold text-slate-700 dark:text-slate-200 text-xs">{cls}</span>
+                                      <div className="flex gap-1.5"><button onClick={() => startEditingClass(idx)} className="p-2 text-slate-400 hover:text-orange-600 rounded-lg"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => setDeleteConfig({ show: true, type: 'class', name: cls })} className="p-2 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button></div>
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                         </div>
                      </div>
-                  );
-              })()}
+                     <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <button onClick={() => setShowSettingsModal(false)} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-slate-700 text-sm">Tutup</button>
+                     </div>
+                  </div>
+                </div>
+              )}
 
-              {/* MODAL SHARE DAILY SUMMARY (REKAP HARIAN 9:16) */}
-              {shareDailyItem && (() => {
-                  return (
-                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                          <div className="w-full max-w-sm flex flex-col items-center">
-                              <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                                  <div ref={shareDailyCardRef} className="bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ width: '315px', height: '560px', boxSizing: 'border-box', flexShrink: 0 }}>
-                                      
-                                      <div className="absolute inset-0 z-0 bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
-                                          <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-300/30 rounded-full blur-3xl"></div>
-                                          <div className="absolute bottom-0 -left-12 w-48 h-48 bg-yellow-400/20 rounded-full blur-2xl"></div>
-                                      </div>
-
-                                      <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                          <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-6 max-w-[80%] mb-4 object-contain drop-shadow-sm" />
-                                          <h3 className="text-2xl font-extrabold text-orange-600 leading-tight mb-1">Rekap Murojaah</h3>
-                                          <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-5">{schoolName}</p>
-                                          
-                                          <div className="bg-orange-500/10 px-5 py-2 rounded-2xl border border-orange-500/20 mb-4 shadow-sm w-full">
-                                              <p className="text-sm font-extrabold text-orange-700 truncate">{shareDailyItem.halaqohName}</p>
-                                              <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wide truncate">{shareDailyItem.ustadzName}</p>
-                                          </div>
-                                          
-                                          <p className="text-xs font-extrabold text-slate-700 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200 shadow-sm mb-5">
-                                              {new Date(shareDailyItem.dateStr).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                          </p>
-
-                                          <p className="text-[11px] font-bold text-slate-600 italic mb-4 px-2 leading-relaxed">
-                                            "Barakallahu fiikum karena telah murojaah hari ini:"
-                                          </p>
-                                          
-                                          <div className="w-full flex-1 flex flex-col overflow-hidden mb-4 relative">
-                                              <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
-                                              <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
-                                              <div className="flex flex-wrap justify-center content-start gap-2 overflow-y-auto pt-2 pb-4 custom-scrollbar h-full relative z-0">
-                                                  {shareDailyItem.students.length > 0 ? (
-                                                      shareDailyItem.students.map((siswa, index) => (
-                                                          <span key={index} className="bg-white text-slate-800 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border border-slate-200 shadow-sm flex items-center gap-1.5">
-                                                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                                              {siswa}
-                                                          </span>
-                                                      ))
-                                                  ) : (
-                                                      <div className="w-full flex items-center justify-center h-full opacity-60">
-                                                          <span className="text-[10px] font-bold text-slate-500 italic px-4 py-2 border-2 border-slate-200 border-dashed rounded-xl">Belum ada santri yang setor hari ini.</span>
-                                                      </div>
-                                                  )}
-                                              </div>
-                                          </div>
-
-                                          <div className="w-full text-center text-slate-500 border-t border-slate-200 pt-3 pb-1 mt-auto px-1 overflow-hidden">
-                                              <p className="text-[8.5px] italic font-bold tracking-tight whitespace-nowrap truncate w-full">"Membangun Generasi Qurani dan Pemimpin Masa Depan"</p>
-                                          </div>
-                                      </div>
-                                  </div>
+              {/* MODAL LOGIN EKSKLUSIF (FIXED) */}
+              {showLoginModal && (
+                  <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeLogin}></div>
+                      
+                      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm relative z-10">
+                          <button type="button" onClick={closeLogin} className="absolute top-5 right-5 p-2 bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                              <X className="w-5 h-5" />
+                          </button>
+                          
+                          <div className="text-center mb-8 mt-2">
+                              <div className="w-16 h-16 bg-orange-50 dark:bg-orange-500/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-orange-100 dark:border-orange-500/20 shadow-inner">
+                                  <Lock className="w-8 h-8 text-orange-600 dark:text-orange-400" />
                               </div>
-                              <div className="flex gap-2 mt-4 w-full max-w-[315px]">
-                                  <button onClick={() => setShareDailyItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                                  <button onClick={() => processImageGeneric('download', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                                  <button onClick={() => processImageGeneric('share', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
+                              <h2 className="text-2xl font-black text-slate-800 dark:text-white">Akses Admin</h2>
+                              <p className="text-xs text-slate-500 font-bold mt-1">Masukkan kredensial Anda</p>
+                          </div>
+                          
+                          {loginError && (
+                              <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 p-4 rounded-2xl mb-6 text-sm font-black flex items-center justify-center gap-2 animate-in shake">
+                                  <AlertTriangle className="w-5 h-5" /> Kredensial tidak valid!
+                              </div>
+                          )}
+                          
+                          <form onSubmit={handleLoginSubmit} className="space-y-4">
+                              <div className="space-y-1.5">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Username</label>
+                                  <input type="text" value={loginUsername} onChange={(e) => { setLoginUsername(e.target.value); setLoginError(false); }} className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 focus:border-orange-500 dark:focus:border-orange-500 font-bold outline-none text-slate-800 dark:text-white transition-all" placeholder="Ketik username..." autoFocus />
+                              </div>
+                              <div className="space-y-1.5">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Password</label>
+                                  <input type="password" value={loginPassword} onChange={(e) => { setLoginPassword(e.target.value); setLoginError(false); }} className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 focus:border-orange-500 dark:focus:border-orange-500 font-bold outline-none text-slate-800 dark:text-white transition-all" placeholder="Ketik password..." />
+                              </div>
+                              <button type="submit" disabled={!loginUsername || !loginPassword} className="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-orange-600/30 hover:bg-orange-500 hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 transition-all mt-4">
+                                  Masuk Sistem
+                              </button>
+                          </form>
+                      </div>
+                  </div>
+              )}
+
+              {/* MODAL BROADCAST (KHUSUS ADMIN) */}
+              {showBroadcastModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                    <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative">
+                        <button onClick={() => setShowBroadcastModal(false)} className="absolute top-4 right-4 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 rounded-full transition-colors"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                        
+                        <div className="text-center mb-6">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-[1.25rem] flex items-center justify-center mx-auto mb-4"><Megaphone className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" /></div>
+                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">Siaran Pengumuman</h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Kirim pesan popup ke layar semua pengguna.</p>
+                        </div>
+
+                        {broadcastData?.isActive && (
+                            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800">
+                                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Sedang Aktif</p>
+                                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium mb-3 line-clamp-3">{broadcastData.message}</p>
+                                <button onClick={handleStopBroadcast} disabled={isLoading} className="w-full bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 py-2.5 rounded-xl font-bold text-xs hover:bg-red-50 dark:hover:bg-red-900/30 transition-all flex justify-center items-center gap-2 shadow-sm">
+                                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>} Hentikan Siaran
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <textarea value={broadcastMessage} onChange={e => setBroadcastMessage(e.target.value)} className="w-full px-4 py-3 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 outline-none text-sm sm:text-base focus:border-blue-500 dark:focus:border-blue-400 transition-all min-h-[100px] resize-none custom-scrollbar" placeholder="Ketik pesan pengumuman baru..."></textarea>
+                            <button onClick={handleSendBroadcast} disabled={isLoading || !broadcastMessage.trim()} className="w-full bg-blue-600 text-white font-extrabold py-3.5 sm:py-4 rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-500 active:scale-95 transition-all text-sm sm:text-base disabled:opacity-50 flex justify-center items-center gap-2">
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />} {isLoading ? 'Memproses...' : (broadcastData?.isActive ? 'Ganti & Kirim' : 'Kirim Siaran')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              )}
+
+              {showUstadzModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                   <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-sm shadow-2xl relative">
+                      <button onClick={() => setShowUstadzModal(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+                      <h2 className="text-lg sm:text-xl font-bold mb-6 text-slate-800 dark:text-slate-100 text-center">{ustadzForm.id ? "Edit Pengajar" : "Tambah Pengajar"}</h2>
+                      <form onSubmit={saveUstadz} className="space-y-4">
+                         <input type="text" value={ustadzForm.name} onChange={e => setUstadzForm({...ustadzForm, name: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nama Ustadz/ah" autoFocus required />
+                         <div className="flex gap-3">
+                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'male'})} className={`flex-1 py-3.5 rounded-2xl font-bold border-2 text-sm ${ustadzForm.gender === 'male' ? 'border-blue-200 text-blue-600 bg-blue-50' : 'border-slate-100 text-slate-400'}`}>Laki-laki</button>
+                            <button type="button" onClick={() => setUstadzForm({...ustadzForm, gender: 'female'})} className={`flex-1 py-3.5 rounded-2xl font-bold border-2 text-sm ${ustadzForm.gender === 'female' ? 'border-rose-200 text-rose-600 bg-rose-50' : 'border-slate-100 text-slate-400'}`}>Perempuan</button>
+                         </div>
+                         <button type="submit" className="w-full py-3.5 bg-orange-600 text-white rounded-2xl font-bold text-sm mt-4 shadow-lg hover:bg-orange-500">Simpan</button>
+                      </form>
+                   </div>
+                </div>
+              )}
+
+              {showHalaqohModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                   <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-sm shadow-2xl relative">
+                      <button onClick={() => setShowHalaqohModal(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+                      <h2 className="text-lg sm:text-xl font-bold mb-6 text-slate-800 dark:text-slate-100 text-center">{halaqohForm.id ? "Edit Halaqoh" : "Tambah Halaqoh"}</h2>
+                      <form onSubmit={saveHalaqoh} className="space-y-4">
+                         <input type="text" value={halaqohForm.name} onChange={e => setHalaqohForm({...halaqohForm, name: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Misal: Halaqoh Abu Bakar" autoFocus required />
+                         <button type="submit" className="w-full py-3.5 bg-orange-600 text-white rounded-2xl font-bold text-sm mt-4 shadow-lg hover:bg-orange-500">Simpan</button>
+                      </form>
+                   </div>
+                </div>
+              )}
+
+              {showManageStudentModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md relative flex flex-col max-h-[85vh] shadow-2xl">
+                    <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                      <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><UserCog className="w-5 h-5 text-orange-500" /> Kelola Siswa</h2>
+                      <button onClick={() => setShowManageStudentModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600"><X className="w-4 h-4" /></button>
+                    </div>
+                    <form onSubmit={handleAddStudent} className="flex gap-2 mb-5">
+                      <input type="text" value={newStudentName} onChange={(e) => setNewStudentName(e.target.value)} className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none font-medium" placeholder="Ketik nama siswa baru..." />
+                      <button type="submit" className="bg-orange-600 text-white px-4 py-3 rounded-2xl font-bold shadow-md disabled:opacity-50"><PlusCircle className="w-4 h-4" /></button>
+                    </form>
+                    <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar space-y-2 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                      {(selectedHalaqoh?.students || []).map((student, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:border-orange-200">
+                          {editingStudentIndex === idx ? (
+                            <div className="flex gap-2 w-full">
+                               <input type="text" value={editStudentValue} onChange={(e) => setEditStudentValue(e.target.value)} className="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 font-bold rounded-lg" autoFocus />
+                               <button onClick={() => saveEditStudent(idx)} className="text-green-600 p-2 bg-green-50 rounded-lg"><Check className="w-4 h-4" /></button>
+                               <button onClick={() => setEditingStudentIndex(null)} className="text-slate-400 p-2 bg-slate-100 rounded-lg"><X className="w-4 h-4" /></button>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="font-extrabold text-slate-700 dark:text-slate-200 text-xs truncate mr-2">{student}</span>
+                              <div className="flex gap-1 flex-shrink-0 items-center bg-slate-50 dark:bg-slate-900 p-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                                <button onClick={() => handleMoveStudent(idx, 'up')} disabled={idx === 0} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowUp className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => handleMoveStudent(idx, 'down')} disabled={idx === selectedHalaqoh.students.length - 1} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowDown className="w-3.5 h-3.5" /></button>
+                                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+                                <button onClick={() => startEditingStudent(idx)} className="p-1.5 text-blue-500 hover:bg-blue-100 rounded-md"><Pencil className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => setDeleteConfig({ show: true, type: 'student', name: student })} className="p-1.5 text-red-500 hover:bg-red-100 rounded-md"><Trash2 className="w-3.5 h-3.5" /></button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showEditHistoryModal && editingHistoryItem && (
+                <div className="fixed inset-0 z-[170] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                   <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md text-center relative max-h-[90vh] flex flex-col shadow-2xl">
+                      <button onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="absolute top-4 right-4 text-slate-400 bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full"><X className="w-4 h-4"/></button>
+                      <h3 className="text-lg font-bold mb-6 flex items-center justify-center gap-2 dark:text-white"><Edit2 className="w-5 h-5 text-orange-500"/> Edit Riwayat</h3>
+                      <form onSubmit={handleSaveHistoryEdit} className="text-left space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-1">
+                         <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Nama Siswa</label><input type="text" value={editingHistoryItem.student || ''} onChange={e => setEditingHistoryItem({...editingHistoryItem, student: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:ring-2 focus:ring-orange-500 outline-none" required /></div>
+                         <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Kelas</label><select value={editingHistoryItem.class || ''} onChange={e => setEditingHistoryItem({...editingHistoryItem, class: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none">{classes.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+                         <div className="grid grid-cols-2 gap-3">
+                             <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Pengajar</label><select value={editingHistoryItem.ustadzName || ''} onChange={e => setEditingHistoryItem({...editingHistoryItem, ustadzName: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none">{data.map(u => <option key={u?.id} value={u?.name}>{u?.name}</option>)}</select></div>
+                             <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Halaqoh</label><input type="text" value={editingHistoryItem.halaqohName || ''} onChange={e => setEditingHistoryItem({...editingHistoryItem, halaqohName: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none" required /></div>
+                         </div>
+                         <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Waktu Murojaah</label><input type="datetime-local" value={formatForDatetimeInput(editingHistoryItem.date)} onChange={e => { if (e.target.value) { try { setEditingHistoryItem({...editingHistoryItem, date: new Date(e.target.value).toISOString()}); } catch(err) {} } }} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm outline-none" required /></div>
+                         <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-3 block">Surat & Ayat</label>
+                            <div className="space-y-2 mb-4">
+                                {(editingHistoryItem.surahs || []).map(num => (
+                                    <div key={num} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex-1 truncate">{getSurahName(num)}</span>
+                                        <input type="text" placeholder="Ayat" value={editingHistoryItem.ranges?.[num] || ''} onChange={e => { const newRanges = {...(editingHistoryItem.ranges || {})}; if (e.target.value) newRanges[num] = e.target.value; else delete newRanges[num]; setEditingHistoryItem({...editingHistoryItem, ranges: newRanges}); }} className="w-24 sm:w-28 px-3 py-2 text-[10px] sm:text-[11px] font-medium rounded-xl bg-white dark:bg-slate-800 border border-slate-200 outline-none dark:text-white" />
+                                        <button type="button" onClick={() => { const newSurahs = editingHistoryItem.surahs.filter(s => s !== num); const newRanges = {...(editingHistoryItem.ranges || {})}; delete newRanges[num]; setEditingHistoryItem({...editingHistoryItem, surahs: newSurahs, ranges: newRanges}); }} className="p-2 text-red-500 bg-red-50 rounded-xl"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                ))}
+                            </div>
+                         </div>
+                         <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 sticky bottom-0 bg-white dark:bg-slate-800 pb-2">
+                             <button type="button" onClick={() => { setShowEditHistoryModal(false); setEditingHistoryItem(null); }} className="flex-1 py-3.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-bold text-sm">Batal</button>
+                             <button type="submit" disabled={isLoading || !(editingHistoryItem.surahs || []).length} className="flex-1 py-3.5 bg-orange-600 text-white rounded-2xl font-bold text-sm disabled:opacity-50">Simpan</button>
+                         </div>
+                      </form>
+                   </div>
+                </div>
+              )}
+
+              {showVerseModal && activeSurahForPicker && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
+                    <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center">
+                        <button onClick={() => setShowVerseModal(false)} className="absolute top-4 right-4 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-orange-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+                        <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100"><BookOpen className="w-6 h-6" /></div>
+                        <h3 className="text-lg sm:text-xl font-extrabold mb-1 text-slate-800 dark:text-slate-100">{activeSurahForPicker.name}</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Total {activeSurahForPicker.ayahs} Ayat</p>
+                        
+                        <div className="flex items-center gap-3 mb-6 sm:mb-8 bg-slate-50 dark:bg-slate-900 p-2 rounded-2xl border border-slate-100 dark:border-slate-700">
+                            <input ref={startVerseRef} type="number" value={verseInput.start} onChange={(e) => handleVerseInputChange('start', e.target.value)} className="w-full px-2 py-3 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-orange-500 bg-transparent" placeholder="Mulai (1)" />
+                            <span className="font-black text-slate-300 text-lg">-</span>
+                            <input type="number" value={verseInput.end} onChange={(e) => handleVerseInputChange('end', e.target.value)} className="w-full px-2 py-3 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-orange-500 bg-transparent" placeholder={`Sampai (${activeSurahForPicker.ayahs})`} />
+                        </div>
+                        <div className="space-y-3">
+                            <button onClick={() => saveVerseSelection(false)} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-orange-600/30">Simpan Pilihan Ayat</button>
+                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-2xl text-sm border border-slate-200 dark:border-slate-600">Murojaah Full Satu Surat</button>
+                        </div>
+                    </div>
+                </div>
+              )}
+
+              {deleteConfig.show && (
+                <div className="fixed inset-0 z-[170] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                   <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
+                      <div className="w-14 h-14 bg-red-50 dark:bg-red-500/10 rounded-[1.25rem] flex items-center justify-center mx-auto mb-5 animate-bounce"><Trash2 className="w-6 h-6 text-red-600" /></div>
+                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Hapus {deleteConfig.type === 'class' ? 'Kelas' : 'Item'}?</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Tindakan ini tidak dapat dibatalkan.</p>
+                      <div className="flex gap-3 mt-2">
+                         <button onClick={() => setDeleteConfig({ show: false, type: null, id: null, name: '', parentId: null })} className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-bold text-sm">Batal</button>
+                         <button onClick={executeDelete} className="flex-1 py-3 bg-red-600 text-white rounded-2xl font-bold text-sm">Hapus</button>
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              {/* RENDER SHARE INDIVIDU */}
+              {shareItem && (
+                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                    <div className="w-full max-w-sm flex flex-col items-center">
+                       <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                           <div ref={shareCardRef} className="w-[320px] h-[400px] card-capture bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                              <div className="absolute inset-0 z-0 bg-white">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-white via-white/95 to-orange-50 opacity-90"></div>
+                                  <div className="absolute -top-16 -right-16 w-48 h-48 bg-orange-100/50 rounded-full"></div>
+                                  <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-orange-50/50 rounded-full"></div>
+                              </div>
+                              <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                 <img src={schoolLogo} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
+                                 <h3 className="text-xl font-extrabold text-orange-600 leading-tight">Jurnal Murojaahku</h3>
+                                 <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">{schoolName}</p>
+                                 <h2 className="text-2xl font-black text-slate-800 mb-0.5">{shareItem.student}</h2>
+                                 <div className="flex justify-center mb-5"><span className="text-orange-600 text-[10px] font-extrabold uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">{shareItem.class || '-'}</span></div>
+                                 <p className="text-[11px] font-bold text-slate-500 mb-2 italic">Alhamdulillah telah memurojaah hafalan :</p>
+                                 
+                                 <div className="w-full bg-transparent p-2 mb-4 flex-1 flex flex-wrap justify-center content-center items-center gap-2 overflow-hidden">
+                                     {(shareItem.surahs || []).map((num, index) => (
+                                         <div key={num} className="text-slate-800 text-sm font-extrabold leading-tight flex items-baseline">
+                                             <span>{getSurahName(num)}</span>
+                                             {shareItem.ranges?.[num] && <span className="font-semibold text-slate-600 ml-1 text-[10px]">({shareItem.ranges[num]})</span>}
+                                             {index < (shareItem.surahs.length - 1) && <span className="text-orange-500 ml-2 font-black">•</span>}
+                                         </div>
+                                     ))}
+                                 </div>
+                                 <div className="w-full flex justify-between items-end text-[9px] text-slate-500 border-t-2 border-slate-100 pt-4 pb-1 mt-auto">
+                                    <div className="text-left flex flex-col gap-0.5"><p className="font-semibold uppercase tracking-wider">Halaqoh :</p><p className="font-black text-orange-600 text-[11px] leading-tight">{shareItem.halaqohName || '-'}</p></div>
+                                    <div className="text-right font-bold uppercase tracking-wider"><p>{getDateOnly(shareItem.date || new Date().toISOString())}</p></div>
+                                 </div>
+                              </div>
+                           </div>
+                       </div>
+                       <div className="flex gap-2 mt-4 w-full max-w-[320px]">
+                          <button onClick={() => setShareItem(null)} className="flex-[0.8] py-3 bg-white/10 text-white rounded-2xl font-bold text-sm">Tutup</button>
+                          <button onClick={() => processImageGeneric('download', shareCardRef, 'Prestasi_Murojaah', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unduh'}</button>
+                          <button onClick={() => processImageGeneric('share', shareCardRef, 'Prestasi_Murojaah', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Share'}</button>
+                       </div>
+                    </div>
+                 </div>
+              )}
+
+              {/* RENDER SHARE HALAQOH */}
+              {shareHalaqohItem && (
+                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                    <div className="w-full max-w-sm flex flex-col items-center">
+                       <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                           <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] card-capture bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                              <div className="absolute inset-0 z-0 bg-white">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white opacity-90"></div>
+                                  <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-100/50 rounded-full"></div>
+                              </div>
+                              <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                 <img src={schoolLogo} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain" />
+                                 <h3 className="font-extrabold text-blue-700 leading-tight text-xl">Jurnal Murojaahku</h3>
+                                 <p className="font-bold tracking-widest text-slate-500 uppercase text-[10px] mb-4">{schoolName}</p>
+                                 <h2 className="font-black text-slate-800 break-words px-2 leading-tight text-2xl">{shareHalaqohItem.name || '-'}</h2>
+                                 <div className="flex justify-center w-full px-2 text-[10px]"><span className="text-blue-700 font-extrabold uppercase tracking-widest break-words mt-2 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">{shareHalaqohItem.ustadzName || '-'}</span></div>
+                                 <p className="text-slate-500 font-bold uppercase tracking-wider text-xs my-4">Daftar Nama Siswa :</p>
+                                 
+                                 <div className="w-full bg-transparent p-1 mb-2 flex-1 flex flex-col justify-center overflow-hidden">
+                                    <p className="w-full text-center text-slate-800 font-extrabold break-words text-sm leading-relaxed">
+                                        {(shareHalaqohItem.students || []).map((siswa, index) => (
+                                            <React.Fragment key={index}>
+                                                {siswa}
+                                                {index < (shareHalaqohItem.students.length - 1) && (<span className="text-blue-500 font-black inline-block mx-2">•</span>)}
+                                            </React.Fragment>
+                                        ))}
+                                    </p>
+                                 </div>
+                                 <div className="w-full text-center text-slate-600 border-t-2 border-slate-100 mt-auto italic font-bold px-1 whitespace-nowrap tracking-tight text-[9px] pt-3">"Membangun Generasi Qurani dan Pemimpin Masa Depan"</div>
+                              </div>
+                           </div>
+                       </div>
+                       <div className="flex gap-2 mt-4 w-full max-w-[320px]">
+                          <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-3 bg-white/10 text-white rounded-2xl font-bold text-sm">Tutup</button>
+                          <button onClick={() => processImageGeneric('download', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unduh'}</button>
+                          <button onClick={() => processImageGeneric('share', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Share'}</button>
+                       </div>
+                    </div>
+                 </div>
+              )}
+
+              {/* RENDER SHARE REKAP HARIAN (GRID RESPONSIVE) */}
+              {shareDailyItem && (
+                  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+                      <div className="w-full max-w-sm flex flex-col items-center">
+                          <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
+                              <div ref={shareDailyCardRef} className="card-capture bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto shadow-2xl" style={{ width: '315px', height: '560px', boxSizing: 'border-box', flexShrink: 0 }}>
+                                  <div className="absolute inset-0 z-0 bg-white">
+                                      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-white opacity-90"></div>
+                                      <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-100/50 rounded-full"></div>
+                                  </div>
+                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
+                                      <img src={schoolLogo} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-6 max-w-[80%] mb-4 object-contain" />
+                                      <h3 className="text-2xl font-extrabold text-orange-600 leading-tight mb-1">Rekap Murojaah</h3>
+                                      <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-5">{schoolName}</p>
+                                      
+                                      <div className="bg-orange-50 px-5 py-2 rounded-2xl border border-orange-100 mb-4 shadow-sm w-full">
+                                          <p className="text-sm font-extrabold text-orange-700 truncate">{shareDailyItem.halaqohName}</p>
+                                          <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wide truncate">{shareDailyItem.ustadzName}</p>
+                                      </div>
+                                      
+                                      <p className="text-xs font-extrabold text-slate-700 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm mb-5">
+                                          {new Date(shareDailyItem.dateStr).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                      </p>
+                                      <p className="text-[11px] font-bold text-slate-600 italic mb-4 px-2">"Barakallahu fiikum karena telah murojaah hari ini:"</p>
+                                      
+                                      {/* SISTEM GRID NAMA SANTRI */}
+                                      <div className="w-full flex-1 flex flex-col overflow-hidden mb-4 relative">
+                                          <div className="flex flex-wrap justify-center content-start gap-2 overflow-y-auto pt-2 pb-4 custom-scrollbar h-full relative z-0">
+                                              {shareDailyItem.students.length > 0 ? (
+                                                  shareDailyItem.students.map((siswa, index) => (
+                                                      <span key={index} className="bg-white text-slate-800 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border border-slate-100 shadow-sm flex items-center gap-1.5">
+                                                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>{siswa}
+                                                      </span>
+                                                  ))
+                                              ) : (
+                                                  <div className="w-full flex items-center justify-center h-full opacity-60">
+                                                      <span className="text-[10px] font-bold text-slate-500 italic px-4 py-2 border-2 border-slate-100 border-dashed rounded-xl">Belum ada santri yang murojaah hari ini.</span>
+                                                  </div>
+                                              )}
+                                          </div>
+                                      </div>
+
+                                      <div className="w-full text-center text-slate-500 border-t border-slate-100 pt-3 pb-1 mt-auto overflow-hidden">
+                                          <p className="text-[8.5px] italic font-bold tracking-tight whitespace-nowrap truncate w-full">"Membangun Generasi Qurani dan Pemimpin Masa Depan"</p>
+                                      </div>
+                                  </div>
                               </div>
                           </div>
+                          <div className="flex gap-2 mt-4 w-full max-w-[315px]">
+                              <button onClick={() => setShareDailyItem(null)} className="flex-[0.8] py-3 bg-white/10 text-white rounded-2xl font-bold text-sm">Tutup</button>
+                              <button onClick={() => processImageGeneric('download', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unduh'}</button>
+                              <button onClick={() => processImageGeneric('share', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Share'}</button>
+                          </div>
                       </div>
-                  );
-              })()}
+                  </div>
+              )}
 
+              {/* CONFETTI */}
               {showConfetti && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
                    <div className="bg-white p-8 sm:p-10 rounded-[3rem] shadow-2xl text-center transform scale-110 mx-4 border border-slate-100">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-orange-100 to-orange-50 rounded-[2rem] flex items-center justify-center mx-auto mb-5 sm:mb-6 shadow-inner"><BookOpen className="text-orange-600 animate-bounce w-10 h-10 sm:w-12 sm:h-12" /></div>
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-[2rem] flex items-center justify-center mx-auto mb-5 sm:mb-6 shadow-inner"><BookOpen className="text-orange-600 animate-bounce w-10 h-10 sm:w-12 sm:h-12" /></div>
                       <h3 className="text-2xl sm:text-3xl font-extrabold mb-2 italic text-slate-800">Alhamdulillah!</h3>
                       <p className="text-sm sm:text-base font-medium text-slate-500">Data hafalan telah tersimpan.</p>
                    </div>
                 </div>
               )}
 
+              {/* FOOTER FIXED */}
               {currentView !== 'welcome' && (
-                 <footer className="w-full text-center pt-8 pb-6 sm:py-8 text-slate-400 text-[10px] sm:text-xs font-medium px-4 mt-auto tracking-wide relative z-10 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                 <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 text-center py-3 sm:py-4 text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs font-medium px-4 z-[45] flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 tracking-wide shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                     <span>&copy; {new Date().getFullYear()} Juman Jayyidin.</span>
-                    <span className="hidden sm:inline">|</span>
+                    <span className="hidden sm:inline text-slate-300 dark:text-slate-600">|</span>
                     <span>All rights reserved.</span>
                  </footer>
               )}
