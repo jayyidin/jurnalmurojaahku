@@ -1408,6 +1408,14 @@
                   const effectiveCount = submissionCount % 60 === 0 && submissionCount > 0 ? 60 : submissionCount % 60;
                   const theme = getTheme(effectiveCount);
 
+                  const halaqohNameStr = shareItem.halaqohName || '-';
+                  const hLen = halaqohNameStr.length;
+                  const hSizeClass = hLen > 35 ? 'text-[6px]' : hLen > 25 ? 'text-[7.5px]' : hLen > 15 ? 'text-[9px]' : 'text-[11px]';
+
+                  const dateStr = getDateOnly(shareItem.date || new Date().toISOString());
+                  const dLen = dateStr.length;
+                  const dSizeClass = dLen > 25 ? 'text-[7px]' : dLen > 20 ? 'text-[8px]' : 'text-[9px]';
+
                   return (
                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                         <div className="w-full max-w-sm flex flex-col items-center">
@@ -1451,13 +1459,13 @@
                                             </div>
                                         );
                                      })()}
-                                     <div className="w-full flex justify-between items-end text-[9px] text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto gap-2">
-                                        <div className="text-left flex flex-col gap-0.5 flex-1 min-w-0">
-                                            <p className="font-semibold uppercase tracking-wider truncate">Halaqoh :</p>
-                                            <p className={`font-black ${theme.footerValue} text-[11px] leading-tight truncate`}>{shareItem.halaqohName || '-'}</p>
+                                     <div className="w-full flex justify-between items-end text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto">
+                                        <div className="text-left flex flex-col gap-0.5">
+                                            <p className="font-semibold uppercase tracking-wider text-[9px]">Halaqoh :</p>
+                                            <p className={`font-black ${theme.footerValue} ${hSizeClass} leading-tight whitespace-nowrap`}>{halaqohNameStr}</p>
                                         </div>
-                                        <div className="text-right font-bold uppercase tracking-wider flex-shrink-0 max-w-[45%]">
-                                            <p className="truncate">{getDateOnly(shareItem.date || new Date().toISOString())}</p>
+                                        <div className="text-right font-bold uppercase tracking-wider">
+                                            <p className={`${dSizeClass} whitespace-nowrap`}>{dateStr}</p>
                                         </div>
                                      </div>
                                   </div>
