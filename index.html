@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jurnal Murojaahku</title>
     
+    <!-- Google Fonts agar font saat didownload di HP tidak berubah -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -33,7 +38,7 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
         
-        body { background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; }
         body.dark { background-color: #0f172a; color: #f1f5f9; }
         input, textarea, select { user-select: auto; }
         
@@ -56,7 +61,7 @@
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useRef, useMemo } from 'https://esm.sh/react@18.2.0';
         import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
-        import { BookOpen, Check, Search, Calendar, Trash2, Trophy, Star, User, ChevronDown, Lock, LogOut, X, AlertTriangle, PlusCircle, UserCog, Pencil, FolderOpen, Edit2, Settings, Loader2, ArrowRight, ArrowLeft, Users, ArrowUp, ArrowDown, LayoutDashboard, Share2, Database, Medal, Download, Image as ImageIcon, Smartphone, Globe, BellRing, Megaphone, Send, Filter, Cloud, CloudOff, Sun, Moon, School } from 'https://esm.sh/lucide-react@0.263.1';
+        import { BookOpen, Check, Search, Calendar, Trash2, Trophy, Star, User, ChevronDown, Lock, LogOut, X, AlertTriangle, PlusCircle, UserCog, Pencil, FolderOpen, Edit2, Settings, Loader2, ArrowRight, ArrowLeft, Users, ArrowUp, ArrowDown, LayoutDashboard, Share2, Database, Medal, Download, Image as ImageIcon, Smartphone, Globe, BellRing, Megaphone, Send, Filter, Cloud, CloudOff, Sun, Moon, School, Eye, EyeOff } from 'https://esm.sh/lucide-react@0.263.1';
         import { domToBlob } from 'https://esm.sh/modern-screenshot';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
@@ -171,6 +176,7 @@
           const [showSettingsModal, setShowSettingsModal] = useState(false);
           const [loginForm, setLoginForm] = useState({ username: '', password: '' });
           const [loginError, setLoginError] = useState(false);
+          const [showPassword, setShowPassword] = useState(false);
           const [showUstadzModal, setShowUstadzModal] = useState(false);
           const [ustadzForm, setUstadzForm] = useState({ id: null, name: '', gender: 'male' });
           const [showHalaqohModal, setShowHalaqohModal] = useState(false);
@@ -360,7 +366,8 @@
               setIsGeneratingImage(action);
               try {
                   const isDaily = namePrefix === 'Rekap_Harian';
-                  const imgProps = isDaily ? { scale: 3, width: 315, height: 560, backgroundColor: 'transparent' } : { scale: 3, width: 320, height: 400, backgroundColor: 'transparent' };
+                  const baseProps = { backgroundColor: 'transparent', style: { fontFamily: "'Inter', sans-serif" } };
+                  const imgProps = isDaily ? { scale: 3, width: 315, height: 560, ...baseProps } : { scale: 3, width: 320, height: 400, ...baseProps };
                   const imageBlob = await domToBlob(ref.current, imgProps);
                   const imageUrl = URL.createObjectURL(imageBlob);
                   const safeName = (studentOrHalaqoh || 'File').replace(/\s+/g, '_');
@@ -622,8 +629,8 @@
             if (isLoading || !selectedStudent || !selectedClass || selectedSurahs.length === 0) return;
             const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
             const stdHistToday = history.filter(h => h?.student === selectedStudent && new Date(h.date) >= todayStart).sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (stdHistToday.length >= 2) return alert(`Ananda ${selectedStudent} sudah mencapai batas 2 kali setoran hari ini.`);
-            if (stdHistToday.length === 1 && (Date.now() - new Date(stdHistToday[0].date).getTime() < 3600000)) return alert(`Harap tunggu 1 jam untuk input setoran kedua ananda ${selectedStudent}.`);
+            if (stdHistToday.length >= 2) return alert(`Ananda ${selectedStudent} sudah mencapai batas 2 kali murojaah hari ini.`);
+            if (stdHistToday.length === 1 && (Date.now() - new Date(stdHistToday[0].date).getTime() < 3600000)) return alert(`Harap tunggu 1 jam untuk input murojaah kedua ananda ${selectedStudent}.`);
 
             setIsLoading(true); 
             
@@ -732,7 +739,7 @@
           );
 
           return (
-            <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-28 sm:pb-20' : ''}`}>
+            <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-36 sm:pb-28' : ''}`}>
               
               {activeBroadcast && (
                   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in">
@@ -808,18 +815,69 @@
 
               {/* MODAL LOGIN */}
               {showLoginModal && (
-                <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative">
-                    <button onClick={() => { setShowLoginModal(false); setLoginError(false); }} className="absolute top-4 right-4 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-red-500 rounded-full transition-colors"><X className="w-4 h-4" /></button>
-                    <div className="text-center mb-6">
-                      <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 rounded-[1.25rem] flex items-center justify-center mx-auto mb-4"><Lock className="w-6 h-6 text-orange-600" /></div>
-                      <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">Login Admin</h2>
+                <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-200">
+                  <div className="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm relative overflow-hidden border border-slate-100 dark:border-slate-700">
+                    
+                    {/* Decorative Background */}
+                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <button onClick={() => { setShowLoginModal(false); setLoginError(false); setShowPassword(false); }} className="absolute top-5 right-5 p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all z-10">
+                        <X className="w-5 h-5" />
+                    </button>
+                    
+                    <div className="text-center mb-8 relative z-10">
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-slate-700 dark:to-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner border border-orange-200/50 dark:border-slate-600">
+                          <Lock className="w-8 h-8 text-orange-600 dark:text-orange-500" />
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">Area Admin</h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Silakan masuk untuk mengelola sistem</p>
                     </div>
-                    {loginError && (<div className="bg-red-50 text-red-600 p-3.5 rounded-2xl mb-4 text-xs font-semibold flex items-center justify-center gap-2"><AlertTriangle className="w-4 h-4" /> User/Password salah!</div>)}
-                    <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
-                      <input type="text" value={loginForm.username} onChange={e=>{setLoginForm({...loginForm, username:e.target.value}); setLoginError(false);}} className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 outline-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500" placeholder="Username" />
-                      <input type="password" value={loginForm.password} onChange={e=>{setLoginForm({...loginForm, password:e.target.value}); setLoginError(false);}} className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 outline-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500" placeholder="Password" />
-                      <button className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-2">Masuk</button>
+
+                    {loginError && (
+                        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 p-3.5 rounded-2xl mb-6 text-xs font-bold flex items-center gap-2.5 animate-in slide-in-from-top-2 relative z-10">
+                            <AlertTriangle className="w-4 h-4 flex-shrink-0" /> Username atau Password salah!
+                        </div>
+                    )}
+
+                    <form onSubmit={handleLogin} className="space-y-4 relative z-10">
+                      <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                              <User className="h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+                          </div>
+                          <input 
+                              type="text" 
+                              value={loginForm.username} 
+                              onChange={e=>{setLoginForm({...loginForm, username:e.target.value}); setLoginError(false);}} 
+                              className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-medium" 
+                              placeholder="Username" 
+                              autoFocus 
+                          />
+                      </div>
+                      
+                      <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                              <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+                          </div>
+                          <input 
+                              type={showPassword ? "text" : "password"} 
+                              value={loginForm.password} 
+                              onChange={e=>{setLoginForm({...loginForm, password:e.target.value}); setLoginError(false);}} 
+                              className="w-full pl-11 pr-12 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-medium" 
+                              placeholder="Password" 
+                          />
+                          <button 
+                              type="button" 
+                              onClick={() => setShowPassword(!showPassword)} 
+                              className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                          >
+                              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          </button>
+                      </div>
+
+                      <button type="submit" className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-extrabold py-4 rounded-2xl shadow-[0_8px_20px_-6px_rgba(234,88,12,0.5)] transform transition-all active:scale-95 text-sm mt-6 flex items-center justify-center gap-2">
+                          Masuk Sistem <ArrowRight className="w-4 h-4" />
+                      </button>
                     </form>
                   </div>
                 </div>
@@ -914,6 +972,33 @@
                 </div>
               )}
 
+              {/* MODAL BUAT PENGUMUMAN (BROADCAST) */}
+              {showBroadcastModal && isSuperAdmin && (
+                <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                  <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative">
+                    <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                      <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><Megaphone className="w-5 h-5 text-orange-500" /> Buat Pengumuman</h2>
+                      <button onClick={() => setShowBroadcastModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
+                    </div>
+                    <div className="space-y-4">
+                      <textarea 
+                          value={broadcastMessage} 
+                          onChange={(e) => setBroadcastMessage(e.target.value)} 
+                          placeholder="Ketik isi pengumuman untuk semua pengguna di sini..." 
+                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 outline-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 min-h-[120px] resize-none custom-scrollbar"
+                      ></textarea>
+                      <button 
+                          onClick={handleSendBroadcast} 
+                          disabled={isLoading || !broadcastMessage.trim()} 
+                          className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                          {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Send className="w-4 h-4" />} Kirim Pengumuman
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* MODAL VERSE */}
               {showVerseModal && activeSurahForPicker && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
@@ -930,7 +1015,7 @@
                         </div>
                         <div className="space-y-3">
                             <button onClick={() => saveVerseSelection(false)} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-orange-600/30">Simpan Pilihan Ayat</button>
-                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-2xl text-sm border border-slate-200 dark:border-slate-600">Setor Full Satu Surat</button>
+                            <button onClick={() => saveVerseSelection(true)} className="w-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-2xl text-sm border border-slate-200 dark:border-slate-600">Murojaah Full Satu Surat</button>
                         </div>
                     </div>
                 </div>
@@ -1084,13 +1169,13 @@
                 </>
               )}
 
-              {/* TAMPILAN HOME / INPUT SETORAN */}
+              {/* TAMPILAN HOME / INPUT MUROJAAH */}
               {(currentView === 'home' || currentView === 'history' || currentView === 'leaderboard') && (
                 <>
                   {HeaderUI(selectedHalaqoh?.name, selectedUstadz?.name)}
                   <div className="max-w-xl mx-auto p-4 sm:p-5">
                     <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] shadow-inner border border-slate-200/50 dark:border-slate-700 mb-6 sm:mb-8 z-10 relative">
-                       <button onClick={() => setCurrentView('home')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'home' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Input Setoran</button>
+                       <button onClick={() => setCurrentView('home')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'home' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Input Murojaah</button>
                        <button onClick={() => setCurrentView('history')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'history' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Riwayat</button>
                        <button onClick={() => setCurrentView('leaderboard')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'leaderboard' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Peringkat</button>
                     </div>
@@ -1127,7 +1212,7 @@
                          </div>
                          <div className="relative mb-4 sm:mb-6">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input type="text" placeholder="Cari surat untuk disetor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm outline-none text-sm sm:text-base focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all" />
+                            <input type="text" placeholder="Cari surat untuk dimurojaah..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm outline-none text-sm sm:text-base focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all" />
                          </div>
                          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pb-24">
                             {filteredSurahs.map(surah => {
@@ -1145,9 +1230,9 @@
                             })}
                          </div>
                          {(selectedSurahs.length > 0) && (
-                           <div className="fixed bottom-6 left-0 right-0 p-4 max-w-xl mx-auto z-40 animate-in slide-in-from-bottom-8">
+                           <div className="fixed bottom-16 sm:bottom-16 left-0 right-0 p-4 max-w-xl mx-auto z-40 animate-in slide-in-from-bottom-8">
                               <button onClick={handleSaveSession} disabled={isLoading} className={`w-full text-white py-4 sm:py-5 rounded-[2rem] font-extrabold shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transform transition-all text-base sm:text-lg ${isLoading ? 'bg-orange-400 scale-95' : 'bg-gradient-to-r from-orange-600 to-orange-500 hover:-translate-y-1 active:scale-95'}`}>
-                                {isLoading ? <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" /> : <Send className="w-5 h-5 sm:w-6 sm:h-6" />} {isLoading ? 'Menyimpan...' : `Simpan ${selectedSurahs.length} Setoran`}
+                                {isLoading ? <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" /> : <Send className="w-5 h-5 sm:w-6 sm:h-6" />} {isLoading ? 'Menyimpan...' : `Simpan ${selectedSurahs.length} Murojaah`}
                               </button>
                            </div>
                          )}
@@ -1231,7 +1316,7 @@
                                              <div className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-[1rem] text-sm sm:text-base font-black flex-shrink-0 transition-transform group-hover:scale-110 ${rankStyle}`}>{idx + 1}</div>
                                              <div className="text-left flex-1 min-w-0">
                                                 <div className="text-sm sm:text-base md:text-lg font-extrabold text-slate-800 dark:text-slate-100 truncate mb-1">{user?.student || '-'}</div>
-                                                <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{user?.class !== '-' ? user.class : 'Belum ada setoran'}</div>
+                                                <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{user?.class !== '-' ? user.class : 'Belum ada murojaah'}</div>
                                              </div>
                                           </div>
                                           <div className="text-right flex flex-col justify-center flex-shrink-0 pl-3">
@@ -1256,7 +1341,7 @@
                    <div className="max-w-xl mx-auto p-4 sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="bg-gradient-to-br from-orange-500 to-rose-600 dark:from-orange-600 dark:to-rose-800 rounded-[2rem] p-6 sm:p-8 text-white shadow-[0_8px_30px_rgba(244,63,94,0.3)] mb-5 sm:mb-6 relative overflow-hidden">
                          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                         <div className="flex items-center gap-3 mb-2 sm:mb-3 relative z-10"><Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 drop-shadow-md" /><h3 className="font-bold text-base sm:text-lg">Total Setoran Masuk</h3></div>
+                         <div className="flex items-center gap-3 mb-2 sm:mb-3 relative z-10"><Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 drop-shadow-md" /><h3 className="font-bold text-base sm:text-lg">Total Murojaah Masuk</h3></div>
                          <div className="flex items-baseline gap-2 relative z-10"><span className="text-4xl sm:text-5xl font-black drop-shadow-sm">{history.length}</span><span className="text-white/80 font-medium text-sm sm:text-base">Sesi</span></div>
                          <div className="mt-4 text-[10px] sm:text-xs bg-black/20 backdrop-blur-sm inline-block px-3 py-1.5 rounded-xl font-bold tracking-widest uppercase relative z-10 border border-white/10">Semua Data</div>
                       </div>
@@ -1321,7 +1406,7 @@
                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                         <div className="w-full max-w-sm flex flex-col items-center">
                            <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                               <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
                                   
                                   <div className="absolute inset-0 z-0 bg-white overflow-hidden">
                                       <div className={`absolute inset-0 bg-gradient-to-br ${theme.overlay} opacity-90`}></div>
@@ -1329,7 +1414,7 @@
                                       <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-black/5 rounded-full blur-2xl"></div>
                                   </div>
 
-                                  {theme.isSpecial && (<div className="absolute top-4 right-4 rotate-12 z-20"><div className={`px-2.5 py-1 rounded-full font-black text-[9px] shadow-md border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} uppercase tracking-wider`}>⭐ Setoran ke-{submissionCount}</div></div>)}
+                                  {theme.isSpecial && (<div className="absolute top-4 right-4 rotate-12 z-20"><div className={`px-2.5 py-1 rounded-full font-black text-[9px] shadow-md border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} uppercase tracking-wider`}>⭐ Murojaah ke-{submissionCount}</div></div>)}
                                   <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
                                      <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain drop-shadow-sm" />
                                      <h3 className={`text-xl font-extrabold ${theme.title} leading-tight`}>Jurnal Murojaahku</h3>
@@ -1384,7 +1469,7 @@
                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                         <div className="w-full max-w-sm flex flex-col items-center">
                            <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0 }}>
+                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
                                   
                                   <div className="absolute inset-0 z-0 bg-white overflow-hidden">
                                       <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-blue-50 opacity-90"></div>
@@ -1425,11 +1510,43 @@
 
               {/* MODAL SHARE DAILY SUMMARY (REKAP HARIAN 9:16) */}
               {shareDailyItem && (() => {
+                  const studentCount = shareDailyItem.students.length;
+                  let dynamicGap = "gap-2";
+                  let badgePadding = "px-3 py-1.5";
+                  let badgeText = "text-[11px]";
+                  let dotSize = "w-1.5 h-1.5";
+                  let badgeRounded = "rounded-xl";
+                  let badgeInnerGap = "gap-1.5";
+
+                  // Logika Auto-Responsif mengecilkan ukuran badge berdasarkan jumlah siswa
+                  if (studentCount > 24) {
+                      dynamicGap = "gap-0.5";
+                      badgePadding = "px-1.5 py-0.5";
+                      badgeText = "text-[8px]";
+                      dotSize = "w-1 h-1";
+                      badgeRounded = "rounded-md";
+                      badgeInnerGap = "gap-0.5";
+                  } else if (studentCount > 15) {
+                      dynamicGap = "gap-1";
+                      badgePadding = "px-2 py-1";
+                      badgeText = "text-[9px]";
+                      dotSize = "w-1 h-1";
+                      badgeRounded = "rounded-lg";
+                      badgeInnerGap = "gap-1";
+                  } else if (studentCount > 8) {
+                      dynamicGap = "gap-1.5";
+                      badgePadding = "px-2.5 py-1";
+                      badgeText = "text-[10px]";
+                      dotSize = "w-1.5 h-1.5";
+                      badgeRounded = "rounded-xl";
+                      badgeInnerGap = "gap-1.5";
+                  }
+
                   return (
                       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
                           <div className="w-full max-w-sm flex flex-col items-center">
                               <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                                  <div ref={shareDailyCardRef} className="bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ width: '315px', height: '560px', boxSizing: 'border-box', flexShrink: 0 }}>
+                                  <div ref={shareDailyCardRef} className="bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ width: '315px', height: '560px', boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
                                       
                                       <div className="absolute inset-0 z-0 bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
                                           <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-300/30 rounded-full blur-3xl"></div>
@@ -1457,17 +1574,19 @@
                                           <div className="w-full flex-1 flex flex-col overflow-hidden mb-4 relative">
                                               <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
                                               <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
-                                              <div className="flex flex-wrap justify-center content-start gap-2 overflow-y-auto pt-2 pb-4 custom-scrollbar h-full relative z-0">
+                                              
+                                              {/* Menggunakan content-center agar jika banyak otomatis ke tengah tanpa scroll */}
+                                              <div className={`flex flex-wrap justify-center content-center ${dynamicGap} overflow-hidden pt-2 pb-4 h-full relative z-0`}>
                                                   {shareDailyItem.students.length > 0 ? (
                                                       shareDailyItem.students.map((siswa, index) => (
-                                                          <span key={index} className="bg-white text-slate-800 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border border-slate-200 shadow-sm flex items-center gap-1.5">
-                                                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                                          <span key={index} className={`bg-white text-slate-800 ${badgePadding} ${badgeRounded} ${badgeText} font-extrabold border border-slate-200 shadow-sm flex items-center ${badgeInnerGap}`}>
+                                                              <span className={`${dotSize} rounded-full bg-green-500 flex-shrink-0`}></span>
                                                               {siswa}
                                                           </span>
                                                       ))
                                                   ) : (
                                                       <div className="w-full flex items-center justify-center h-full opacity-60">
-                                                          <span className="text-[10px] font-bold text-slate-500 italic px-4 py-2 border-2 border-slate-200 border-dashed rounded-xl">Belum ada santri yang setor hari ini.</span>
+                                                          <span className="text-[10px] font-bold text-slate-500 italic px-4 py-2 border-2 border-slate-200 border-dashed rounded-xl">Belum ada santri yang murojaah hari ini.</span>
                                                       </div>
                                                   )}
                                               </div>
@@ -1500,7 +1619,7 @@
               )}
 
               {currentView !== 'welcome' && (
-                 <footer className="w-full text-center pt-8 pb-6 sm:py-8 text-slate-400 text-[10px] sm:text-xs font-medium px-4 mt-auto tracking-wide relative z-10 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                 <footer className="fixed bottom-0 left-0 right-0 z-50 w-full text-center py-3 sm:py-4 text-slate-400 text-[10px] sm:text-xs font-medium px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-orange-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                     <span>&copy; {new Date().getFullYear()} Juman Jayyidin.</span>
                     <span className="hidden sm:inline">|</span>
                     <span>All rights reserved.</span>
