@@ -63,7 +63,7 @@
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useRef, useMemo } from 'https://esm.sh/react@18.2.0';
         import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
-        import { BookOpen, Check, Search, Calendar, Trash2, Trophy, Star, User, ChevronDown, Lock, LogOut, X, AlertTriangle, PlusCircle, UserCog, Pencil, FolderOpen, Edit2, Settings, Loader2, ArrowRight, ArrowLeft, Users, ArrowUp, ArrowDown, LayoutDashboard, Share2, Database, Medal, Download, Image as ImageIcon, Smartphone, Globe, BellRing, Megaphone, Send, Filter, Cloud, CloudOff, Sun, Moon, School, Eye, EyeOff, HelpCircle } from 'https://esm.sh/lucide-react@0.263.1';
+        import { BookOpen, Check, Search, Calendar, Trash2, Trophy, Star, User, ChevronDown, Lock, LogOut, X, AlertTriangle, PlusCircle, UserCog, Pencil, FolderOpen, Edit2, Settings, Loader2, ArrowRight, ArrowLeft, Users, ArrowUp, ArrowDown, LayoutDashboard, Share2, Database, Medal, Download, Image as ImageIcon, Smartphone, Globe, BellRing, Megaphone, Send, Filter, Cloud, CloudOff, Sun, Moon, School, Eye, EyeOff, HelpCircle, MoveRight, ArrowRightLeft } from 'https://esm.sh/lucide-react@0.263.1';
         import { domToBlob } from 'https://esm.sh/modern-screenshot';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
@@ -155,6 +155,7 @@
           const [schoolName, setSchoolName] = useState(() => localStorage.getItem('murojaah_schoolName') || 'SDIT Al Fityan School Bogor');
           const [schoolLogo, setSchoolLogo] = useState(() => localStorage.getItem('murojaah_schoolLogo') || './logo.png');
           const [welcomeBgUrl, setWelcomeBgUrl] = useState(() => localStorage.getItem('murojaah_bgUrl') || '');
+          const [activePeriodStart, setActivePeriodStart] = useState(() => localStorage.getItem('murojaah_activePeriodStart') || '');
 
           const [selectedUstadz, setSelectedUstadz] = useState(() => { try { const s = sessionStorage.getItem('murojaah_selectedUstadz'); return s && s !== "undefined" ? JSON.parse(s) : null; } catch(e) { return null; } });
           const [selectedHalaqoh, setSelectedHalaqoh] = useState(() => { try { const s = sessionStorage.getItem('murojaah_selectedHalaqoh'); return s && s !== "undefined" ? JSON.parse(s) : null; } catch(e) { return null; } });
@@ -167,10 +168,13 @@
           
           const [historyFilter, setHistoryFilter] = useState("Semua");
           const [historyDateFilter, setHistoryDateFilter] = useState(""); 
+          const [historyEndDateFilter, setHistoryEndDateFilter] = useState(""); 
           const [historyPage, setHistoryPage] = useState(1);
           const [adminSearchTerm, setAdminSearchTerm] = useState("");
           const [adminHistoryDateFilter, setAdminHistoryDateFilter] = useState("");
+          const [adminHistoryEndDateFilter, setAdminHistoryEndDateFilter] = useState("");
           const [adminHistoryPage, setAdminHistoryPage] = useState(1);
+          const [periodTab, setPeriodTab] = useState('current'); 
 
           const [adminRole, setAdminRole] = useState(() => sessionStorage.getItem('murojaah_adminRole') || null);
           const isSuperAdmin = adminRole === 'superadmin';
@@ -190,6 +194,15 @@
           const [newStudentName, setNewStudentName] = useState("");
           const [editingStudentIndex, setEditingStudentIndex] = useState(null); 
           const [editStudentValue, setEditStudentValue] = useState(""); 
+          
+          // State untuk Fitur Pindah Halaqoh
+          const [showTransferModal, setShowTransferModal] = useState(false);
+          const [transferData, setTransferData] = useState({ studentName: '', targetUstadzId: '', targetHalaqohId: '' });
+
+          // State untuk Fitur Pindah Halaqoh Global (Header Admin)
+          const [showGlobalTransferModal, setShowGlobalTransferModal] = useState(false);
+          const [globalTransferData, setGlobalTransferData] = useState({ sourceUstadzId: '', sourceHalaqohId: '', selectedStudents: [], targetUstadzId: '', targetHalaqohId: '' });
+
           const [showManageClassModal, setShowManageClassModal] = useState(false);
           const [classForm, setClassForm] = useState("");
           const [editingClassIdx, setEditingClassIdx] = useState(null);
@@ -221,6 +234,7 @@
           useEffect(() => { localStorage.setItem('murojaah_schoolName', schoolName); }, [schoolName]);
           useEffect(() => { localStorage.setItem('murojaah_schoolLogo', schoolLogo); }, [schoolLogo]);
           useEffect(() => { localStorage.setItem('murojaah_bgUrl', welcomeBgUrl); }, [welcomeBgUrl]);
+          useEffect(() => { localStorage.setItem('murojaah_activePeriodStart', activePeriodStart); }, [activePeriodStart]);
           useEffect(() => { sessionStorage.setItem('murojaah_currentView', currentView); }, [currentView]);
           useEffect(() => { sessionStorage.setItem('murojaah_selectedUstadz', JSON.stringify(selectedUstadz)); }, [selectedUstadz]);
           useEffect(() => { sessionStorage.setItem('murojaah_selectedHalaqoh', JSON.stringify(selectedHalaqoh)); }, [selectedHalaqoh]);
@@ -305,6 +319,7 @@
                       if (d.welcomeBgUrl !== undefined) setWelcomeBgUrl(d.welcomeBgUrl);
                       if (d.schoolName !== undefined) setSchoolName(d.schoolName);
                       if (d.schoolLogo !== undefined) setSchoolLogo(d.schoolLogo);
+                      if (d.activePeriodStart !== undefined) setActivePeriodStart(d.activePeriodStart);
                   }
               }, () => setCloudStatus('error'));
 
@@ -333,9 +348,9 @@
               return () => { unsubCore(); unsubHistory(); unsubBroadcast(); };
           }, [firebaseUser, isAdmin]);
 
-          const saveCoreToCloud = async (newData = data, newClasses = classes, newScriptUrl = scriptUrl, newBgUrl = welcomeBgUrl, newSchoolName = schoolName, newSchoolLogo = schoolLogo) => {
+          const saveCoreToCloud = async (newData = data, newClasses = classes, newScriptUrl = scriptUrl, newBgUrl = welcomeBgUrl, newSchoolName = schoolName, newSchoolLogo = schoolLogo, newPeriodStart = activePeriodStart) => {
               if (!firebaseUser || !db) return;
-              try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'main'), { data: newData || [], classes: newClasses || [], scriptUrl: newScriptUrl, welcomeBgUrl: newBgUrl, schoolName: newSchoolName, schoolLogo: newSchoolLogo }, { merge: true }); } catch(e) {}
+              try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'main'), { data: newData || [], classes: newClasses || [], scriptUrl: newScriptUrl, welcomeBgUrl: newBgUrl, schoolName: newSchoolName, schoolLogo: newSchoolLogo, activePeriodStart: newPeriodStart }, { merge: true }); } catch(e) {}
           };
 
           const saveScriptUrl = (url) => { setScriptUrl(url); if (isCloudReady) saveCoreToCloud(data, classes, url); };
@@ -351,12 +366,41 @@
           const handleShareHalaqohClick = (e, h) => { e.stopPropagation(); setShareHalaqohItem({ ...h, ustadzName: selectedUstadz?.name }); };
           
           const handleShareDailyClick = () => {
-              const dateToShare = historyDateFilter || getLocalDateString(new Date().toISOString());
-              const dailyData = history.filter(item => item && item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name && getLocalDateString(item.date) === dateToShare);
+              const startDate = currentView === 'admin-dashboard' ? adminHistoryDateFilter : historyDateFilter;
+              const endDate = currentView === 'admin-dashboard' ? adminHistoryEndDateFilter : historyEndDateFilter;
+              
+              let dailyData = history.filter(item => item && item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name);
+
+              if (startDate || endDate) {
+                  dailyData = dailyData.filter(item => {
+                      const itemDate = getLocalDateString(item.date);
+                      if (startDate && !endDate) return itemDate === startDate;
+                      if (!startDate && endDate) return itemDate === endDate;
+                      return itemDate >= startDate && itemDate <= endDate;
+                  });
+              } else if (activePeriodStart) {
+                  const periodStartMs = new Date(activePeriodStart).getTime();
+                  dailyData = dailyData.filter(item => {
+                       const itemTime = new Date(item?.date).getTime();
+                       return periodTab === 'current' ? itemTime >= periodStartMs : itemTime < periodStartMs;
+                  });
+              }
+
               const uniqueStudents = Array.from(new Set(dailyData.map(h => h.student)));
 
+              let dateDisplayStr = "";
+              if (startDate && endDate && startDate !== endDate) {
+                  dateDisplayStr = `${new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: '2-digit' })} - ${new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: '2-digit' })}`;
+              } else if (startDate || endDate) {
+                  const validDate = startDate || endDate;
+                  dateDisplayStr = new Date(validDate).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+              } else {
+                  dateDisplayStr = periodTab === 'previous' ? "Rekap Tahun Sebelumnya" : "Rekap Semua Waktu";
+              }
+
               setShareDailyItem({ 
-                  dateStr: dateToShare, 
+                  dateStr: dateDisplayStr, 
+                  isHariIni: (startDate === endDate && startDate) || (startDate && !endDate) || (!startDate && endDate),
                   students: uniqueStudents, 
                   halaqohName: selectedHalaqoh?.name, 
                   ustadzName: selectedUstadz?.name 
@@ -390,10 +434,22 @@
               finally { setIsGeneratingImage(null); }
           };
 
+          // --- LOGIKA FILTER TAHUN AJARAN (TABS) ---
+          const periodFilteredHistory = useMemo(() => {
+              if (!activePeriodStart) return history;
+              const periodStartMs = new Date(activePeriodStart).getTime();
+              return history.filter(item => {
+                   const itemTime = new Date(item?.date).getTime();
+                   return periodTab === 'current' ? itemTime >= periodStartMs : itemTime < periodStartMs;
+              });
+          }, [history, activePeriodStart, periodTab]);
+
           const topStudents = useMemo(() => {
               const stats = {};
+              const periodStartMs = activePeriodStart ? new Date(activePeriodStart).getTime() : 0;
               history.forEach(item => {
                   if (!item) return;
+                  if (periodStartMs > 0 && new Date(item.date).getTime() < periodStartMs) return;
                   const key = `${item.student}_${item.class}`;
                   if (!stats[key]) stats[key] = { student: item.student, class: item.class, surahCount: 0, sessionCount: 0, totalPoints: 0 };
                   stats[key].sessionCount += 1;
@@ -401,14 +457,14 @@
                   (item.surahs || []).forEach(num => { if (!item.marks?.[num]) stats[key].totalPoints += calculatePoints(num, item.ranges?.[num]); });
               });
               return Object.values(stats).sort((a, b) => b.totalPoints - a.totalPoints || b.surahCount - a.surahCount || b.sessionCount - a.sessionCount).slice(0, 10);
-          }, [history]);
+          }, [history, activePeriodStart]);
           
           const halaqohLeaderboard = useMemo(() => {
               if (!selectedHalaqoh || !selectedUstadz) return [];
               const stats = {};
               (selectedHalaqoh.students || []).forEach(studentName => { stats[studentName] = { student: studentName, class: '-', surahCount: 0, sessionCount: 0, totalPoints: 0 }; });
               
-              history.filter(item => item?.halaqohName === selectedHalaqoh.name && item?.ustadzName === selectedUstadz.name).forEach(item => {
+              periodFilteredHistory.filter(item => item?.halaqohName === selectedHalaqoh.name && item?.ustadzName === selectedUstadz.name).forEach(item => {
                   const key = item?.student;
                   if (key) {
                       if (!stats[key]) stats[key] = { student: key, class: item.class, surahCount: 0, sessionCount: 0, totalPoints: 0 }; 
@@ -419,7 +475,7 @@
                   }
               });
               return Object.values(stats).sort((a, b) => b.totalPoints - a.totalPoints || b.surahCount - a.surahCount || b.sessionCount - a.sessionCount);
-          }, [history, selectedHalaqoh, selectedUstadz]);
+          }, [periodFilteredHistory, selectedHalaqoh, selectedUstadz]);
 
           const sortedUstadzData = useMemo(() => {
               const counts = {};
@@ -539,6 +595,123 @@
             setEditingStudentIndex(null); setEditStudentValue("");
           };
 
+          const openTransferModal = (studentName) => {
+              setTransferData({ studentName, targetUstadzId: '', targetHalaqohId: '' });
+              setShowTransferModal(true);
+          };
+
+          const executeTransferStudent = (e) => {
+              e.preventDefault();
+              if (!transferData.targetUstadzId || !transferData.targetHalaqohId) return;
+
+              if (selectedHalaqoh?.id === transferData.targetHalaqohId) {
+                  alert("Siswa sudah berada di halaqoh ini.");
+                  return;
+              }
+
+              const studentToMove = transferData.studentName;
+              const targetUstadz = data.find(u => u.id === transferData.targetUstadzId);
+              const targetHalaqoh = targetUstadz?.halaqohs?.find(h => h.id === transferData.targetHalaqohId);
+              
+              if (targetHalaqoh?.students?.includes(studentToMove)) {
+                  alert("Siswa dengan nama yang sama sudah ada di Halaqoh tujuan!");
+                  return;
+              }
+
+              let newData = data.map(u => {
+                  if (u.id === selectedUstadz.id) {
+                      return {
+                          ...u,
+                          halaqohs: (u.halaqohs || []).map(h => {
+                              if (h.id === selectedHalaqoh.id) {
+                                  return { ...h, students: (h.students || []).filter(s => s !== studentToMove) };
+                              }
+                              return h;
+                          })
+                      };
+                  }
+                  return u;
+              });
+
+              newData = newData.map(u => {
+                  if (u.id === transferData.targetUstadzId) {
+                      return {
+                          ...u,
+                          halaqohs: (u.halaqohs || []).map(h => {
+                              if (h.id === transferData.targetHalaqohId) {
+                                  return { ...h, students: [...(h.students || []), studentToMove] };
+                              }
+                              return h;
+                          })
+                      };
+                  }
+                  return u;
+              });
+
+              refreshSelectedData(newData);
+              if (isCloudReady) saveCoreToCloud(newData, classes);
+              
+              setShowTransferModal(false);
+              setTransferData({ studentName: '', targetUstadzId: '', targetHalaqohId: '' });
+          };
+
+          const executeGlobalTransferStudent = (e) => {
+              e.preventDefault();
+              const { sourceUstadzId, sourceHalaqohId, selectedStudents, targetUstadzId, targetHalaqohId } = globalTransferData;
+              if (!sourceUstadzId || !sourceHalaqohId || selectedStudents.length === 0 || !targetUstadzId || !targetHalaqohId) return;
+
+              if (sourceHalaqohId === targetHalaqohId) {
+                  alert("Halaqoh asal dan tujuan tidak boleh sama.");
+                  return;
+              }
+
+              const targetUstadz = data.find(u => u.id === targetUstadzId);
+              const targetHalaqoh = targetUstadz?.halaqohs?.find(h => h.id === targetHalaqohId);
+              
+              const duplicates = selectedStudents.filter(s => targetHalaqoh?.students?.includes(s));
+              if (duplicates.length > 0) {
+                  alert(`Siswa berikut sudah ada di Halaqoh tujuan:\n${duplicates.join(', ')}`);
+                  return;
+              }
+
+              let newData = data.map(u => {
+                  if (u.id === sourceUstadzId) {
+                      return {
+                          ...u,
+                          halaqohs: (u.halaqohs || []).map(h => {
+                              if (h.id === sourceHalaqohId) {
+                                  return { ...h, students: (h.students || []).filter(s => !selectedStudents.includes(s)) };
+                              }
+                              return h;
+                          })
+                      };
+                  }
+                  return u;
+              });
+
+              newData = newData.map(u => {
+                  if (u.id === targetUstadzId) {
+                      return {
+                          ...u,
+                          halaqohs: (u.halaqohs || []).map(h => {
+                              if (h.id === targetHalaqohId) {
+                                  return { ...h, students: [...(h.students || []), ...selectedStudents] };
+                              }
+                              return h;
+                          })
+                      };
+                  }
+                  return u;
+              });
+
+              refreshSelectedData(newData);
+              if (isCloudReady) saveCoreToCloud(newData, classes);
+              
+              setShowGlobalTransferModal(false);
+              setGlobalTransferData({ sourceUstadzId: '', sourceHalaqohId: '', selectedStudents: [], targetUstadzId: '', targetHalaqohId: '' });
+              alert(`Berhasil memindahkan ${selectedStudents.length} siswa ke ${targetHalaqoh?.name}`);
+          };
+
           const startEditingClass = (index) => { setEditingClassIdx(index); setEditClassText(classes[index] || ""); };
           const handleAddClass = (e) => {
             e.preventDefault(); if (!classForm.trim() || classes.includes(classForm.trim())) return;
@@ -584,15 +757,12 @@
              setDeleteConfig({ show: false, type: null, id: null, name: '', parentId: null });
           };
 
-          // FUNGSI SIMPAN EDIT RIWAYAT (DIPERBAIKI)
           const handleSaveHistoryEdit = async (e) => {
               if (e && e.preventDefault) e.preventDefault(); 
               if (!editingHistoryItem?.id) return;
               setIsLoading(true);
               try {
-                  // Mencegah error tipe undefined saat dikirim ke Firestore
                   const cleanPayload = JSON.parse(JSON.stringify(editingHistoryItem));
-                  
                   if (isCloudReady && firebaseUser && db) {
                       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_history', cleanPayload.id.toString()), cleanPayload, { merge: true });
                   } else {
@@ -644,6 +814,22 @@
             setShowVerseModal(false); setActiveSurahForPicker(null);
           };
 
+          const surahsDoneToday = useMemo(() => {
+              if (!selectedStudent) return [];
+              const todayStart = new Date(); 
+              todayStart.setHours(0, 0, 0, 0);
+
+              const done = new Set();
+              history.forEach(h => {
+                  if (h && h.student === selectedStudent && new Date(h.date) >= todayStart) {
+                      if (Array.isArray(h.surahs)) {
+                          h.surahs.forEach(s => done.add(s));
+                      }
+                  }
+              });
+              return Array.from(done);
+          }, [history, selectedStudent]);
+
           const handleSaveSession = async () => {
             if (isLoading || !selectedStudent || !selectedClass || selectedSurahs.length === 0) return;
             const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
@@ -686,7 +872,6 @@
 
           const filteredSurahs = SURAH_LIST.filter(s => s.name.toLowerCase().includes((searchTerm || '').toLowerCase()) || s.number.toString().includes(searchTerm || ''));
 
-          // --- FUNGSI RENDER HISTORY CARD ---
           const renderHistoryCard = (item) => (
              <div key={item?.id || Math.random()} className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md hover:border-orange-200 transition-all duration-300 w-full overflow-hidden">
                 <div className="flex items-start justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 sm:pb-4 mb-3 sm:mb-4 gap-3">
@@ -748,6 +933,7 @@
                    {isAdmin && (
                        <div className="flex items-center gap-1 sm:gap-1.5">
                            <div className={`hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-bold border ${cloudStatus === 'online' ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'}`} title={cloudStatus === 'online' ? "Database Cloud Aktif" : "Database Offline (Lokal)"}>{cloudStatus === 'online' ? <Cloud className="w-3 h-3"/> : <CloudOff className="w-3 h-3"/>}</div>
+                           {isSuperAdmin && <button onClick={() => setShowGlobalTransferModal(true)} className="p-2 sm:p-2.5 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all flex-shrink-0" title="Mutasi Siswa Global"><ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>}
                            {isSuperAdmin && <button onClick={() => setShowBroadcastModal(true)} className="p-2 sm:p-2.5 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all flex-shrink-0"><Megaphone className="w-4 h-4 sm:w-5 sm:h-5" /></button>}
                            {isSuperAdmin && <button onClick={() => setShowSettingsModal(true)} className="p-2 sm:p-2.5 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all flex-shrink-0"><Settings className="w-4 h-4 sm:w-5 sm:h-5" /></button>}
                            <button onClick={() => setCurrentView('admin-dashboard')} className="p-2 sm:p-2.5 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all flex-shrink-0" title="Dashboard Admin"><LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /></button>
@@ -764,13 +950,13 @@
             </div>
           );
 
+          // =========================================================================================
           // STRUKTUR RENDER UTAMA YANG BERSIH TANPA DUPLIKASI
+          // =========================================================================================
           return (
             <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-36 sm:pb-28' : ''}`}>
               
-              {/* ========================================================= */}
-              {/* 1. ELEMEN UI GLOBAL & NOTIFIKASI                          */}
-              {/* ========================================================= */}
+              {/* GLOBAL UI ELEMENTS & NOTIFIKASI */}
               {activeBroadcast && (
                   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in">
                      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center transform transition-all animate-in zoom-in-95 border border-white/10">
@@ -792,10 +978,20 @@
                 </div>
               )}
 
+              {infoMsg && (
+                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
+                      <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-xs w-full text-center border border-slate-100 dark:border-slate-700 relative">
+                          <div className="w-12 h-12 bg-green-50 dark:bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-green-100 dark:border-green-500/20">
+                              <HelpCircle className="w-6 h-6 text-green-500" />
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">Informasi Surat</h3>
+                          <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-5">Wajib surat yang sudah dihafal</p>
+                          <button onClick={() => setInfoMsg(false)} className="w-full py-3 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-colors text-sm">Tutup</button>
+                      </div>
+                  </div>
+              )}
 
-              {/* ========================================================= */}
-              {/* 2. HALAMAN SELAMAT DATANG (WELCOME VIEW)                  */}
-              {/* ========================================================= */}
+              {/* WELCOME VIEW */}
               {currentView === 'welcome' && (
                   <div className="min-h-screen flex items-center justify-center p-4 text-white relative overflow-x-hidden font-sans py-12">
                      <div className="fixed top-0 left-0 w-full h-full z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${(welcomeBgUrl || '').trim() || 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1920&auto=format&fit=crop'}')` }}></div>
@@ -861,7 +1057,7 @@
               {/* ========================================================= */}
               {/* 3. MODAL KUMPULAN AKSES ADMIN                             */}
               {/* ========================================================= */}
-              {/* LOGIN MODAL */}
+              
               {showLoginModal && (
                 <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-200">
                   <div className="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm relative overflow-hidden border border-slate-100 dark:border-slate-700">
@@ -915,6 +1111,14 @@
                                        <div className="flex-1"><input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full text-xs text-slate-500 file:cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 outline-none" /></div>
                                    </div>
                                </div>
+                            </div>
+                         </div>
+                         <div className="space-y-3">
+                            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3"><Calendar className="w-3.5 h-3.5" /> Periode / Reset Poin</h3>
+                            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                               <label className="block text-[10px] font-bold text-slate-500 mb-2">Tanggal Mulai Hitung Poin (Tahun Ajaran Baru)</label>
+                               <input type="date" value={activePeriodStart} onChange={(e) => { setActivePeriodStart(e.target.value); if (isCloudReady) saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, schoolName, schoolLogo, e.target.value); }} className="w-full px-3.5 py-3 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" />
+                               <p className="text-[9px] mt-2.5 text-slate-500 leading-relaxed">Poin di papan peringkat akan dihitung ulang (0) mulai dari tanggal ini. Riwayat murojaah sebelumnya tetap utuh dan tersimpan di menu Riwayat.</p>
                             </div>
                          </div>
                          <div className="space-y-3">
@@ -1013,6 +1217,7 @@
                                 <button onClick={() => handleMoveStudent(idx, 'up')} disabled={idx === 0} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowUp className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => handleMoveStudent(idx, 'down')} disabled={idx === selectedHalaqoh.students.length - 1} className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-md"><ArrowDown className="w-3.5 h-3.5" /></button>
                                 <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+                                <button onClick={() => openTransferModal(student)} className="p-1.5 text-orange-500 hover:bg-orange-100 rounded-md" title="Pindah Halaqoh"><MoveRight className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => startEditingStudent(idx)} className="p-1.5 text-blue-500 hover:bg-blue-100 rounded-md"><Pencil className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => setDeleteConfig({ show: true, type: 'student', name: student })} className="p-1.5 text-red-500 hover:bg-red-100 rounded-md"><Trash2 className="w-3.5 h-3.5" /></button>
                               </div>
@@ -1023,6 +1228,146 @@
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* MODAL PINDAH HALAQOH/USTADZ (INDIVIDU) */}
+              {showTransferModal && isSuperAdmin && (
+                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
+                          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                              <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><MoveRight className="w-5 h-5 text-orange-500" /> Pindah Halaqoh</h2>
+                              <button onClick={() => setShowTransferModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
+                          </div>
+                          <form onSubmit={executeTransferStudent} className="space-y-4">
+                              <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Siswa</label>
+                                  <input type="text" value={transferData.studentName} disabled className="w-full px-4 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 font-medium cursor-not-allowed" />
+                              </div>
+                              <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Pengajar Tujuan</label>
+                                  <div className="relative">
+                                      <select value={transferData.targetUstadzId} onChange={(e) => setTransferData({...transferData, targetUstadzId: e.target.value, targetHalaqohId: ''})} className="w-full appearance-none px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 font-medium cursor-pointer" required>
+                                          <option value="" disabled>-- Pilih Pengajar --</option>
+                                          {data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                      </select>
+                                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                  </div>
+                              </div>
+                              {transferData.targetUstadzId && (
+                                  <div>
+                                      <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Halaqoh Tujuan</label>
+                                      <div className="relative">
+                                          <select value={transferData.targetHalaqohId} onChange={(e) => setTransferData({...transferData, targetHalaqohId: e.target.value})} className="w-full appearance-none px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 font-medium cursor-pointer" required>
+                                              <option value="" disabled>-- Pilih Halaqoh --</option>
+                                              {(data.find(u => u.id === transferData.targetUstadzId)?.halaqohs || []).map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+                                          </select>
+                                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                      </div>
+                                  </div>
+                              )}
+                              <button type="submit" disabled={!transferData.targetUstadzId || !transferData.targetHalaqohId} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Pindahkan Siswa</button>
+                          </form>
+                      </div>
+                  </div>
+              )}
+
+              {/* MODAL MUTASI (PINDAH SISWA GLOBAL BANYAK DARI HEADER) */}
+              {showGlobalTransferModal && isSuperAdmin && (
+                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
+                          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                              <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100"><ArrowRightLeft className="w-5 h-5 text-orange-500" /> Mutasi Siswa</h2>
+                              <button onClick={() => setShowGlobalTransferModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
+                          </div>
+                          <form onSubmit={executeGlobalTransferStudent} className="space-y-4">
+                              {/* ASAL */}
+                              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">1. Pilih Asal</p>
+                                  <div className="space-y-2">
+                                      <select value={globalTransferData.sourceUstadzId} onChange={(e) => setGlobalTransferData({...globalTransferData, sourceUstadzId: e.target.value, sourceHalaqohId: '', selectedStudents: []})} className="w-full text-xs font-medium p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-orange-500 cursor-pointer">
+                                          <option value="" disabled>-- Pilih Pengajar Asal --</option>
+                                          {data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                      </select>
+                                      {globalTransferData.sourceUstadzId && (
+                                          <select value={globalTransferData.sourceHalaqohId} onChange={(e) => setGlobalTransferData({...globalTransferData, sourceHalaqohId: e.target.value, selectedStudents: []})} className="w-full text-xs font-medium p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-orange-500 cursor-pointer">
+                                              <option value="" disabled>-- Pilih Halaqoh Asal --</option>
+                                              {(data.find(u => u.id === globalTransferData.sourceUstadzId)?.halaqohs || []).map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+                                          </select>
+                                      )}
+                                      
+                                      {globalTransferData.sourceHalaqohId && (() => {
+                                          const sourceUstadz = data.find(u => u.id === globalTransferData.sourceUstadzId);
+                                          const sourceHalaqoh = sourceUstadz?.halaqohs?.find(h => h.id === globalTransferData.sourceHalaqohId);
+                                          const availableStudents = sourceHalaqoh?.students || [];
+
+                                          return (
+                                              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                                  <div className="flex justify-between items-center mb-1.5 px-1">
+                                                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pilih Siswa</label>
+                                                      <button 
+                                                          type="button" 
+                                                          onClick={() => {
+                                                              if (globalTransferData.selectedStudents.length === availableStudents.length) {
+                                                                  setGlobalTransferData({...globalTransferData, selectedStudents: []});
+                                                              } else {
+                                                                  setGlobalTransferData({...globalTransferData, selectedStudents: [...availableStudents]});
+                                                              }
+                                                          }} 
+                                                          className="text-[10px] text-orange-600 dark:text-orange-400 font-bold hover:underline"
+                                                      >
+                                                          {globalTransferData.selectedStudents.length === availableStudents.length ? 'Batal Semua' : 'Pilih Semua'}
+                                                      </button>
+                                                  </div>
+                                                  <div className="max-h-32 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1.5 space-y-0.5">
+                                                      {availableStudents.length === 0 ? (
+                                                          <div className="text-xs text-slate-400 text-center py-2">Tidak ada siswa</div>
+                                                      ) : (
+                                                          availableStudents.map(s => (
+                                                              <label key={s} className="flex items-center gap-2.5 p-2 hover:bg-orange-50 dark:hover:bg-slate-700 rounded-md cursor-pointer transition-colors">
+                                                                  <input 
+                                                                      type="checkbox" 
+                                                                      checked={globalTransferData.selectedStudents.includes(s)}
+                                                                      onChange={(e) => {
+                                                                          const newSel = e.target.checked 
+                                                                              ? [...globalTransferData.selectedStudents, s] 
+                                                                              : globalTransferData.selectedStudents.filter(name => name !== s);
+                                                                          setGlobalTransferData({...globalTransferData, selectedStudents: newSel});
+                                                                      }}
+                                                                      className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500 bg-white" 
+                                                                  />
+                                                                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{s}</span>
+                                                              </label>
+                                                          ))
+                                                      )}
+                                                  </div>
+                                                  <div className="text-[10px] text-slate-500 mt-1.5 px-1 font-medium">{globalTransferData.selectedStudents.length} siswa dipilih</div>
+                                              </div>
+                                          );
+                                      })()}
+                                  </div>
+                              </div>
+
+                              {/* TUJUAN */}
+                              <div className="p-3 bg-orange-50 dark:bg-orange-900/10 rounded-xl border border-orange-100 dark:border-orange-900/30">
+                                  <p className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2">2. Pindah Ke Tujuan</p>
+                                  <div className="space-y-2">
+                                      <select value={globalTransferData.targetUstadzId} onChange={(e) => setGlobalTransferData({...globalTransferData, targetUstadzId: e.target.value, targetHalaqohId: ''})} className="w-full text-xs font-medium p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-orange-200 dark:border-orange-800/50 outline-none focus:border-orange-500 cursor-pointer">
+                                          <option value="" disabled>-- Pilih Pengajar Tujuan --</option>
+                                          {data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                      </select>
+                                      {globalTransferData.targetUstadzId && (
+                                          <select value={globalTransferData.targetHalaqohId} onChange={(e) => setGlobalTransferData({...globalTransferData, targetHalaqohId: e.target.value})} className="w-full text-xs font-medium p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-orange-200 dark:border-orange-800/50 outline-none focus:border-orange-500 cursor-pointer">
+                                              <option value="" disabled>-- Pilih Halaqoh Tujuan --</option>
+                                              {(data.find(u => u.id === globalTransferData.targetUstadzId)?.halaqohs || []).map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+                                          </select>
+                                      )}
+                                  </div>
+                              </div>
+
+                              <button type="submit" disabled={globalTransferData.selectedStudents.length === 0 || !globalTransferData.targetHalaqohId} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Eksekusi Pindah Siswa</button>
+                          </form>
+                      </div>
+                  </div>
               )}
 
               {/* TAMBAH/EDIT USTADZ */}
@@ -1055,46 +1400,6 @@
                               </div>
                               <button type="submit" disabled={!ustadzForm.name.trim()} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Simpan Data</button>
                           </form>
-                      </div>
-                  </div>
-              )}
-
-              {/* TAMBAH/EDIT HALAQOH */}
-              {showHalaqohModal && isSuperAdmin && (
-                  <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
-                          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                              <h2 className="text-lg sm:text-xl font-extrabold flex items-center gap-2.5 text-slate-800 dark:text-slate-100">
-                                  <Users className="w-5 h-5 text-orange-500" /> {halaqohForm.id ? 'Edit Halaqoh' : 'Tambah Halaqoh'}
-                              </h2>
-                              <button onClick={() => setShowHalaqohModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
-                          </div>
-                          <form onSubmit={saveHalaqoh} className="space-y-4">
-                              <div>
-                                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Nama Halaqoh</label>
-                                  <input type="text" value={halaqohForm.name} onChange={(e) => setHalaqohForm({...halaqohForm, name: e.target.value})} className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-800 dark:text-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-medium" placeholder="Contoh: Halaqoh Abu Bakar" autoFocus required />
-                              </div>
-                              <button type="submit" disabled={!halaqohForm.name.trim()} className="w-full bg-orange-600 text-white font-extrabold py-3.5 rounded-2xl shadow-lg hover:bg-orange-500 transition-all text-sm mt-4 disabled:opacity-50">Simpan Data</button>
-                          </form>
-                      </div>
-                  </div>
-              )}
-
-              {/* KONFIRMASI HAPUS (GLOBAL) */}
-              {deleteConfig.show && (
-                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
-                      <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center border border-slate-100 dark:border-slate-700">
-                          <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100 dark:border-red-500/20">
-                              <Trash2 className="w-8 h-8 text-red-500" />
-                          </div>
-                          <h3 className="text-xl font-extrabold mb-2 text-slate-800 dark:text-slate-100">Konfirmasi Hapus</h3>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                              Yakin ingin menghapus <b>{deleteConfig.name}</b>? Data yang dihapus tidak dapat dikembalikan.
-                          </p>
-                          <div className="flex gap-3">
-                              <button onClick={() => setDeleteConfig({ show: false, type: null, id: null, name: '', parentId: null })} className="flex-1 py-3.5 rounded-2xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-colors text-sm">Batal</button>
-                              <button onClick={executeDelete} className="flex-1 py-3.5 rounded-2xl font-bold bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-colors text-sm">Ya, Hapus</button>
-                          </div>
                       </div>
                   </div>
               )}
@@ -1143,10 +1448,7 @@
                   </div>
               )}
 
-
-              {/* ========================================================= */}
-              {/* 4. MODAL USER INPUT (PILIH SURAT & AYAT)                    */}
-              {/* ========================================================= */}
+              {/* MODAL USER INPUT (PILIH SURAT & AYAT) */}
               {showVerseModal && activeSurahForPicker && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
                     <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative text-center">
@@ -1165,572 +1467,6 @@
                             <button onClick={() => saveVerseSelection(true)} className="w-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-2xl text-sm border border-slate-200 dark:border-slate-600">Murojaah Full Satu Surat</button>
                         </div>
                     </div>
-                </div>
-              )}
-
-              {/* INFO ICON MSG */}
-              {infoMsg && (
-                  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
-                      <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-xs w-full text-center border border-slate-100 dark:border-slate-700 relative">
-                          <div className="w-12 h-12 bg-green-50 dark:bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-green-100 dark:border-green-500/20">
-                              <HelpCircle className="w-6 h-6 text-green-500" />
-                          </div>
-                          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">Informasi Surat</h3>
-                          <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-5">Wajib surat yang sudah dihafal</p>
-                          <button onClick={() => setInfoMsg(false)} className="w-full py-3 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-colors text-sm">Tutup</button>
-                      </div>
-                  </div>
-              )}
-
-
-              {/* ========================================================= */}
-              {/* 5. MODAL SHARE KARTU (INDIVIDU, HALAQOH, REKAP HARIAN)    */}
-              {/* ========================================================= */}
-              {/* PRESTASI INDIVIDU */}
-              {shareItem && (() => {
-                  const studentHistory = history.filter(h => h?.student === shareItem.student).sort((a, b) => new Date(a.date) - new Date(b.date));
-                  const submissionIndex = studentHistory.findIndex(h => h.id === shareItem.id);
-                  const submissionCount = submissionIndex + 1; 
-                  const effectiveCount = submissionCount % 60 === 0 && submissionCount > 0 ? 60 : submissionCount % 60;
-                  const theme = getTheme(effectiveCount);
-
-                  const halaqohNameStr = shareItem.halaqohName || '-';
-                  const hLen = halaqohNameStr.length;
-                  const hSizeClass = hLen > 35 ? 'text-[6px]' : hLen > 25 ? 'text-[7.5px]' : hLen > 15 ? 'text-[9px]' : 'text-[11px]';
-
-                  const dateStr = getDateOnly(shareItem.date || new Date().toISOString());
-                  const dLen = dateStr.length;
-                  const dSizeClass = dLen > 25 ? 'text-[7px]' : dLen > 20 ? 'text-[8px]' : 'text-[9px]';
-
-                  return (
-                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
-                                  
-                                  <div className="absolute inset-0 z-0 bg-white overflow-hidden">
-                                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.overlay} opacity-90`}></div>
-                                      <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/60 rounded-full blur-2xl"></div>
-                                      <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-black/5 rounded-full blur-2xl"></div>
-                                  </div>
-
-                                  {theme.isSpecial && (<div className="absolute top-4 right-4 rotate-12 z-20"><div className={`px-2.5 py-1 rounded-full font-black text-[9px] shadow-md border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} uppercase tracking-wider`}>⭐ Murojaah ke-{submissionCount}</div></div>)}
-                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                     <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-5 max-w-[80%] mb-2 object-contain drop-shadow-sm" />
-                                     <h3 className={`text-xl font-extrabold ${theme.title} leading-tight`}>Jurnal Murojaahku</h3>
-                                     <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">{schoolName}</p>
-                                     <h2 className="text-2xl font-black text-slate-800 mb-0.5">{shareItem.student}</h2>
-                                     <div className="flex justify-center mb-5"><span className={`${theme.title} text-[10px] font-extrabold uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full border border-white/40 shadow-sm`}>{shareItem.class || '-'}</span></div>
-                                     <p className="text-[11px] font-bold text-slate-500 mb-2 italic">Alhamdulillah telah memurojaah hafalan :</p>
-                                     {(() => {
-                                        const count = (shareItem.surahs || []).length;
-                                        const styles = getStudentTextClass(count);
-                                        return (
-                                            <div className="w-full bg-transparent px-1 mb-4 flex-1 flex flex-col justify-center overflow-hidden">
-                                                <p className={`w-full text-center text-slate-800 font-extrabold break-words ${styles.textSizeClass}`}>
-                                                    {(shareItem.surahs || []).map((num, index) => {
-                                                        const namaSurat = getSurahName(num);
-                                                        const rentang = shareItem.ranges?.[num];
-                                                        return (
-                                                            <React.Fragment key={num}>
-                                                                <span className="inline-block drop-shadow-sm whitespace-nowrap">
-                                                                    {namaSurat}
-                                                                    {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass}`}>({rentang})</span>}
-                                                                </span>
-                                                                {index < count - 1 && <span className={`${theme.dot} ${styles.dotMargin} font-black inline-block`}>•</span>}
-                                                            </React.Fragment>
-                                                        )
-                                                    })}
-                                                </p>
-                                            </div>
-                                        );
-                                     })()}
-                                     <div className="w-full flex justify-between items-end text-slate-500 border-t-2 border-slate-200/50 pt-4 pb-1 mt-auto gap-2">
-                                        <div className="text-left flex flex-col gap-0.5 flex-1 min-w-0">
-                                            <p className="font-semibold uppercase tracking-wider text-[9px] truncate">Halaqoh :</p>
-                                            <p className={`font-black ${theme.footerValue} ${hSizeClass} leading-tight whitespace-nowrap`}>{halaqohNameStr}</p>
-                                        </div>
-                                        <div className="text-right font-bold uppercase tracking-wider flex-shrink-0 max-w-[45%]">
-                                            <p className={`${dSizeClass} whitespace-nowrap`}>{dateStr}</p>
-                                        </div>
-                                     </div>
-                                  </div>
-                               </div>
-                           </div>
-                           <div className="flex gap-2 mt-4 w-full max-w-[320px]">
-                              <button onClick={() => setShareItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                              <button onClick={() => processImageGeneric('download', shareCardRef, 'Prestasi', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                              <button onClick={() => processImageGeneric('share', shareCardRef, 'Prestasi', shareItem.student)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
-                           </div>
-                        </div>
-                     </div>
-                  );
-              })()}
-
-              {/* DAFTAR SISWA HALAQOH */}
-              {shareHalaqohItem && (() => {
-                  const safeStudents = Array.isArray(shareHalaqohItem.students) ? shareHalaqohItem.students : [];
-                  const count = safeStudents.length;
-                  const hNameLen = (shareHalaqohItem.name || '').length;
-                  const styles = getCardStyles(count, hNameLen);
-
-                  return (
-                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                           <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                               <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
-                                  
-                                  <div className="absolute inset-0 z-0 bg-white overflow-hidden">
-                                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-blue-50 opacity-90"></div>
-                                      <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-300/20 rounded-full blur-3xl"></div>
-                                      <div className="absolute bottom-0 -left-10 w-48 h-48 bg-cyan-300/10 rounded-full blur-2xl"></div>
-                                  </div>
-
-                                  <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                     <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className={`h-5 max-w-[80%] mb-1 object-contain drop-shadow-sm ${count > 25 ? 'mb-0.5' : 'mb-2'}`} />
-                                     <h3 className={`font-extrabold text-blue-700 leading-tight ${styles.titleClass}`}>Jurnal Murojaahku</h3>
-                                     <p className={`font-bold tracking-widest text-slate-500 uppercase ${styles.subTitleClass}`}>{schoolName}</p>
-                                     <h2 className={`font-black text-slate-800 break-words px-2 leading-tight ${styles.hNameClass}`}>{shareHalaqohItem.name || '-'}</h2>
-                                     <div className={`flex justify-center w-full px-2 ${styles.uNameClass}`}><span className="text-blue-700 font-extrabold uppercase tracking-widest break-words mt-0.5 bg-blue-100/50 px-3 py-1 rounded-full border border-blue-200 shadow-sm">{shareHalaqohItem.ustadzName || '-'}</span></div>
-                                     <p className={`text-slate-500 font-bold uppercase tracking-wider ${styles.labelClass}`}>Daftar Nama Siswa :</p>
-                                     <div className="w-full bg-transparent p-1 mb-2 flex-1 flex flex-col justify-center overflow-hidden">
-                                        <p className={`w-full text-center text-slate-800 font-extrabold break-words ${styles.studentTextClass}`}>
-                                            {safeStudents.map((siswa, index) => (
-                                                <React.Fragment key={index}>
-                                                    {siswa}
-                                                    {index < count - 1 && (<span className={`text-blue-500 font-black inline-block ${styles.dotClass}`}>•</span>)}
-                                                </React.Fragment>
-                                            ))}
-                                        </p>
-                                     </div>
-                                     <div className={`w-full text-center text-slate-600 border-t-2 border-slate-200/50 mt-auto italic font-bold px-1 whitespace-nowrap tracking-tight ${styles.footerClass}`}>"Membangun Generasi Qurani dan Pemimpin Masa Depan"</div>
-                                  </div>
-                               </div>
-                           </div>
-                           <div className="flex gap-2 mt-4 w-full max-w-[320px]">
-                              <button onClick={() => setShareHalaqohItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                              <button onClick={() => processImageGeneric('download', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                              <button onClick={() => processImageGeneric('share', shareHalaqohCardRef, 'Daftar_Siswa', shareHalaqohItem.name)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
-                           </div>
-                        </div>
-                     </div>
-                  );
-              })()}
-
-              {/* REKAP HARIAN (9:16) */}
-              {shareDailyItem && (() => {
-                  const studentCount = shareDailyItem.students.length;
-                  let dynamicGap = "gap-2";
-                  let badgePadding = "px-3 py-1.5";
-                  let badgeText = "text-[11px]";
-                  let dotSize = "w-1.5 h-1.5";
-                  let badgeRounded = "rounded-xl";
-                  let badgeInnerGap = "gap-1.5";
-
-                  if (studentCount > 24) {
-                      dynamicGap = "gap-0.5"; badgePadding = "px-1.5 py-0.5"; badgeText = "text-[8px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-md"; badgeInnerGap = "gap-0.5";
-                  } else if (studentCount > 15) {
-                      dynamicGap = "gap-1"; badgePadding = "px-2 py-1"; badgeText = "text-[9px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-lg"; badgeInnerGap = "gap-1";
-                  } else if (studentCount > 8) {
-                      dynamicGap = "gap-1.5"; badgePadding = "px-2.5 py-1"; badgeText = "text-[10px]"; dotSize = "w-1.5 h-1.5"; badgeRounded = "rounded-xl"; badgeInnerGap = "gap-1.5";
-                  }
-
-                  return (
-                      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-                          <div className="w-full max-w-sm flex flex-col items-center">
-                              <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
-                                  <div ref={shareDailyCardRef} className="bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ width: '315px', height: '560px', boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
-                                      
-                                      <div className="absolute inset-0 z-0 bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
-                                          <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-300/30 rounded-full blur-3xl"></div>
-                                          <div className="absolute bottom-0 -left-12 w-48 h-48 bg-yellow-400/20 rounded-full blur-2xl"></div>
-                                      </div>
-
-                                      <div className="relative z-10 flex flex-col items-center text-center w-full h-full">
-                                          <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className="h-6 max-w-[80%] mb-4 object-contain drop-shadow-sm" />
-                                          <h3 className="text-2xl font-extrabold text-orange-600 leading-tight mb-1">Rekap Murojaah</h3>
-                                          <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-5">{schoolName}</p>
-                                          
-                                          <div className="bg-orange-500/10 px-5 py-2 rounded-2xl border border-orange-500/20 mb-4 shadow-sm w-full">
-                                              <p className="text-sm font-extrabold text-orange-700 truncate">{shareDailyItem.halaqohName}</p>
-                                              <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wide truncate">{shareDailyItem.ustadzName}</p>
-                                          </div>
-                                          
-                                          <p className="text-xs font-extrabold text-slate-700 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200 shadow-sm mb-5">
-                                              {new Date(shareDailyItem.dateStr).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                          </p>
-
-                                          <p className="text-[11px] font-bold text-slate-600 italic mb-4 px-2 leading-relaxed">
-                                            "Barakallahu fiikum karena telah murojaah hari ini:"
-                                          </p>
-                                          
-                                          <div className="w-full flex-1 flex flex-col overflow-hidden mb-4 relative">
-                                              <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
-                                              <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
-                                              
-                                              <div className={`flex flex-wrap justify-center content-center ${dynamicGap} overflow-hidden pt-2 pb-4 h-full relative z-0`}>
-                                                  {shareDailyItem.students.length > 0 ? (
-                                                      shareDailyItem.students.map((siswa, index) => (
-                                                          <span key={index} className={`bg-white text-slate-800 ${badgePadding} ${badgeRounded} ${badgeText} font-extrabold border border-slate-200 shadow-sm flex items-center ${badgeInnerGap}`}>
-                                                              <span className={`${dotSize} rounded-full bg-green-500 flex-shrink-0`}></span>
-                                                              {siswa}
-                                                          </span>
-                                                      ))
-                                                  ) : (
-                                                      <div className="w-full flex items-center justify-center h-full opacity-60">
-                                                          <span className="text-[10px] font-bold text-slate-500 italic px-4 py-2 border-2 border-slate-200 border-dashed rounded-xl">Belum ada santri yang murojaah hari ini.</span>
-                                                      </div>
-                                                  )}
-                                              </div>
-                                          </div>
-
-                                          <div className="w-full text-center text-slate-500 border-t border-slate-200 pt-3 pb-1 mt-auto px-1 overflow-hidden">
-                                              <p className="text-[8.5px] italic font-bold tracking-tight whitespace-nowrap truncate w-full">"Membangun Generasi Qurani dan Pemimpin Masa Depan"</p>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div className="flex gap-2 mt-4 w-full max-w-[315px]">
-                                  <button onClick={() => setShareDailyItem(null)} className="flex-[0.8] py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-                                  <button onClick={() => processImageGeneric('download', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm border border-slate-700">{isGeneratingImage === 'download' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />} Unduh</button>
-                                  <button onClick={() => processImageGeneric('share', shareDailyCardRef, 'Rekap_Harian', shareDailyItem.halaqohName)} disabled={!!isGeneratingImage} className="flex-[1.2] py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center justify-center gap-1.5 text-sm">{isGeneratingImage === 'share' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} Share</button>
-                              </div>
-                          </div>
-                      </div>
-                  );
-              })()}
-
-
-              {/* ========================================================= */}
-              {/* 6. HALAMAN / KONTEN UTAMA (VIEWS)                           */}
-              {/* ========================================================= */}
-              
-              {/* TAMPILAN GRID USTADZ */}
-              {currentView === 'select-ustadz' && currentView !== 'welcome' && (
-                <>
-                  {HeaderUI("Pilih Pengajar", "Siapa yang mengampu halaqoh?")}
-                  <div className="max-w-xl mx-auto p-4 sm:p-5 pb-24"> 
-                    {isSuperAdmin && (
-                      <div onClick={openAddUstadz} className="mb-4 sm:mb-6 bg-orange-50/50 border-2 border-dashed border-orange-300 p-4 sm:p-5 rounded-[2rem] flex items-center justify-center gap-3 cursor-pointer text-orange-600 hover:bg-orange-100">
-                         <PlusCircle className="w-6 h-6 sm:w-7 sm:h-7" />
-                         <span className="font-extrabold text-sm sm:text-base">Tambah Pengajar Baru</span>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                        {sortedUstadzData.length === 0 ? (
-                            <div className="col-span-2 sm:col-span-3 text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm">
-                                <User className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-                                <p className="text-slate-500 font-medium mb-5">Daftar pengajar tidak ditemukan.</p>
-                                <button onClick={() => { setData(INITIAL_DATA); localStorage.removeItem('murojaahData'); }} className="bg-slate-800 text-white px-6 py-3 rounded-2xl font-bold shadow-md">Pulihkan Data Awal</button>
-                            </div>
-                        ) : (
-                            sortedUstadzData.map((u, index) => {
-                              const originalIdx = data.findIndex(orig => orig?.id === u?.id);
-                              return (
-                                  <div key={u?.id || index} onClick={() => handleSelectUstadz(u)} className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center cursor-pointer border border-slate-100 dark:border-slate-700">
-                                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[1.25rem] flex items-center justify-center mb-3 sm:mb-4 shadow-inner bg-gradient-to-br from-orange-50 to-orange-100 dark:from-slate-700 dark:to-slate-800">
-                                        <img src={u?.gender === 'male' ? "https://cdn-icons-png.flaticon.com/512/5403/5403148.png" : "https://cdn-icons-png.flaticon.com/512/5405/5405442.png"} alt="Ustadz" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" />
-                                    </div>
-                                    <div className="flex-1 w-full flex flex-col items-center">
-                                        <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-slate-100 line-clamp-2 leading-tight mb-2 min-h-[32px] flex items-center justify-center">{u?.name || "Tanpa Nama"}</h3>
-                                        <span className="text-[10px] sm:text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 px-3 py-1 rounded-lg mt-auto border border-orange-100 dark:border-orange-500/20">
-                                            {(u?.halaqohs || []).length} Halaqoh
-                                        </span>
-                                    </div>
-                                    {isSuperAdmin && (
-                                      <div className="flex gap-1 items-center justify-center w-full mt-4 pt-3 border-t border-slate-50 dark:border-slate-700" onClick={e=>e.stopPropagation()}>
-                                        <button onClick={() => handleMoveUstadz(originalIdx, 'up')} disabled={originalIdx <= 0} className="p-1.5 text-slate-400 disabled:opacity-30 rounded-xl"><ArrowUp className="w-4 h-4" /></button>
-                                        <button onClick={() => handleMoveUstadz(originalIdx, 'down')} disabled={originalIdx >= data.length - 1} className="p-1.5 text-slate-400 disabled:opacity-30 rounded-xl"><ArrowDown className="w-4 h-4" /></button>
-                                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
-                                        <button onClick={(e) => openEditUstadz(e, u)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-xl"><Pencil className="w-4 h-4"/></button>
-                                        <button onClick={(e) => handleDeleteUstadzReq(e, u)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-xl"><Trash2 className="w-4 h-4"/></button>
-                                      </div>
-                                    )}
-                                  </div>
-                              );
-                            })
-                        )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* TAMPILAN HALAQOH */}
-              {currentView === 'select-halaqoh' && (
-                <>
-                  {HeaderUI("Pilih Halaqoh", `Daftar Halaqoh ${selectedUstadz?.name || ''}`)}
-                  <div className="max-w-xl mx-auto p-4 sm:p-5 grid gap-3 sm:gap-4 pb-24"> 
-                    {isSuperAdmin && (
-                      <div onClick={openAddHalaqoh} className="bg-orange-50/50 border-2 border-dashed border-orange-300 p-4 sm:p-5 rounded-[2rem] flex items-center justify-center gap-3 cursor-pointer text-orange-600 hover:bg-orange-100">
-                         <PlusCircle className="w-6 h-6 sm:w-7 sm:h-7" />
-                         <span className="font-extrabold text-sm sm:text-base">Tambah Halaqoh Baru</span>
-                      </div>
-                    )}
-                    {(selectedUstadz?.halaqohs || []).map((h, hIdx) => (
-                      <div key={h?.id || hIdx} onClick={() => handleSelectHalaqoh(h)} className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden group">
-                        <div className="flex items-start gap-4 sm:gap-5">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[1.25rem] flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 dark:from-slate-700 dark:to-slate-800 text-orange-600 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                                <img src="https://cdn-icons-png.flaticon.com/512/33/33308.png" alt="Halaqoh" className="w-6 h-6 sm:w-7 sm:h-7 opacity-70 drop-shadow-sm" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start">
-                                    <div className="overflow-hidden">
-                                        <h3 className="font-extrabold text-base sm:text-lg text-slate-800 dark:text-slate-100 leading-tight mb-1.5 truncate group-hover:text-orange-600 transition-colors">{h?.name || "Tanpa Nama"}</h3>
-                                        <div className="inline-flex items-center gap-1.5">
-                                            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                                            <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-100 dark:border-slate-700">
-                                                {(h?.students || []).length} Siswa Terdata
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                                        <button onClick={(e) => handleShareHalaqohClick(e, h)} className="p-2 sm:p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl" title="Bagikan Kartu Kelompok"><ImageIcon className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                                        {isSuperAdmin ? (
-                                            <>
-                                                <button onClick={(e) => openEditHalaqoh(e, h)} className="p-2 sm:p-2.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl"><Pencil className="w-4 h-4" /></button>
-                                                <button onClick={(e) => handleDeleteHalaqohReq(e, h)} className="p-2 sm:p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl"><Trash2 className="w-4 h-4" /></button>
-                                            </>
-                                        ) : (
-                                            <div className="p-2 sm:p-2.5 text-slate-300 dark:text-slate-600 group-hover:text-orange-500 group-hover:translate-x-1 transition-all"><ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="h-px w-full bg-slate-100 dark:bg-slate-700 my-3 sm:my-4"></div>
-                                <div className="flex flex-wrap gap-2">
-                                    {(h?.students || []).length > 0 ? (
-                                        h.students.map((cls, idx) => (
-                                            <span key={idx} className="text-[10px] sm:text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-slate-100 dark:border-slate-600 group-hover:border-orange-100 group-hover:bg-orange-50/50 transition-colors">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-orange-400 shadow-sm"></div>{cls}
-                                            </span>
-                                        ))
-                                    ) : <span className="text-xs text-slate-400 italic font-medium">Belum ada siswa</span>}
-                                </div>
-                            </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* TAMPILAN HOME / INPUT MUROJAAH / HISTORY / LEADERBOARD */}
-              {(currentView === 'home' || currentView === 'history' || currentView === 'leaderboard') && (
-                <>
-                  {HeaderUI(selectedHalaqoh?.name, selectedUstadz?.name)}
-                  <div className="max-w-xl mx-auto p-4 sm:p-5 w-full">
-                    <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] shadow-inner border border-slate-200/50 dark:border-slate-700 mb-6 sm:mb-8 z-10 relative">
-                       <button onClick={() => setCurrentView('home')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'home' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Input Murojaah</button>
-                       <button onClick={() => setCurrentView('history')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'history' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Riwayat</button>
-                       <button onClick={() => setCurrentView('leaderboard')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${currentView === 'leaderboard' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Peringkat</button>
-                    </div>
-
-                    {currentView === 'home' ? (
-                      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
-                         <div className="bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 sm:mb-5 flex items-center justify-between text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                            <span className="flex items-center gap-2 sm:gap-3 font-medium truncate mr-2"><FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" /> <span className="truncate">{selectedHalaqoh?.name || '-'}</span></span>
-                            <span className="flex items-center gap-2 sm:gap-3 font-medium truncate"><img src={selectedUstadz?.gender === 'male' ? "https://cdn-icons-png.flaticon.com/512/5403/5403148.png" : "https://cdn-icons-png.flaticon.com/512/5405/5405442.png"} alt="Ustadz" className="w-5 h-5 sm:w-6 sm:h-6 object-contain bg-orange-50 dark:bg-slate-700 rounded-full p-1" /> <span className="truncate">{selectedUstadz?.name || '-'}</span></span>
-                         </div>
-                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
-                            <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 flex-1 w-full hover:border-orange-200 transition-colors">
-                                <label className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-2 block tracking-wider">Pilih Siswa</label>
-                                <div className="relative">
-                                   <select value={selectedStudent || ''} onChange={(e) => setSelectedStudent(e.target.value)} className={`w-full appearance-none font-bold p-3 sm:p-4 pr-10 truncate rounded-2xl border-2 text-sm sm:text-base outline-none transition-all ${selectedStudent ? 'bg-orange-50/50 text-slate-800 border-orange-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10' : 'bg-slate-50 text-slate-500 border-slate-100 focus:border-orange-400'}`}>
-                                     <option value="" disabled>-- Pilih Siswa --</option>
-                                     {(selectedHalaqoh?.students || []).map(s => <option key={s} value={s}>{s}</option>)}
-                                   </select>
-                                   <div className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none p-1.5 rounded-xl ${selectedStudent ? 'text-orange-600 bg-orange-100' : 'text-slate-400 bg-slate-200'}`}><ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                </div>
-                                <p className="text-[9px] sm:text-[10px] text-orange-500/80 italic mt-2.5 font-medium px-1">*Maks. 2 kali/hari (Jeda 1 jam)</p>
-                                {isSuperAdmin && (<button onClick={() => setShowManageStudentModal(true)} className="w-full mt-3 p-2.5 bg-slate-50 dark:bg-slate-700/50 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-800 hover:text-white transition-all flex items-center justify-center gap-1.5"><UserCog className="w-4 h-4" /> Kelola Siswa</button>)}
-                            </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 flex-1 w-full hover:border-orange-200 transition-colors">
-                                <label className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-2 block tracking-wider">Pilih Kelas</label>
-                                <div className="relative">
-                                   <select value={selectedClass || ''} onChange={(e) => setSelectedClass(e.target.value)} className={`w-full appearance-none font-bold p-3 sm:p-4 pr-10 truncate rounded-2xl border-2 text-sm sm:text-base outline-none transition-all ${selectedClass ? 'bg-orange-50/50 text-slate-800 border-orange-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10' : 'bg-slate-50 text-slate-500 border-slate-100 focus:border-orange-400'}`}>
-                                     <option value="" disabled>-- Pilih Kelas --</option>
-                                     {classes.map(c => <option key={c} value={c}>{c}</option>)}
-                                   </select>
-                                   <div className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none p-1.5 rounded-xl ${selectedClass ? 'text-orange-600 bg-orange-100' : 'text-slate-400 bg-slate-200'}`}><ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                </div>
-                            </div>
-                         </div>
-                         <div className="relative mb-4 sm:mb-6">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input type="text" placeholder="Cari surat untuk dimurojaah..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm outline-none text-sm sm:text-base focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all" />
-                         </div>
-                         <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pb-24">
-                            {filteredSurahs.map(surah => {
-                              const isSel = selectedSurahs.includes(surah.number);
-                              const range = selectedRanges[surah.number];
-                              return (
-                                <button key={surah.number} onClick={() => toggleSurah(surah)} className={`p-3 sm:p-4 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between ${isSel ? 'border-orange-500 bg-orange-50 shadow-md transform scale-[1.02]' : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-orange-200 hover:shadow-sm'}`}>
-                                  <div className="flex-1 min-w-0">
-                                      <div className={`text-xs sm:text-sm font-extrabold truncate ${isSel ? 'text-orange-700' : 'text-slate-700 dark:text-slate-200'}`}>{surah.number}. {surah.name} <span className="font-medium text-slate-400 text-[10px] sm:text-xs ml-1">({surah.ayahs})</span></div>
-                                      {range && <div className="text-[9px] sm:text-[11px] text-orange-600 font-bold uppercase leading-none mt-1.5 bg-orange-100/50 inline-block px-2 py-0.5 rounded-md">{range}</div>}
-                                  </div>
-                                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0 ml-2 transition-colors ${isSel ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-transparent'}`}><Check className="w-3 h-3 sm:w-4 sm:h-4" /></div>
-                                </button>
-                              );
-                            })}
-                         </div>
-                         {(selectedSurahs.length > 0) && (
-                           <div className="fixed bottom-16 sm:bottom-16 left-0 right-0 p-4 max-w-xl mx-auto z-40 animate-in slide-in-from-bottom-8">
-                              <button onClick={handleSaveSession} disabled={isLoading} className={`w-full text-white py-4 sm:py-5 rounded-[2rem] font-extrabold shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transform transition-all text-base sm:text-lg ${isLoading ? 'bg-orange-400 scale-95' : 'bg-gradient-to-r from-orange-600 to-orange-500 hover:-translate-y-1 active:scale-95'}`}>
-                                {isLoading ? <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" /> : <Send className="w-5 h-5 sm:w-6 sm:h-6" />} {isLoading ? 'Menyimpan...' : `Simpan ${selectedSurahs.length} Murojaah`}
-                              </button>
-                           </div>
-                         )}
-                      </div>
-                    ) : currentView === 'history' ? (
-                      <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
-                         <div className="flex flex-col sm:flex-row gap-3 mb-4 w-full items-stretch">
-                            <div className="bg-white dark:bg-slate-800 p-2.5 sm:p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-2 w-full focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-500/10 transition-all min-w-0">
-                               <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded-xl text-orange-500 flex-shrink-0"><Filter className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                               <select value={historyFilter} onChange={(e) => { setHistoryFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm cursor-pointer pr-2 truncate min-w-0">
-                                  <option value="Semua">Semua Siswa</option>
-                                  {(selectedHalaqoh?.students || []).map(s => <option key={s} value={s}>{s}</option>)}
-                               </select>
-                            </div>
-                            <div className="flex gap-2 w-full sm:w-auto h-[52px] sm:h-[58px]">
-                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:w-[200px] relative overflow-hidden min-w-0">
-                                   <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                   <input type="date" value={historyDateFilter} onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-3 sm:pl-11 pr-8 sm:pr-10 cursor-pointer h-full border-none focus:ring-0 min-w-0" />
-                                   {historyDateFilter && (
-                                       <button onClick={() => { setHistoryDateFilter(""); setHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                                   )}
-                                </div>
-                                {isAdmin && (
-                                    <button onClick={handleShareDailyClick} className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 shadow-sm flex items-center justify-center hover:bg-orange-100 transition-colors rounded-2xl w-[52px] sm:w-[58px] flex-shrink-0" title="Bagikan Rekap Hari Ini">
-                                        <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
-                                    </button>
-                                )}
-                            </div>
-                         </div>
-                         
-                         {(() => {
-                            const filteredHistory = history.filter(item => {
-                                if (!item) return false;
-                                const isCurrentHalaqoh = item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name;
-                                const isMatchStudent = historyFilter === "Semua" ? true : item.student === historyFilter;
-                                const isMatchDate = historyDateFilter ? getLocalDateString(item.date) === historyDateFilter : true;
-                                return isCurrentHalaqoh && isMatchStudent && isMatchDate;
-                            });
-                            const totalPages = Math.ceil(filteredHistory.length / 10);
-                            const displayedHistory = filteredHistory.slice((historyPage - 1) * 10, historyPage * 10);
-
-                            if (filteredHistory.length === 0) return (
-                                <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm w-full">
-                                    <FolderOpen className="w-12 h-12 mx-auto text-slate-200 dark:text-slate-600 mb-3" />
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">Belum ada riwayat pada tanggal/siswa ini.</p>
-                                </div>
-                            );
-                            return (
-                               <div className="space-y-4 w-full">
-                                 {displayedHistory.map(item => renderHistoryCard(item))}
-                                 {totalPages > 1 && (
-                                    <div className="flex justify-center items-center gap-4 pt-6 pb-2 w-full">
-                                       <button onClick={() => setHistoryPage(p => Math.max(1, p - 1))} disabled={historyPage === 1} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors flex-shrink-0"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                                       <span className="text-[10px] sm:text-xs font-extrabold text-slate-500 dark:text-slate-400 px-4 bg-white dark:bg-slate-800 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 whitespace-nowrap">Hal {historyPage} dari {totalPages}</span>
-                                       <button onClick={() => setHistoryPage(p => Math.min(totalPages, p + 1))} disabled={historyPage === totalPages} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors flex-shrink-0"><ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                                    </div>
-                                 )}
-                               </div>
-                            );
-                         })()}
-                      </div>
-                    ) : currentView === 'leaderboard' ? (
-                      <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
-                         <div className="bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 dark:from-yellow-600 dark:via-amber-700 dark:to-orange-700 p-6 sm:p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(245,158,11,0.3)] text-white mb-4 relative overflow-hidden">
-                             <img src="https://cdn-icons-png.flaticon.com/512/9960/9960186.png" alt="Quran Background" className="absolute right-[-20px] bottom-[-30px] w-40 h-40 opacity-20 object-contain drop-shadow-xl mix-blend-overlay" />
-                             <h3 className="font-extrabold text-xl sm:text-2xl relative z-10 flex items-center gap-3 drop-shadow-sm"><Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-200 fill-yellow-200" /> Papan Peringkat</h3>
-                             <p className="text-xs sm:text-sm text-yellow-100 relative z-10 mt-2 font-medium">Dihitung otomatis berdasarkan rekapitulasi poin hafalan terbaik.</p>
-                         </div>
-                         <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-                             {halaqohLeaderboard.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400 text-xs sm:text-sm font-medium">Belum ada siswa yang masuk ke dalam Peringkat.</div>
-                             ) : (
-                                halaqohLeaderboard.map((user, idx) => {
-                                  let rankStyle = "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600"; let rowStyle = "border-b border-slate-50 dark:border-slate-700/50 last:border-0";
-                                  if (idx === 0) rankStyle = "bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-950 shadow-md ring-4 ring-yellow-400/20 dark:ring-yellow-600/30"; else if (idx === 1) rankStyle = "bg-gradient-to-br from-slate-200 to-slate-300 text-slate-800 shadow-md"; else if (idx === 2) rankStyle = "bg-gradient-to-br from-amber-600 to-amber-700 text-amber-50 shadow-md";
-                                  return (
-                                      <div key={idx} className={`flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors ${rowStyle} group`}>
-                                          <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
-                                             <div className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-[1rem] text-sm sm:text-base font-black flex-shrink-0 transition-transform group-hover:scale-110 ${rankStyle}`}>{idx + 1}</div>
-                                             <div className="text-left flex-1 min-w-0">
-                                                <div className="text-sm sm:text-base md:text-lg font-extrabold text-slate-800 dark:text-slate-100 truncate mb-1">{user?.student || '-'}</div>
-                                                <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{user?.class !== '-' ? user.class : 'Belum ada murojaah'}</div>
-                                             </div>
-                                          </div>
-                                          <div className="text-right flex flex-col justify-center flex-shrink-0 pl-3">
-                                             <div className="text-sm sm:text-base font-black text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 px-3 py-1 rounded-xl">{user?.totalPoints || 0} <span className="text-[10px] text-orange-400 dark:text-orange-500">Pts</span></div>
-                                             <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{user?.surahCount || 0} Surat</div>
-                                          </div>
-                                      </div>
-                                  )
-                                })
-                             )}
-                         </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </>
-              )}
-
-              {/* ADMIN DASHBOARD VIEW */}
-              {currentView === 'admin-dashboard' && isAdmin && (
-                <div className="min-h-screen bg-slate-50/80 dark:bg-slate-900 text-slate-800 dark:text-slate-200 pb-24 relative w-full overflow-hidden">
-                   {HeaderUI("Dashboard Admin", "Rekapitulasi Data Murojaah")}
-                   <div className="max-w-xl mx-auto p-4 sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
-                      <div className="bg-gradient-to-br from-orange-500 to-rose-600 dark:from-orange-600 dark:to-rose-800 rounded-[2rem] p-6 sm:p-8 text-white shadow-[0_8px_30px_rgba(244,63,94,0.3)] mb-5 sm:mb-6 relative overflow-hidden">
-                         <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                         <div className="flex items-center gap-3 mb-2 sm:mb-3 relative z-10"><Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 drop-shadow-md" /><h3 className="font-bold text-base sm:text-lg">Total Murojaah Masuk</h3></div>
-                         <div className="flex items-baseline gap-2 relative z-10"><span className="text-4xl sm:text-5xl font-black drop-shadow-sm">{history.length}</span><span className="text-white/80 font-medium text-sm sm:text-base">Sesi</span></div>
-                         <div className="mt-4 text-[10px] sm:text-xs bg-black/20 backdrop-blur-sm inline-block px-3 py-1.5 rounded-xl font-bold tracking-widest uppercase relative z-10 border border-white/10">Semua Data</div>
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6 items-stretch w-full">
-                          <div className="bg-white dark:bg-slate-800 p-3 sm:p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-2.5 w-full focus-within:border-orange-300 focus-within:ring-4 transition-all min-w-0">
-                             <div className="bg-orange-50 dark:bg-orange-500/10 p-2 rounded-xl text-orange-500 dark:text-orange-400 flex-shrink-0"><Search className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                             <input type="text" placeholder="Cari Siswa, Ustadz..." className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm min-w-0" value={adminSearchTerm} onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} />
-                          </div>
-                          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:max-w-[240px] relative overflow-hidden h-[52px] sm:h-[58px] min-w-0">
-                             <div className="absolute left-3 bg-orange-50 dark:bg-orange-500/10 p-1.5 rounded-xl text-orange-500 dark:text-orange-400 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                             <input type="date" value={adminHistoryDateFilter} onChange={(e) => { setAdminHistoryDateFilter(e.target.value); setAdminHistoryPage(1); }} className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm cursor-pointer pl-3 sm:pl-12 pr-8 border-none focus:ring-0 h-full min-w-0" />
-                             {adminHistoryDateFilter && (
-                                 <button onClick={() => { setAdminHistoryDateFilter(""); setAdminHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                             )}
-                          </div>
-                      </div>
-                      
-                      <div className="space-y-4 w-full">
-                         {history.length === 0 ? <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm w-full"><FolderOpen className="w-12 h-12 mx-auto text-slate-200 dark:text-slate-600 mb-3" /><p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">Belum ada data masuk.</p></div> : (() => {
-                            const filteredAdminHistory = history.filter(item => {
-                                if (!item) return false;
-                                const term = adminSearchTerm.toLowerCase();
-                                const matchSearch = (item.student || '').toLowerCase().includes(term) || (item.ustadzName || '').toLowerCase().includes(term) || (item.halaqohName || '').toLowerCase().includes(term) || (item.class || '').toLowerCase().includes(term);
-                                const matchDate = adminHistoryDateFilter ? getLocalDateString(item.date) === adminHistoryDateFilter : true;
-                                return matchSearch && matchDate;
-                            });
-                            const totalAdminPages = Math.ceil(filteredAdminHistory.length / 10);
-                            const displayedAdminHistory = filteredAdminHistory.slice((adminHistoryPage - 1) * 10, adminHistoryPage * 10);
-
-                            if (filteredAdminHistory.length === 0) return <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm w-full"><Search className="w-12 h-12 mx-auto text-slate-200 dark:text-slate-600 mb-3" /><p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">Data tidak ditemukan.</p></div>;
-
-                            return (
-                               <div className="space-y-4 w-full">
-                                 {displayedAdminHistory.map(item => renderHistoryCard(item))}
-                                 {totalAdminPages > 1 && (
-                                    <div className="flex justify-center items-center gap-4 pt-6 pb-2 w-full">
-                                       <button onClick={() => setAdminHistoryPage(p => Math.max(1, p - 1))} disabled={adminHistoryPage === 1} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors flex-shrink-0"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                                       <span className="text-[10px] sm:text-xs font-extrabold text-slate-500 dark:text-slate-400 px-4 bg-white dark:bg-slate-800 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 whitespace-nowrap">Hal {adminHistoryPage} dari {totalAdminPages}</span>
-                                       <button onClick={() => setAdminHistoryPage(p => Math.min(totalAdminPages, p + 1))} disabled={adminHistoryPage === totalAdminPages} className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-40 text-orange-600 hover:bg-orange-50 transition-colors flex-shrink-0"><ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                                    </div>
-                                 )}
-                               </div>
-                            );
-                         })()}
-                      </div>
-                   </div>
                 </div>
               )}
 
