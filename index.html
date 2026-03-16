@@ -131,6 +131,9 @@
         };
 
         function MainApp() {
+          // ==============================
+          // 1. STATE INITIALIZATION
+          // ==============================
           const [currentView, setCurrentView] = useState(() => sessionStorage.getItem('murojaah_currentView') || 'welcome');
           const [isLoading, setIsLoading] = useState(false);
           const [cloudStatus, setCloudStatus] = useState(isCloudReady ? 'connecting' : 'offline');
@@ -141,11 +144,6 @@
               if (saved) return saved === 'dark';
               return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
           });
-
-          useEffect(() => {
-              if (isDarkMode) { document.documentElement.classList.add('dark'); document.body.classList.add('dark'); localStorage.setItem('murojaah_theme', 'dark'); } 
-              else { document.documentElement.classList.remove('dark'); document.body.classList.remove('dark'); localStorage.setItem('murojaah_theme', 'light'); }
-          }, [isDarkMode]);
 
           const [data, setData] = useState(() => { try { const s = localStorage.getItem('murojaahData'); return s ? JSON.parse(s) : INITIAL_DATA; } catch (e) { return INITIAL_DATA; } });
           const [classes, setClasses] = useState(() => { try { const s = localStorage.getItem('murojaahClasses'); return s ? JSON.parse(s) : DEFAULT_CLASS_LIST; } catch (e) { return DEFAULT_CLASS_LIST; } });
@@ -180,7 +178,6 @@
           const isSuperAdmin = adminRole === 'superadmin';
           const isAdmin = isSuperAdmin || adminRole === 'editor';
 
-          // --- STATE UNTUK MODALS ---
           const [showLoginModal, setShowLoginModal] = useState(false);
           const [showSettingsModal, setShowSettingsModal] = useState(false);
           const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -225,6 +222,9 @@
           const [notifPermission, setNotifPermission] = useState(() => { return typeof Notification !== 'undefined' ? Notification.permission : 'default'; });
           const [infoMsg, setInfoMsg] = useState(false);
 
+          // ==============================
+          // 2. EFFECTS & WATCHERS
+          // ==============================
           useEffect(() => { localStorage.setItem('murojaahData', JSON.stringify(data)); }, [data]);
           useEffect(() => { localStorage.setItem('murojaahHistory', JSON.stringify(history)); }, [history]);
           useEffect(() => { localStorage.setItem('murojaahClasses', JSON.stringify(classes)); }, [classes]);
@@ -241,6 +241,9 @@
           useEffect(() => { if (selectedHalaqoh) { setSelectedStudent(""); setSelectedClass(""); } }, [selectedHalaqoh]);
           useEffect(() => { if (showVerseModal && startVerseRef.current) setTimeout(() => startVerseRef.current.focus(), 100); }, [showVerseModal]);
 
+          // ==============================
+          // 3. LOGIC & HANDLERS
+          // ==============================
           const calculatePoints = (surahNum, rangeStr) => {
               if (surahNum === 1) return 0;
               const surah = SURAH_LIST.find(s => s.number === surahNum);
@@ -1164,6 +1167,7 @@
                 </div>
               )}
 
+              {/* BUAT PENGUMUMAN */}
               {showBroadcastModal && isSuperAdmin && (
                 <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
                   <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative">
@@ -1222,7 +1226,7 @@
                 </div>
               )}
 
-              {/* MODAL PINDAH HALAQOH/USTADZ */}
+              {/* MODAL PINDAH HALAQOH/USTADZ (INDIVIDU) */}
               {showTransferModal && isSuperAdmin && (
                   <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
                       <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
@@ -1263,7 +1267,7 @@
                   </div>
               )}
 
-              {/* MODAL MUTASI GLOBAL (DARI HEADER) */}
+              {/* MODAL MUTASI GLOBAL (BANYAK SISWA DARI HEADER) */}
               {showGlobalTransferModal && isSuperAdmin && (
                   <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
                       <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-2xl w-full max-w-sm relative border border-slate-100 dark:border-slate-700">
@@ -1272,6 +1276,7 @@
                               <button onClick={() => setShowGlobalTransferModal(false)} className="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-full text-slate-400 hover:text-orange-600 transition-colors"><X className="w-4 h-4" /></button>
                           </div>
                           <form onSubmit={executeGlobalTransferStudent} className="space-y-4">
+                              {/* ASAL */}
                               <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">1. Pilih Asal</p>
                                   <div className="space-y-2">
@@ -1315,6 +1320,8 @@
                                       })()}
                                   </div>
                               </div>
+
+                              {/* TUJUAN */}
                               <div className="p-3 bg-orange-50 dark:bg-orange-900/10 rounded-xl border border-orange-100 dark:border-orange-900/30">
                                   <p className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2">2. Pindah Ke Tujuan</p>
                                   <div className="space-y-2">
@@ -1597,9 +1604,17 @@
               {shareDailyItem && (() => {
                   const studentCount = shareDailyItem.students.length;
                   let dynamicGap = "gap-2"; let badgePadding = "px-3 py-1.5"; let badgeText = "text-[11px]"; let dotSize = "w-1.5 h-1.5"; let badgeRounded = "rounded-xl"; let badgeInnerGap = "gap-1.5";
-                  if (studentCount > 24) { dynamicGap = "gap-0.5"; badgePadding = "px-1.5 py-0.5"; badgeText = "text-[8px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-md"; badgeInnerGap = "gap-0.5"; } 
-                  else if (studentCount > 15) { dynamicGap = "gap-1"; badgePadding = "px-2 py-1"; badgeText = "text-[9px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-lg"; badgeInnerGap = "gap-1"; } 
-                  else if (studentCount > 8) { dynamicGap = "gap-1.5"; badgePadding = "px-2.5 py-1"; badgeText = "text-[10px]"; dotSize = "w-1.5 h-1.5"; badgeRounded = "rounded-xl"; badgeInnerGap = "gap-1.5"; }
+                  
+                  // LOGIKA AUTO-RESPONSIF UKURAN BARU (BISA UNTUK 30+ SISWA)
+                  if (studentCount > 30) { 
+                      dynamicGap = "gap-0.5"; badgePadding = "px-1 py-0.5"; badgeText = "text-[6.5px]"; dotSize = "w-0.5 h-0.5"; badgeRounded = "rounded-sm"; badgeInnerGap = "gap-0.5"; 
+                  } else if (studentCount > 24) { 
+                      dynamicGap = "gap-0.5"; badgePadding = "px-1.5 py-0.5"; badgeText = "text-[7.5px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-md"; badgeInnerGap = "gap-0.5"; 
+                  } else if (studentCount > 15) { 
+                      dynamicGap = "gap-1"; badgePadding = "px-2 py-1"; badgeText = "text-[9px]"; dotSize = "w-1 h-1"; badgeRounded = "rounded-lg"; badgeInnerGap = "gap-1"; 
+                  } else if (studentCount > 8) { 
+                      dynamicGap = "gap-1.5"; badgePadding = "px-2.5 py-1"; badgeText = "text-[10px]"; dotSize = "w-1.5 h-1.5"; badgeRounded = "rounded-xl"; badgeInnerGap = "gap-1.5"; 
+                  }
 
                   return (
                       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
@@ -1879,7 +1894,7 @@
                              </div>
                          )}
 
-                         <div className="flex flex-col sm:flex-row gap-3 mb-4 w-full items-stretch">
+                         <div className="flex flex-col gap-3 mb-4 w-full items-stretch">
                             <div className="bg-white dark:bg-slate-800 p-2.5 sm:p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-2 w-full focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-500/10 transition-all min-w-0">
                                <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded-xl text-orange-500 flex-shrink-0"><Filter className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                                <select value={historyFilter} onChange={(e) => { setHistoryFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm cursor-pointer pr-2 truncate min-w-0">
@@ -1888,16 +1903,20 @@
                                </select>
                             </div>
                             
-                            <div className="flex gap-2 w-full sm:w-auto h-[52px] sm:h-[58px]">
-                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:w-[200px] relative overflow-hidden min-w-0">
+                            <div className="flex items-center gap-1.5 w-full">
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
                                    <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                                   <input type="date" value={historyDateFilter} onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-3 sm:pl-11 pr-8 sm:pr-10 cursor-pointer h-full border-none focus:ring-0 min-w-0" />
-                                   {historyDateFilter && (
-                                       <button onClick={() => { setHistoryDateFilter(""); setHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                                   <input type="date" value={historyDateFilter} onChange={(e) => { setHistoryDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-3 sm:pl-11 pr-2 cursor-pointer h-full border-none focus:ring-0" title="Dari Tanggal" />
+                                </div>
+                                <span className="text-slate-400 font-bold text-xs">-</span>
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
+                                   <input type="date" value={historyEndDateFilter} onChange={(e) => { setHistoryEndDateFilter(e.target.value); setHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm px-3 cursor-pointer h-full border-none focus:ring-0" title="Sampai Tanggal" />
+                                   {(historyDateFilter || historyEndDateFilter) && (
+                                       <button onClick={() => { setHistoryDateFilter(""); setHistoryEndDateFilter(""); setHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
                                    )}
                                 </div>
                                 {isAdmin && (
-                                    <button onClick={handleShareDailyClick} className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 shadow-sm flex items-center justify-center hover:bg-orange-100 transition-colors rounded-2xl w-[52px] sm:w-[58px] flex-shrink-0" title="Bagikan Rekap Hari Ini">
+                                    <button onClick={handleShareDailyClick} className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 shadow-sm flex items-center justify-center hover:bg-orange-100 transition-colors rounded-2xl h-[52px] sm:h-[58px] w-[52px] sm:w-[58px] flex-shrink-0" title="Bagikan Rekap">
                                         <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </button>
                                 )}
@@ -1909,7 +1928,15 @@
                                 if (!item) return false;
                                 const isCurrentHalaqoh = item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name;
                                 const isMatchStudent = historyFilter === "Semua" ? true : item.student === historyFilter;
-                                const isMatchDate = historyDateFilter ? getLocalDateString(item.date) === historyDateFilter : true;
+                                
+                                let isMatchDate = true;
+                                if (historyDateFilter || historyEndDateFilter) {
+                                    const itemDate = getLocalDateString(item.date);
+                                    if (historyDateFilter && !historyEndDateFilter) isMatchDate = itemDate === historyDateFilter;
+                                    else if (!historyDateFilter && historyEndDateFilter) isMatchDate = itemDate === historyEndDateFilter;
+                                    else isMatchDate = itemDate >= historyDateFilter && itemDate <= historyEndDateFilter;
+                                }
+                                
                                 return isCurrentHalaqoh && isMatchStudent && isMatchDate;
                             });
                             const totalPages = Math.ceil(filteredHistory.length / 10);
@@ -2000,18 +2027,25 @@
                           </div>
                       )}
 
-                      <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6 items-stretch w-full">
+                      <div className="flex flex-col gap-3 mb-4 w-full items-stretch">
                           <div className="bg-white dark:bg-slate-800 p-3 sm:p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-2.5 w-full focus-within:border-orange-300 focus-within:ring-4 transition-all min-w-0">
                              <div className="bg-orange-50 dark:bg-orange-500/10 p-2 rounded-xl text-orange-500 dark:text-orange-400 flex-shrink-0"><Search className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                              <input type="text" placeholder="Cari Siswa, Ustadz..." className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm min-w-0" value={adminSearchTerm} onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} />
                           </div>
-                          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 sm:max-w-[240px] relative overflow-hidden h-[52px] sm:h-[58px] min-w-0">
-                             <div className="absolute left-3 bg-orange-50 dark:bg-orange-500/10 p-1.5 rounded-xl text-orange-500 dark:text-orange-400 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                             <input type="date" value={adminHistoryDateFilter} onChange={(e) => { setAdminHistoryDateFilter(e.target.value); setAdminHistoryPage(1); }} className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm cursor-pointer pl-3 sm:pl-12 pr-8 border-none focus:ring-0 h-full min-w-0" />
-                             {adminHistoryDateFilter && (
-                                 <button onClick={() => { setAdminHistoryDateFilter(""); setAdminHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                             )}
-                          </div>
+                          
+                          <div className="flex items-center gap-1.5 w-full">
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
+                                   <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
+                                   <input type="date" value={adminHistoryDateFilter} onChange={(e) => { setAdminHistoryDateFilter(e.target.value); setAdminHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm pl-3 sm:pl-11 pr-2 cursor-pointer h-full border-none focus:ring-0" title="Dari Tanggal" />
+                                </div>
+                                <span className="text-slate-400 font-bold text-xs">-</span>
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
+                                   <input type="date" value={adminHistoryEndDateFilter} onChange={(e) => { setAdminHistoryEndDateFilter(e.target.value); setAdminHistoryPage(1); }} className="bg-transparent font-bold text-slate-700 dark:text-slate-200 w-full outline-none text-xs sm:text-sm px-3 cursor-pointer h-full border-none focus:ring-0" title="Sampai Tanggal" />
+                                   {(adminHistoryDateFilter || adminHistoryEndDateFilter) && (
+                                       <button onClick={() => { setAdminHistoryDateFilter(""); setAdminHistoryEndDateFilter(""); setAdminHistoryPage(1); }} className="absolute right-2 z-20 text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-xl shadow-sm flex items-center justify-center"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                                   )}
+                                </div>
+                            </div>
                       </div>
                       
                       <div className="space-y-4 w-full">
@@ -2020,9 +2054,18 @@
                                 if (!item) return false;
                                 const term = adminSearchTerm.toLowerCase();
                                 const matchSearch = (item.student || '').toLowerCase().includes(term) || (item.ustadzName || '').toLowerCase().includes(term) || (item.halaqohName || '').toLowerCase().includes(term) || (item.class || '').toLowerCase().includes(term);
-                                const matchDate = adminHistoryDateFilter ? getLocalDateString(item.date) === adminHistoryDateFilter : true;
+                                
+                                let matchDate = true;
+                                if (adminHistoryDateFilter || adminHistoryEndDateFilter) {
+                                    const itemDate = getLocalDateString(item.date);
+                                    if (adminHistoryDateFilter && !adminHistoryEndDateFilter) matchDate = itemDate === adminHistoryDateFilter;
+                                    else if (!adminHistoryDateFilter && adminHistoryEndDateFilter) matchDate = itemDate === adminHistoryEndDateFilter;
+                                    else matchDate = itemDate >= adminHistoryDateFilter && itemDate <= adminHistoryEndDateFilter;
+                                }
+
                                 return matchSearch && matchDate;
                             });
+                            
                             const totalAdminPages = Math.ceil(filteredAdminHistory.length / 10);
                             const displayedAdminHistory = filteredAdminHistory.slice((adminHistoryPage - 1) * 10, adminHistoryPage * 10);
 
