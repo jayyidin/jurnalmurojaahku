@@ -2,11 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <!-- Mengunci maximum-scale dan user-scalable agar HP tidak auto-zoom saat tap kolom input -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jurnal Murojaahku</title>
-    
-    <!-- Google Fonts agar font saat didownload di HP tidak berubah -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
@@ -15,7 +13,6 @@
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- ALARM DETEKTOR ERROR -->
     <script>
         window.addEventListener('error', function(e) {
             document.body.innerHTML = `
@@ -30,7 +27,7 @@
             `;
         });
     </script>
-    
+
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -38,19 +35,19 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        
+
         /* touch-action: manipulation mencegah auto-zoom jika layar di-tap/disentuh dua kali dengan cepat */
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; user-select: none; transition: background-color 0.3s ease, color 0.3s ease; touch-action: manipulation; }
         body.dark { background-color: #0f172a; color: #f1f5f9; }
         input, textarea, select { user-select: auto; }
-        
+
         /* Modifikasi Input Date agar rapi */
         input[type="date"], input[type="datetime-local"] { position: relative; }
         input[type="date"]::-webkit-calendar-picker-indicator, input[type="datetime-local"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; margin-left: 4px; }
         input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
         input[type="date"]::-webkit-clear-button, input[type="datetime-local"]::-webkit-clear-button { display: none; -webkit-appearance: none; }
         .dark input[type="date"]::-webkit-calendar-picker-indicator, .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-        
+
         @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0px, 0px) scale(1); } }
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
@@ -67,7 +64,9 @@
         import { domToBlob } from 'https://esm.sh/modern-screenshot';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        
+        // PERBAIKAN: Menambahkan fungsi query, orderBy, dan limit untuk mencegah kebocoran kuota
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
         // --- ERROR BOUNDARY ---
         class ErrorBoundary extends React.Component {
@@ -138,7 +137,7 @@
           const [isLoading, setIsLoading] = useState(false);
           const [cloudStatus, setCloudStatus] = useState(isCloudReady ? 'connecting' : 'offline');
           const [firebaseUser, setFirebaseUser] = useState(null);
-          
+
           const [isDarkMode, setIsDarkMode] = useState(() => {
               const saved = localStorage.getItem('murojaah_theme');
               if (saved) return saved === 'dark';
@@ -148,7 +147,7 @@
           const [data, setData] = useState(() => { try { const s = localStorage.getItem('murojaahData'); return s ? JSON.parse(s) : INITIAL_DATA; } catch (e) { return INITIAL_DATA; } });
           const [classes, setClasses] = useState(() => { try { const s = localStorage.getItem('murojaahClasses'); return s ? JSON.parse(s) : DEFAULT_CLASS_LIST; } catch (e) { return DEFAULT_CLASS_LIST; } });
           const [history, setHistory] = useState(() => { try { const s = localStorage.getItem('murojaahHistory'); return s ? JSON.parse(s) : []; } catch (e) { return []; } });
-          
+
           const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem('murojaahScriptUrl') || '');
           const [schoolName, setSchoolName] = useState(() => localStorage.getItem('murojaah_schoolName') || 'SDIT Al Fityan School Bogor');
           const [schoolLogo, setSchoolLogo] = useState(() => localStorage.getItem('murojaah_schoolLogo') || './logo.png');
@@ -163,7 +162,7 @@
           const [selectedClass, setSelectedClass] = useState("");
           const [searchTerm, setSearchTerm] = useState("");
           const [showConfetti, setShowConfetti] = useState(false);
-          
+
           const [historyFilter, setHistoryFilter] = useState("Semua");
           const [historyDateFilter, setHistoryDateFilter] = useState(""); 
           const [historyEndDateFilter, setHistoryEndDateFilter] = useState(""); 
@@ -191,7 +190,7 @@
           const [newStudentName, setNewStudentName] = useState("");
           const [editingStudentIndex, setEditingStudentIndex] = useState(null); 
           const [editStudentValue, setEditStudentValue] = useState(""); 
-          
+
           const [showTransferModal, setShowTransferModal] = useState(false);
           const [transferData, setTransferData] = useState({ studentName: '', targetUstadzId: '', targetHalaqohId: '' });
 
@@ -307,12 +306,8 @@
               if (!firebaseUser || !db) return;
               const coreDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'main');
               const broadcastDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_core', 'broadcast');
-              
-              const fetchInitialCoreData = async () => {
-                 try { const docSnap = await getDoc(coreDocRef); if (!docSnap.exists()) await saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, schoolName, schoolLogo); } catch (e) {}
-              };
-              fetchInitialCoreData();
 
+              // PERBAIKAN 1: Menghapus fetchInitialCoreData yang redudan, onSnapshot akan menangani jika dokumen tidak ada.
               const unsubCore = onSnapshot(coreDocRef, (docSnap) => {
                   if (docSnap.exists()) {
                       const d = docSnap.data();
@@ -336,13 +331,19 @@
                       if (d.schoolName !== undefined) setSchoolName(d.schoolName);
                       if (d.schoolLogo !== undefined) setSchoolLogo(d.schoolLogo);
                       if (d.activePeriodStart !== undefined) setActivePeriodStart(d.activePeriodStart);
+                  } else {
+                      // Simpan data ke cloud jika data pertama belum ada
+                      saveCoreToCloud(data, classes, scriptUrl, welcomeBgUrl, schoolName, schoolLogo);
                   }
               }, () => setCloudStatus('error'));
 
-              const unsubHistory = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'murojaah_history'), (snapshot) => {
+              // PERBAIKAN 2: Menggunakan Limit dan Query untuk mencegah pengunduhan data besar (quota exceeded)
+              const historyCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'murojaah_history');
+              const historyQuery = query(historyCollectionRef, orderBy('date', 'desc'), limit(500));
+              
+              const unsubHistory = onSnapshot(historyQuery, (snapshot) => {
                   const hist = [];
                   snapshot.forEach(doc => { hist.push({ ...doc.data(), id: doc.id }); });
-                  hist.sort((a, b) => new Date(b?.date || 0) - new Date(a?.date || 0));
                   setHistory(hist);
               });
 
@@ -380,11 +381,11 @@
 
           const handleShareClick = (item) => { setShareItem(item); };
           const handleShareHalaqohClick = (e, h) => { e.stopPropagation(); setShareHalaqohItem({ ...h, ustadzName: selectedUstadz?.name }); };
-          
+
           const handleShareDailyClick = () => {
               const startDate = currentView === 'admin-dashboard' ? adminHistoryDateFilter : historyDateFilter;
               const endDate = currentView === 'admin-dashboard' ? adminHistoryEndDateFilter : historyEndDateFilter;
-              
+
               let dailyData = history.filter(item => item && item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name);
 
               if (startDate || endDate) {
@@ -473,12 +474,12 @@
               });
               return Object.values(stats).sort((a, b) => b.totalPoints - a.totalPoints || b.surahCount - a.surahCount || b.sessionCount - a.sessionCount).slice(0, 10);
           }, [history, activePeriodStart]);
-          
+
           const halaqohLeaderboard = useMemo(() => {
               if (!selectedHalaqoh || !selectedUstadz) return [];
               const stats = {};
               (selectedHalaqoh.students || []).forEach(studentName => { stats[studentName] = { student: studentName, class: '-', surahCount: 0, sessionCount: 0, totalPoints: 0 }; });
-              
+
               periodFilteredHistory.filter(item => item?.halaqohName === selectedHalaqoh.name && item?.ustadzName === selectedUstadz.name).forEach(item => {
                   const key = item?.student;
                   if (key) {
@@ -530,7 +531,7 @@
           const openAddUstadz = () => { setUstadzForm({ id: null, name: '', gender: 'male' }); setShowUstadzModal(true); };
           const openEditUstadz = (e, u) => { e.stopPropagation(); setUstadzForm(u); setShowUstadzModal(true); };
           const handleDeleteUstadzReq = (e, u) => { e.stopPropagation(); setDeleteConfig({ show: true, type: 'ustadz', id: u?.id, name: u?.name }); };
-          
+
           const saveUstadz = (e) => {
              e.preventDefault(); if (!ustadzForm.name.trim()) return;
              let newData = ustadzForm.id ? data.map(u => u?.id === ustadzForm.id ? { ...u, name: ustadzForm.name, gender: ustadzForm.gender } : u) : [...data, { id: `ust-${Date.now()}`, name: ustadzForm.name, gender: ustadzForm.gender, halaqohs: [] }];
@@ -542,7 +543,7 @@
           const openAddHalaqoh = () => { setHalaqohForm({ id: null, name: '' }); setShowHalaqohModal(true); };
           const openEditHalaqoh = (e, h) => { e.stopPropagation(); setHalaqohForm(h); setShowHalaqohModal(true); };
           const handleDeleteHalaqohReq = (e, h) => { e.stopPropagation(); setDeleteConfig({ show: true, type: 'halaqoh', id: h?.id, name: h?.name, parentId: selectedUstadz?.id }); };
-          
+
           const saveHalaqoh = (e) => {
              e.preventDefault(); if (!halaqohForm.name.trim()) return;
              const newData = data.map(u => {
@@ -589,7 +590,7 @@
           };
 
           const startEditingStudent = (index) => { setEditingStudentIndex(index); setEditStudentValue(selectedHalaqoh?.students?.[index] || ""); };
-          
+
           const saveEditStudent = (index) => {
             const trimmedValue = editStudentValue.trim();
             if (!trimmedValue) return;
@@ -597,11 +598,11 @@
             if (trimmedValue === oldName) { setEditingStudentIndex(null); return; }
             const newStudents = [...selectedHalaqoh.students]; newStudents[index] = trimmedValue; 
             const newData = data.map(u => u?.id === selectedUstadz?.id ? { ...u, halaqohs: (u.halaqohs || []).map(h => h?.id === selectedHalaqoh?.id ? { ...h, students: newStudents } : h) } : u);
-            
+
             if (selectedStudent === oldName) setSelectedStudent(trimmedValue);
             refreshSelectedData(newData);
             if (isCloudReady) saveCoreToCloud(newData, classes);
-            
+
             const historyToUpdate = history.filter(h => h?.student === oldName && h?.halaqohName === selectedHalaqoh?.name);
             if (historyToUpdate.length > 0) {
                 if (isCloudReady && db) historyToUpdate.forEach(async (hItem) => { try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_history', hItem.id.toString()), { ...hItem, student: trimmedValue }, { merge: true }); } catch(e) {} });
@@ -627,7 +628,7 @@
               const studentToMove = transferData.studentName;
               const targetUstadz = data.find(u => u.id === transferData.targetUstadzId);
               const targetHalaqoh = targetUstadz?.halaqohs?.find(h => h.id === transferData.targetHalaqohId);
-              
+
               if (targetHalaqoh?.students?.includes(studentToMove)) {
                   alert("Siswa dengan nama yang sama sudah ada di Halaqoh tujuan!");
                   return;
@@ -665,7 +666,7 @@
 
               refreshSelectedData(newData);
               if (isCloudReady) saveCoreToCloud(newData, classes);
-              
+
               setShowTransferModal(false);
               setTransferData({ studentName: '', targetUstadzId: '', targetHalaqohId: '' });
           };
@@ -682,7 +683,7 @@
 
               const targetUstadz = data.find(u => u.id === targetUstadzId);
               const targetHalaqoh = targetUstadz?.halaqohs?.find(h => h.id === targetHalaqohId);
-              
+
               const duplicates = selectedStudents.filter(s => targetHalaqoh?.students?.includes(s));
               if (duplicates.length > 0) {
                   alert(`Siswa berikut sudah ada di Halaqoh tujuan:\n${duplicates.join(', ')}`);
@@ -721,7 +722,7 @@
 
               refreshSelectedData(newData);
               if (isCloudReady) saveCoreToCloud(newData, classes);
-              
+
               setShowGlobalTransferModal(false);
               setGlobalTransferData({ sourceUstadzId: '', sourceHalaqohId: '', selectedStudents: [], targetUstadzId: '', targetHalaqohId: '' });
               alert(`Berhasil memindahkan ${selectedStudents.length} siswa ke ${targetHalaqoh?.name}`);
@@ -738,7 +739,7 @@
           const saveClassEdit = (index) => {
             const newVal = editClassText.trim(); if (!newVal || (newVal !== classes[index] && classes.includes(newVal))) return;
             const newClasses = [...classes]; const oldName = newClasses[index]; newClasses[index] = newVal;
-            
+
             if (selectedClass === oldName) setSelectedClass(newVal);
             setClasses(newClasses);
             setHistory(history.map(h => h?.class === oldName ? { ...h, class: newVal } : h));
@@ -764,7 +765,7 @@
              } else if (deleteConfig.type === 'student') {
                 newData = newData.map(u => u?.id === selectedUstadz?.id ? { ...u, halaqohs: (u.halaqohs || []).map(h => h?.id === selectedHalaqoh?.id ? { ...h, students: (h.students || []).filter(s => s !== deleteConfig.name) } : h) } : u);
              }
-             
+
              if (['ustadz', 'halaqoh', 'student'].includes(deleteConfig.type)) { 
                  refreshSelectedData(newData); 
                  if (isCloudReady) saveCoreToCloud(newData, classes); 
@@ -853,7 +854,7 @@
             if (stdHistToday.length === 1 && (Date.now() - new Date(stdHistToday[0].date).getTime() < 3600000)) return alert(`Harap tunggu 1 jam untuk input murojaah kedua ananda ${selectedStudent}.`);
 
             setIsLoading(true); 
-            
+
             let userIp = "Unknown IP";
             try { const ipRes = await fetch('https://api.ipify.org?format=json'); const ipData = await ipRes.json(); userIp = ipData.ip; } catch (e) {}
             const userDevice = navigator.userAgent;
@@ -862,13 +863,13 @@
                 const name = getSurahName(num); const range = (selectedRanges || {})[num];
                 return range ? `${name} (${range})` : name;
             }).join(", ");
-            
+
             const uniqueId = Date.now().toString();
             const newEntry = {
               id: uniqueId, date: new Date().toISOString(), student: selectedStudent, class: selectedClass, ustadzName: selectedUstadz?.name || '',
               halaqohName: selectedHalaqoh?.name || '', surahs: [...selectedSurahs].sort((a, b) => a - b), ranges: { ...(selectedRanges || {}) }, ipAddress: userIp, userAgent: userDevice
             };
-            
+
             if (isCloudReady && firebaseUser && db) { try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'murojaah_history', uniqueId), newEntry); } catch(e) {} } 
             else { setHistory(prev => [newEntry, ...(Array.isArray(prev) ? prev : [])]); }
 
@@ -967,7 +968,7 @@
 
           return (
             <div className={`min-h-screen font-sans relative flex flex-col selection:bg-orange-200 selection:text-orange-900 ${currentView !== 'welcome' ? 'pb-36 sm:pb-28' : ''}`}>
-              
+
               {/* GLOBAL UI ELEMENTS & NOTIFIKASI */}
               {activeBroadcast && (
                   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in">
@@ -1008,7 +1009,7 @@
                   <div className="min-h-screen flex items-center justify-center p-4 text-white relative overflow-x-hidden font-sans py-12">
                      <div className="fixed top-0 left-0 w-full h-full z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${(welcomeBgUrl || '').trim() || 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1920&auto=format&fit=crop'}')` }}></div>
                      <div className="fixed top-0 left-0 w-full h-full z-0 bg-black/75 backdrop-blur-[2px]"></div>
-                     
+
                      {notifPermission !== 'granted' && "Notification" in window && (
                          <button onClick={requestNotificationPermission} className="absolute top-4 right-4 z-50 flex items-center gap-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-white/20 transition-all shadow-lg"><BellRing className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400" /> Izinkan Notif</button>
                      )}
@@ -1471,7 +1472,7 @@
                         <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100"><BookOpen className="w-6 h-6" /></div>
                         <h3 className="text-lg sm:text-xl font-extrabold mb-1 text-slate-800 dark:text-slate-100">{activeSurahForPicker.name}</h3>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Total {activeSurahForPicker.ayahs} Ayat</p>
-                        
+
                         <div className="flex items-center gap-3 mb-6 sm:mb-8 bg-slate-50 dark:bg-slate-900 p-2 rounded-2xl border border-slate-100 dark:border-slate-700">
                             <input ref={startVerseRef} type="number" value={verseInput.start} onChange={(e) => handleVerseInputChange('start', e.target.value)} className="w-full px-2 py-3 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-orange-500 bg-transparent" placeholder="Mulai (1)" />
                             <span className="font-black text-slate-300 text-lg">-</span>
@@ -1504,7 +1505,7 @@
                         <div className="w-full max-w-sm flex flex-col items-center">
                            <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
                                <div ref={shareCardRef} className="w-[320px] h-[400px] bg-white rounded-none p-6 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
-                                  
+
                                   <div className="absolute inset-0 z-0 bg-white overflow-hidden">
                                       <div className={`absolute inset-0 bg-gradient-to-br ${theme.overlay} opacity-90`}></div>
                                       <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/60 rounded-full blur-2xl"></div>
@@ -1532,7 +1533,7 @@
                                                             <React.Fragment key={num}>
                                                                 <span className="inline-block drop-shadow-sm whitespace-nowrap">
                                                                     {namaSurat}
-                                                                    {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass}`}>({rentang})</span>}
+                                                                    {rentang && <span className={`font-semibold text-slate-600 ml-1 ${styles.spanSizeClass} `}>({rentang})</span>}
                                                                 </span>
                                                                 {index < count - 1 && <span className={`${theme.dot} ${styles.dotMargin} font-black inline-block`}>•</span>}
                                                             </React.Fragment>
@@ -1576,7 +1577,7 @@
                         <div className="w-full max-w-sm flex flex-col items-center">
                            <div className="max-w-full overflow-x-auto pb-4 custom-scrollbar">
                                <div ref={shareHalaqohCardRef} className="w-[320px] h-[400px] bg-white rounded-none pt-6 px-6 pb-3 text-slate-800 relative overflow-hidden flex flex-col items-center text-center mx-auto border border-slate-200 shadow-2xl" style={{ boxSizing: 'border-box', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>
-                                  
+
                                   <div className="absolute inset-0 z-0 bg-white overflow-hidden">
                                       <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-blue-50 opacity-90"></div>
                                       <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-300/20 rounded-full blur-3xl"></div>
@@ -1618,7 +1619,7 @@
               {shareDailyItem && (() => {
                   const studentCount = shareDailyItem.students.length;
                   let dynamicGap = "gap-2"; let badgePadding = "px-3 py-1.5"; let badgeText = "text-[11px]"; let dotSize = "w-1.5 h-1.5"; let badgeRounded = "rounded-xl"; let badgeInnerGap = "gap-1.5";
-                  
+
                   if (studentCount > 40) { 
                       dynamicGap = "gap-[2px]"; badgePadding = "px-1.5 py-0.5"; badgeText = "text-[5.5px] leading-none"; dotSize = "w-[2px] h-[2px]"; badgeRounded = "rounded-sm"; badgeInnerGap = "gap-[2px]"; 
                   } else if (studentCount > 30) { 
@@ -1647,12 +1648,12 @@
                                           <img src={schoolLogo || "./logo.png"} onError={(e) => { e.target.style.display = 'none'; }} alt="Logo" className={`max-w-[80%] object-contain drop-shadow-sm ${isSuperCrowded ? 'h-4 mb-2' : isCrowded ? 'h-5 mb-2' : 'h-6 mb-4'}`} />
                                           <h3 className={`font-extrabold text-orange-600 leading-tight ${isSuperCrowded ? 'text-lg mb-0.5' : isCrowded ? 'text-xl mb-0.5' : 'text-2xl mb-1'}`}>Rekap Murojaah</h3>
                                           <p className={`font-bold tracking-widest text-slate-500 uppercase ${isSuperCrowded ? 'text-[7px] mb-2' : isCrowded ? 'text-[8px] mb-3' : 'text-[10px] mb-5'}`}>{schoolName}</p>
-                                          
+
                                           <div className={`bg-orange-500/10 rounded-2xl border border-orange-500/20 shadow-sm w-full ${isSuperCrowded ? 'px-2 py-1 mb-2' : isCrowded ? 'px-3 py-1.5 mb-3' : 'px-5 py-2 mb-4'}`}>
                                               <p className={`font-extrabold text-orange-700 truncate ${isSuperCrowded ? 'text-[10px]' : isCrowded ? 'text-xs' : 'text-sm'}`}>{shareDailyItem.halaqohName}</p>
                                               <p className={`font-bold text-orange-600 uppercase tracking-wide truncate ${isSuperCrowded ? 'text-[7px]' : isCrowded ? 'text-[8px]' : 'text-[10px]'}`}>{shareDailyItem.ustadzName}</p>
                                           </div>
-                                          
+
                                           <p className={`font-extrabold text-slate-700 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm break-words max-w-[90%] ${isSuperCrowded ? 'px-2 py-1 text-[7px] mb-2' : isCrowded ? 'px-3 py-1.5 text-[8.5px] mb-3' : 'px-4 py-2 text-[10px] mb-5'}`}>
                                               {shareDailyItem.dateStr}
                                           </p>
@@ -1660,11 +1661,11 @@
                                           <p className={`font-bold text-slate-600 italic px-2 leading-relaxed ${isSuperCrowded ? 'text-[8px] mb-1.5' : isCrowded ? 'text-[9.5px] mb-2' : 'text-[11px] mb-4'}`}>
                                             "Barakallahu fiikum karena telah murojaah {shareDailyItem.isHariIni ? 'hari ini' : 'di periode ini'}:"
                                           </p>
-                                          
+
                                           <div className="w-full flex-1 flex flex-col overflow-hidden mb-4 relative">
                                               <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
                                               <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
-                                              
+
                                               <div className={`flex flex-wrap justify-center content-center ${dynamicGap} overflow-hidden pt-2 pb-4 h-full relative z-0`}>
                                                   {shareDailyItem.students.length > 0 ? (
                                                       shareDailyItem.students.map((siswa, index) => (
@@ -1853,7 +1854,7 @@
                               const isSel = selectedSurahs.includes(surah.number);
                               const range = selectedRanges[surah.number];
                               const isDoneToday = surahsDoneToday.includes(surah.number);
-                              
+
                               return (
                                 <button 
                                     key={surah.number} 
@@ -1904,7 +1905,7 @@
                       </div>
                     ) : currentView === 'history' ? (
                       <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
-                         
+
                          {activePeriodStart && (
                              <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] border border-slate-200/50 dark:border-slate-700 mb-4 w-full">
                                  <button onClick={() => { setPeriodTab('current'); setHistoryPage(1); }} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all ${periodTab === 'current' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Tahun Ajaran Berjalan</button>
@@ -1920,7 +1921,7 @@
                                   {(selectedHalaqoh?.students || []).map(s => <option key={s} value={s}>{s}</option>)}
                                </select>
                             </div>
-                            
+
                             <div className="flex items-center gap-1.5 w-full">
                                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
                                    <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
@@ -1940,13 +1941,13 @@
                                 )}
                             </div>
                          </div>
-                         
+
                          {(() => {
                             const filteredHistory = periodFilteredHistory.filter(item => {
                                 if (!item) return false;
                                 const isCurrentHalaqoh = item.halaqohName === selectedHalaqoh?.name && item.ustadzName === selectedUstadz?.name;
                                 const isMatchStudent = historyFilter === "Semua" ? true : item.student === historyFilter;
-                                
+
                                 let isMatchDate = true;
                                 if (historyDateFilter || historyEndDateFilter) {
                                     const itemDate = getLocalDateString(item.date);
@@ -1954,7 +1955,7 @@
                                     else if (!historyDateFilter && historyEndDateFilter) isMatchDate = itemDate === historyEndDateFilter;
                                     else isMatchDate = itemDate >= historyDateFilter && itemDate <= historyEndDateFilter;
                                 }
-                                
+
                                 return isCurrentHalaqoh && isMatchStudent && isMatchDate;
                             });
                             const totalPages = Math.ceil(filteredHistory.length / 10);
@@ -1987,7 +1988,7 @@
                              <h3 className="font-extrabold text-xl sm:text-2xl relative z-10 flex items-center gap-3 drop-shadow-sm"><Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-200 fill-yellow-200" /> Papan Peringkat</h3>
                              <p className="text-xs sm:text-sm text-yellow-100 relative z-10 mt-2 font-medium">Dihitung otomatis berdasarkan rekapitulasi poin hafalan terbaik.</p>
                          </div>
-                         
+
                          {activePeriodStart && (
                              <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] border border-slate-200/50 dark:border-slate-700 mb-4 w-full">
                                  <button onClick={() => setPeriodTab('current')} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${periodTab === 'current' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Tahun Ajaran Berjalan</button>
@@ -2037,7 +2038,7 @@
                          <div className="flex items-baseline gap-2 relative z-10"><span className="text-4xl sm:text-5xl font-black drop-shadow-sm">{periodFilteredHistory.length}</span><span className="text-white/80 font-medium text-sm sm:text-base">Sesi</span></div>
                          <div className="mt-4 text-[10px] sm:text-xs bg-black/20 backdrop-blur-sm inline-block px-3 py-1.5 rounded-xl font-bold tracking-widest uppercase relative z-10 border border-white/10">{periodTab === 'current' ? 'Tahun Ajaran Berjalan' : 'Tahun Ajaran Sebelumnya'}</div>
                       </div>
-                      
+
                       {activePeriodStart && (
                           <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-[1.25rem] border border-slate-200/50 dark:border-slate-700 mb-4 w-full">
                               <button onClick={() => { setPeriodTab('current'); setAdminHistoryPage(1); }} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all ${periodTab === 'current' ? 'bg-white dark:bg-slate-700 text-orange-600 shadow-sm' : 'text-slate-500'}`}>Tahun Ajaran Berjalan</button>
@@ -2050,7 +2051,7 @@
                              <div className="bg-orange-50 dark:bg-orange-500/10 p-2 rounded-xl text-orange-500 dark:text-orange-400 flex-shrink-0"><Search className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                              <input type="text" placeholder="Cari Siswa, Ustadz..." className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm min-w-0" value={adminSearchTerm} onChange={(e) => { setAdminSearchTerm(e.target.value); setAdminHistoryPage(1); }} />
                           </div>
-                          
+
                           <div className="flex items-center gap-1.5 w-full">
                                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center flex-1 relative overflow-hidden h-[52px] sm:h-[58px]">
                                    <div className="absolute left-3 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg text-orange-500 pointer-events-none hidden sm:block"><Calendar className="w-4 h-4 sm:w-5 sm:h-5" /></div>
@@ -2065,14 +2066,14 @@
                                 </div>
                             </div>
                       </div>
-                      
+
                       <div className="space-y-4 w-full">
                          {periodFilteredHistory.length === 0 ? <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm w-full"><FolderOpen className="w-12 h-12 mx-auto text-slate-200 dark:text-slate-600 mb-3" /><p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">Belum ada data masuk di periode ini.</p></div> : (() => {
                             const filteredAdminHistory = periodFilteredHistory.filter(item => {
                                 if (!item) return false;
                                 const term = adminSearchTerm.toLowerCase();
                                 const matchSearch = (item.student || '').toLowerCase().includes(term) || (item.ustadzName || '').toLowerCase().includes(term) || (item.halaqohName || '').toLowerCase().includes(term) || (item.class || '').toLowerCase().includes(term);
-                                
+
                                 let matchDate = true;
                                 if (adminHistoryDateFilter || adminHistoryEndDateFilter) {
                                     const itemDate = getLocalDateString(item.date);
@@ -2083,7 +2084,7 @@
 
                                 return matchSearch && matchDate;
                             });
-                            
+
                             const totalAdminPages = Math.ceil(filteredAdminHistory.length / 10);
                             const displayedAdminHistory = filteredAdminHistory.slice((adminHistoryPage - 1) * 10, adminHistoryPage * 10);
 
