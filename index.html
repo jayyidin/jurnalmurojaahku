@@ -427,6 +427,37 @@
               const link = document.createElement('a'); link.href = url; link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link);
           };
 
+          const handleExportData = () => {
+              // \uFEFF adalah BOM untuk memastikan Excel membaca format karakter UTF-8 dengan benar
+              let csvContent = "\uFEFFNama Pengajar,Jenis Kelamin,Nama Halaqoh,Nama Siswa\n";
+              
+              data.forEach(ustadz => {
+                  const uName = `"${(ustadz.name || '').replace(/"/g, '""')}"`;
+                  const gender = ustadz.gender === 'male' ? 'Laki-laki' : 'Perempuan';
+                  
+                  if (!ustadz.halaqohs || ustadz.halaqohs.length === 0) {
+                      csvContent += `${uName},${gender},-,"-"\n`;
+                  } else {
+                      ustadz.halaqohs.forEach(halaqoh => {
+                          const hName = `"${(halaqoh.name || '').replace(/"/g, '""')}"`;
+                          if (!halaqoh.students || halaqoh.students.length === 0) {
+                               csvContent += `${uName},${gender},${hName},"-"\n`;
+                          } else {
+                               halaqoh.students.forEach(student => {
+                                   const sName = `"${(student || '').replace(/"/g, '""')}"`;
+                                   csvContent += `${uName},${gender},${hName},${sName}\n`;
+                               });
+                          }
+                      });
+                  }
+              });
+              
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              triggerDownload(url, `Data_Siswa_Pesantren_${new Date().toISOString().split('T')[0]}.csv`);
+              setTimeout(() => URL.revokeObjectURL(url), 100);
+          };
+
           const processImageGeneric = async (action, ref, namePrefix, studentOrHalaqoh) => {
               if (!ref.current) return;
               setIsGeneratingImage(action);
@@ -1144,6 +1175,13 @@
                             </div>
                          </div>
                          <div className="space-y-3">
+                           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3"><Download className="w-3.5 h-3.5" /> Eksport Data</h3>
+                           <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                              <p className="text-[10px] text-slate-500 mb-3 leading-relaxed">Unduh seluruh data Pengajar, Halaqoh, dan Siswa ke dalam satu file CSV (bisa dibuka di Excel).</p>
+                              <button onClick={handleExportData} className="w-full bg-green-600 hover:bg-green-500 text-white font-extrabold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition-all"><Download className="w-4 h-4" /> Eksport ke CSV</button>
+                           </div>
+                        </div>
+                        <div className="space-y-3">
                             <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Data Master Kelas</h3>
                             <form onSubmit={handleAddClass} className="flex gap-2">
                               <input type="text" value={classForm} onChange={(e) => setClassForm(e.target.value)} className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none" placeholder="Nama Kelas Baru..." />
